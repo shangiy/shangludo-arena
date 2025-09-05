@@ -9,7 +9,7 @@ const gridCellStyle = "flex items-center justify-center";
 
 const StarIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", className)}>
-        <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z" clipRule="evenodd" />
+        <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404.433 2.082-5.007z" clipRule="evenodd" />
     </svg>
 );
 
@@ -79,13 +79,19 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
         
         // Center home triangle
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
-            return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white/90">
-                <div style={{ position: 'absolute', width: '300%', height: '300%', transform: 'translate(-50%, -50%)', top: '50%', left: '50%' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 0, 0 100%, 0 0)', background: '#facc15' }} />
-                    <div style={{ position: 'absolute', top: 0, left: '50%', width: '50%', height: '50%', clipPath: 'polygon(100% 100%, 0 0, 100% 0)', background: '#22c55e' }} />
-                    <div style={{ position: 'absolute', top: '50%', left: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 0, 0 100%, 100% 100%)', background: '#ef4444' }} />
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '50%', height: '50%', clipPath: 'polygon(0 0, 0 100%, 100% 100%)', background: '#3b82f6' }} />
-                </div>
+            return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white/90 relative">
+                <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                    <polygon points="0,0 100,0 50,50" fill="#facc15" />
+                    <polygon points="100,0 100,100 50,50" fill="#22c55e" />
+                    <polygon points="0,100 100,100 50,50" fill="#3b82f6" />
+                    <polygon points="0,0 0,100 50,50" fill="#ef4444" />
+
+                    {/* Arrows */}
+                    <polygon points="50,15 60,35 40,35" fill="rgba(255,255,255,0.5)" />
+                    <polygon points="85,50 65,60 65,40" fill="rgba(255,255,255,0.5)" />
+                    <polygon points="50,85 40,65 60,65" fill="rgba(255,255,255,0.5)" />
+                    <polygon points="15,50 35,40 35,60" fill="rgba(255,255,255,0.5)" />
+                </svg>
             </div>;
         }
 
