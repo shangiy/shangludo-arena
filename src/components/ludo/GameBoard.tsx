@@ -23,6 +23,13 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
         red: 'bg-red-500',
         green: 'bg-green-500',
     }
+    
+    const HOME_RUN_BGS: Record<PlayerColor, string> = {
+        blue: 'bg-blue-300',
+        yellow: 'bg-yellow-200',
+        red: 'bg-red-300',
+        green: 'bg-green-300',
+    }
 
     const getCellContent = (index: number) => {
         const x = index % 15;
@@ -34,27 +41,29 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
         const isStart = Object.values(START_POSITIONS).includes(x + y * 15);
         
         let colorForPath: PlayerColor | null = null;
-        if (x === 1 && y === 6) colorForPath = 'red';
-        if (x === 8 && y === 1) colorForPath = 'yellow';
-        if (x === 13 && y === 8) colorForPath = 'green';
-        if (x === 6 && y === 13) colorForPath = 'blue';
+        if (x >= 1 && x <= 5 && y === 7) colorForPath = 'red';
+        if (x === 7 && y >= 8 && y <= 13) colorForPath = 'blue';
+        if (x >= 9 && x <= 13 && y === 7) colorForPath = 'green';
+        if (x === 7 && y >= 1 && y <= 5) colorForPath = 'yellow';
 
         if (isPath) {
             let bgColor = 'bg-white/90';
             
             // Home columns
-            if (x === 7 && y > 0 && y < 6) bgColor = 'bg-yellow-400'; // Yellow home
-            if (x > 8 && x < 14 && y === 7) bgColor = 'bg-green-500'; // Green home
-            if (x === 7 && y > 8 && y < 14) bgColor = 'bg-blue-500'; // Blue home
-            if (x > 0 && x < 6 && y === 7) bgColor = 'bg-red-500'; // Red home
+            if(colorForPath) {
+                bgColor = HOME_RUN_BGS[colorForPath]
+            }
 
-            if(isStart && colorForPath) {
-                bgColor = YARD_BGS[colorForPath];
+            if(isStart) {
+                if (x === 1 && y === 6) bgColor = YARD_BGS['red'];
+                if (x === 8 && y === 1) bgColor = YARD_BGS['yellow'];
+                if (x === 13 && y === 8) bgColor = YARD_BGS['green'];
+                if (x === 6 && y === 13) bgColor = YARD_BGS['blue'];
             }
 
             return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full border border-black/10")}>
               {isSafe && !isStart && <StarIcon className="text-gray-400" />}
-              {isStart && colorForPath && <StarIcon className={`text-white`} />}
+              {isStart && <StarIcon className={`text-white`} />}
             </div>;
         }
 
@@ -72,47 +81,47 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
                 </div>
             </div>
         );
-        if (x < 6 && y < 6) return renderYard('yellow'); // Top-left
-        if (x > 8 && y < 6) return renderYard('green'); // Top-right
+        if (x < 6 && y < 6) return renderYard('blue'); // Top-left
+        if (x > 8 && y < 6) return renderYard('yellow'); // Top-right
         if (x < 6 && y > 8) return renderYard('red'); // Bottom-left
-        if (x > 8 && y > 8) return renderYard('blue'); // Bottom-right
+        if (x > 8 && y > 8) return renderYard('green'); // Bottom-right
         
         // Center home triangle
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
             return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white/90 relative">
-                <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                    <polygon points="0,0 100,0 50,50" fill="#facc15" />
-                    <polygon points="100,0 100,100 50,50" fill="#22c55e" />
+                 <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                    <polygon points="0,0 100,0 50,50" fill="#facc15" /> 
+                    <polygon points="100,0 100,100 50,50" fill="#4ade80" /> 
                     <polygon points="0,100 100,100 50,50" fill="#3b82f6" />
-                    <polygon points="0,0 0,100 50,50" fill="#ef4444" />
+                    <polygon points="0,0 0,100 50,50" fill="#f87171" />
 
                     {/* Arrows */}
-                    <polygon points="50,15 60,35 40,35" fill="rgba(255,255,255,0.5)" />
-                    <polygon points="85,50 65,60 65,40" fill="rgba(255,255,255,0.5)" />
-                    <polygon points="50,85 40,65 60,65" fill="rgba(255,255,255,0.5)" />
-                    <polygon points="15,50 35,40 35,60" fill="rgba(255,255,255,0.5)" />
+                    <polygon points="50,15 60,35 40,35" className="fill-yellow-600" />
+                    <polygon points="85,50 65,60 65,40" className="fill-green-600" />
+                    <polygon points="50,85 40,65 60,65" className="fill-blue-600" />
+                    <polygon points="15,50 35,40 35,60" className="fill-red-600" />
                 </svg>
             </div>;
         }
 
-        return <div className="h-full w-full bg-background"></div>;
+        return <div className="h-full w-full bg-transparent"></div>;
     }
   
   return (
     <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-black/30 shadow-2xl"
       style={{'--cell-size': 'calc(100% / 15)'} as React.CSSProperties}
     >
-      <div className="grid grid-cols-15 grid-rows-15 h-full w-full rounded-lg shadow-inner overflow-hidden">
+      <div className="grid grid-cols-15 grid-rows-15 h-full w-full rounded-lg shadow-inner overflow-hidden border-2 border-black/20">
          {cells.map((_, i) => (
             <div key={i} className="relative aspect-square">
                {getCellContent(i)}
             </div>
          ))}
       </div>
-       <div className="absolute inset-2 grid grid-cols-15 grid-rows-15 pointer-events-none">
+       <div className="absolute inset-0 grid grid-cols-15 grid-rows-15 pointer-events-none">
           {playersInfo}
         </div>
-      <div className="absolute inset-2 grid grid-cols-15 grid-rows-15 pointer-events-none">
+      <div className="absolute inset-0 grid grid-cols-15 grid-rows-15 pointer-events-none">
         {children}
       </div>
     </div>
@@ -138,32 +147,32 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
 
   const getYardPosition = (pawnId: number) => {
     const offsets = [
-        {x: 1, y: 1},
-        {x: 3, y: 1},
-        {x: 1, y: 3},
-        {x: 3, y: 3}
+        {x: 1.25, y: 1.25},
+        {x: 3.25, y: 1.25},
+        {x: 1.25, y: 3.25},
+        {x: 3.25, y: 3.25}
     ];
     return offsets[pawnId];
   }
 
 
   if (isHome) {
-     const homeOffsets: Record<PlayerColor, {t: number, l: number}> = {
-        red: {t: 7, l: 5},
-        green: {t: 9, l: 7},
-        yellow: {t: 5, l: 7},
-        blue: {t: 7, l: 9},
+     const homeYards: Record<PlayerColor, {x: number, y: number}> = {
+        red: { x: 3.5, y: 11.5 },
+        green: { x: 11.5, y: 11.5 },
+        yellow: { x: 11.5, y: 3.5 },
+        blue: { x: 3.5, y: 3.5 },
      }
-     top = homeOffsets[color].t * cellSize;
-     left = homeOffsets[color].l * cellSize;
+     top = (homeYards[color].y) * cellSize;
+     left = (homeYards[color].x) * cellSize;
   } else if (position === -1) {
     const base = HOME_YARDS[color][0];
     const yardPos = getYardPosition(id);
     const baseX = base%15;
     const baseY = Math.floor(base/15);
     
-    top = (baseY + yardPos.y) * cellSize + cellSize * 0.25;
-    left = (baseX + yardPos.x) * cellSize + cellSize * 0.25;
+    top = (baseY + yardPos.y) * cellSize;
+    left = (baseX + yardPos.x) * cellSize;
   } else {
     // Position on board path
     const x = position % 15;
@@ -183,9 +192,9 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
         position: 'absolute',
         top: `${top}%`,
         left: `${left}%`,
-        width: `${cellSize * (isHome ? 1.5 : 0.8)}%`,
-        height: `${cellSize * (isHome ? 1.5 : 0.8)}%`,
-        zIndex: highlight ? 10 : 1
+        width: `${cellSize * (isHome ? 1 : 0.8)}%`,
+        height: `${cellSize * (isHome ? 1 : 0.8)}%`,
+        zIndex: highlight ? 10 : (isHome ? 0 : 1)
       }}
       className="p-1 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}

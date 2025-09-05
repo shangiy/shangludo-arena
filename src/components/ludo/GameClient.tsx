@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, Fragment } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Loader2, User, Hand, MessageSquare } from 'lucide-react';
+import { Bot, Loader2, User, Hand, MessageSquare, BadgePercent, Home } from 'lucide-react';
 import Image from 'next/image';
 
 import { generateAIMove } from '@/ai/flows/ai-opponent';
@@ -77,11 +77,11 @@ const PlayerIcon = ({
     return (
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg p-1 transition-all w-16 h-16 bg-background border-4',
+          'flex items-center justify-center rounded-lg p-1 transition-all w-16 h-16 bg-background/20 border-4',
           BORDER_COLORS[color]
         )}
       >
-        <div className={cn("flex h-full w-full items-center justify-center rounded-md", `bg-card`)}>
+        <div className={cn("flex h-full w-full items-center justify-center rounded-md bg-transparent")}>
            {isPlayer ? (
             <User className="h-8 w-8 text-white" />
           ) : (
@@ -91,6 +91,20 @@ const PlayerIcon = ({
       </div>
     );
   };
+
+const PawnIcon = ({color}: {color: PlayerColor}) => {
+    const PAWN_COLORS: Record<PlayerColor, string> = {
+        red: 'text-red-500',
+        green: 'text-green-500',
+        yellow: 'text-yellow-400',
+        blue: 'text-blue-500',
+    }
+    return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", PAWN_COLORS[color])}>
+            <path d="M12 2C9.243 2 7 4.243 7 7c0 2.757 2.243 5 5 5s5-2.243 5-5c0-2.757-2.243-5-5-5z"></path><path d="M12 14c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z"></path>
+        </svg>
+    )
+};
 
 
 export default function GameClient() {
@@ -160,16 +174,17 @@ export default function GameClient() {
     const moves: { pawn: Pawn; newPosition: number }[] = [];
     const allPawns = Object.values(pawns).flat();
   
+    // Move from yard
     const pawnsInYard = playerPawns.filter(p => p.position === -1);
     if (roll === 6 && pawnsInYard.length > 0) {
       const startPos = START_POSITIONS[player];
-      const pawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-      if (pawnsAtStart < 2) {
-         // This is a valid move, but don't return immediately, just add it to the list
+      const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+      if (ownPawnsAtStart < 2) {
          pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
       }
     }
 
+    // Move on board
     playerPawns.forEach((pawn) => {
       if (pawn.isHome || pawn.position === -1) return;
 
@@ -183,7 +198,7 @@ export default function GameClient() {
         let isBlocked = false;
         for(let i = 1; i < roll; i++) { // check intermediate steps
           const stepPos = currentPath[currentPathIndex + i];
-          const pawnsOnStep = allPawns.filter(p => p.position === stepPos);
+          const pawnsOnStep = allPawns.filter(p => p.position === stepPos && p.color !== player);
           if (pawnsOnStep.length >= 2) { // Standard Ludo blockade rule
              isBlocked = true;
              break;
@@ -217,26 +232,50 @@ export default function GameClient() {
     } else {
         setPhase('MOVING');
         addMessage(players[currentTurn].name, `rolled a ${value}. Select a pawn to move.`, currentTurn);
-        if (players[currentTurn].name !== 'Player' && possibleMoves.length > 0) {
+        if (players[currentTurn].name !== 'Player') {
             setPhase('AI_THINKING');
             // AI makes a move
-            setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+            setTimeout(() => handleAiMove(value, possibleMoves), 1000);
         } else if (possibleMoves.length === 1 && currentTurn === 'red') {
             // Auto-move if only one option for the player
             setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
     }
   };
+
+  const handleAiMove = async (roll: number, possibleMoves: any[]) => {
+      const boardState = JSON.stringify(pawns);
+      try {
+        const { move: moveString } = await generateAIMove({
+          boardState,
+          currentPlayer: currentTurn,
+          diceRoll: roll,
+        });
+        
+        // Basic parser for "pawn:[pawnNumber], from:[start], to:[end]"
+        const pawnIdMatch = moveString.match(/pawn:(\d+)/);
+        if (pawnIdMatch) {
+            const pawnId = parseInt(pawnIdMatch[1], 10);
+            const move = possibleMoves.find(m => m.pawn.id === pawnId);
+            if (move) {
+                handlePawnMove(move.pawn);
+                return;
+            }
+        }
+        // Fallback to first possible move if AI fails
+        handlePawnMove(possibleMoves[0].pawn);
+
+      } catch (error) {
+        console.error("AI move generation failed:", error);
+        // Fallback to first possible move on error
+        handlePawnMove(possibleMoves[0].pawn);
+      }
+  }
   
   
   const handlePawnMove = (pawnToMove: Pawn) => {
-    if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING') {
-      // Allow clicking pawns in yard only on a 6
-      if(pawnToMove.position === -1 && diceValue === 6) {
-          // This is a valid move type, proceed to check it
-      } else {
-         return;
-      }
+    if (!diceValue || pawnToMove.color !== currentTurn || (phase !== 'MOVING' && phase !== 'AI_THINKING')) {
+      return;
     }
 
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
@@ -254,6 +293,7 @@ export default function GameClient() {
     }
 
     const { newPosition } = selectedMove;
+    let getsAnotherTurn = false;
 
     setPawns(prev => {
         const newPawns = JSON.parse(JSON.stringify(prev));
@@ -262,16 +302,17 @@ export default function GameClient() {
         
         pawnsOfPlayer[pawnIndex].position = newPosition;
 
-        let captured = false;
+        // Capture logic
         if (!SAFE_ZONES.includes(newPosition)) {
             (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
                 if (color !== currentTurn) {
                     let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
-                    if (opponentPawnsAtPos.length === 1) {
+                    // On the main path, single pawns can be captured. Stacks cannot be captured.
+                    if (opponentPawnsAtPos.length === 1 && !START_POSITIONS[color as PlayerColor].toString().includes(newPosition.toString())) {
                          newPawns[color] = newPawns[color].map((p: Pawn) => {
                             if (p.position === newPosition) {
-                                captured = true;
                                 addMessage("System", `${players[currentTurn].name} captured ${color}'s pawn!`, currentTurn);
+                                getsAnotherTurn = true;
                                 return { ...p, position: -1 };
                             }
                             return p;
@@ -281,26 +322,39 @@ export default function GameClient() {
             });
         }
         
+        // Home logic
         const currentPath = PATHS[currentTurn];
-        if (newPosition === currentPath[currentPath.length - 1]) {
-            pawnsOfPlayer[pawnIndex].isHome = true;
-            addMessage("System", `${players[currentTurn].name}'s pawn reached home!`, currentTurn);
+        if (currentPath.slice(51).includes(newPosition)) { // Check if pawn is on home run
+             const pawnsHome = pawnsOfPlayer.filter((p:Pawn) => p.isHome).length
+             // Final home position is at index 56 (51 path + 5 home run)
+             if(currentPath.indexOf(newPosition) === 56 - pawnsHome){
+                pawnsOfPlayer[pawnIndex].isHome = true;
+                addMessage("System", `${players[currentTurn].name}'s pawn reached home!`, currentTurn);
+                getsAnotherTurn = true;
+             }
         }
 
         newPawns[currentTurn] = pawnsOfPlayer;
 
+        // Win condition
         const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
         if (allHome) {
             setWinner(currentTurn);
             setPhase('GAME_OVER');
-        } else if (diceValue !== 6 && !captured && !pawnsOfPlayer[pawnIndex].isHome) {
-            nextTurn();
-        } else {
+        } 
+        
+        if(diceValue === 6) {
+          getsAnotherTurn = true;
+        }
+
+        if(getsAnotherTurn) {
             setPhase('ROLLING');
             const turnPlayerName = players[currentTurn].name === 'Player' ? 'You get' : `${players[currentTurn].name} gets`;
             addMessage('System', `${turnPlayerName} another turn!`);
+        } else {
+            nextTurn();
         }
-        
+
         return newPawns;
     });
 
@@ -334,7 +388,7 @@ export default function GameClient() {
 
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
         pawns[color].forEach(pawn => {
-            if (pawn.position !== -1) {
+            if (pawn.position !== -1 && !pawn.isHome) {
                 if (!positions[pawn.position]) {
                     positions[pawn.position] = [];
                 }
@@ -345,9 +399,9 @@ export default function GameClient() {
 
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
         pawns[color].forEach(pawn => {
-            const isPlayerTurn = pawn.color === currentTurn;
+            const isPlayerTurn = pawn.color === currentTurn && (phase === 'MOVING' || phase === 'AI_THINKING');
             const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
-            const isStacked = pawn.position !== -1 && positions[pawn.position].filter(p => p.color === color).length > 1;
+            const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
             allPawns.push({ ...pawn, highlight: isPlayerTurn && canMove, isStacked });
         });
     });
@@ -360,30 +414,42 @@ export default function GameClient() {
 
   const getProgress = (color: PlayerColor) => {
     const playerPawns = pawns[color];
-    const totalDistance = PATHS[color].length * 4;
+    const totalDistance = (PATHS[color].length - 5) * 4; // 51 steps on main path
     let currentDistance = 0;
     playerPawns.forEach(pawn => {
         if(pawn.isHome) {
-            currentDistance += PATHS[color].length;
+            currentDistance += (PATHS[color].length - 5);
         } else if (pawn.position !== -1) {
-            currentDistance += PATHS[color].indexOf(pawn.position) + 1;
+            const pathIndex = PATHS[color].indexOf(pawn.position);
+            if(pathIndex !== -1) currentDistance += pathIndex + 1;
         }
     });
-    return (currentDistance / totalDistance) * 100;
+    return Math.floor((currentDistance / totalDistance) * 100);
   }
   
   const renderPlayersInfo = () => {
     return (Object.keys(players) as PlayerColor[]).map(color => {
         const player = players[color];
         let gridPosition;
-        if(color === 'yellow') gridPosition = 'col-start-1 col-end-7 row-start-1 row-end-7';
-        if(color === 'green') gridPosition = 'col-start-10 col-end-16 row-start-1 row-end-7';
+        if(color === 'yellow') gridPosition = 'col-start-10 col-end-16 row-start-1 row-end-7';
+        if(color === 'green') gridPosition = 'col-start-10 col-end-16 row-start-10 row-end-16';
         if(color === 'red') gridPosition = 'col-start-1 col-end-7 row-start-10 row-end-16';
-        if(color === 'blue') gridPosition = 'col-start-10 col-end-16 row-start-10 row-end-16';
+        if(color === 'blue') gridPosition = 'col-start-1 col-end-7 row-start-1 row-end-7';
+
+        const pawnsInYard = pawns[color].filter(p => p.position === -1).length;
+        const pawnsHome = pawns[color].filter(p => p.isHome).length;
 
         return (
-            <div key={color} className={cn('flex flex-col items-center justify-center text-white p-2', gridPosition)}>
-                 <p className="font-bold text-white/80 text-sm drop-shadow-md">{player.name}</p>
+            <div key={color} className={cn('flex flex-col items-center justify-end text-white p-2', gridPosition)}>
+                 <div className='flex flex-col items-center gap-1 bg-black/20 p-2 rounded-md'>
+                    <p className="font-bold text-white/80 text-sm drop-shadow-md">{player.name}</p>
+                    <div className='flex gap-1'>
+                        {Array(4).fill(0).map((_, i) => <PawnIcon key={i} color={color} />)}
+                    </div>
+                    <div className='flex items-center gap-2 text-xs font-semibold'>
+                        <Home className="w-4 h-4" /> {pawnsHome}/4
+                    </div>
+                 </div>
             </div>
         )
     })
@@ -399,14 +465,14 @@ export default function GameClient() {
   }
   
   return (
-     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-8 relative overflow-hidden">
+     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-4 relative overflow-hidden">
         {winner && (
             <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
                         <DialogDescription className="text-center">
-                           {winner && <><span className={`font-semibold capitalize text-${winner}-500`}>{players[winner].name}</span> has won the game!</>}
+                           {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-center items-center p-4">
@@ -422,51 +488,64 @@ export default function GameClient() {
             </Dialog>
         )}
 
-        <div className="absolute top-8 left-8">
+        <div className="absolute top-4 left-4">
+            <PlayerIcon color="blue" isPlayer={false} />
+        </div>
+        <div className="absolute top-4 right-4">
             <PlayerIcon color="yellow" isPlayer={false} />
         </div>
-        <div className="absolute top-8 right-8">
-            <PlayerIcon color="green" isPlayer={false} />
-        </div>
-         <div className="absolute bottom-8 left-8">
+         <div className="absolute bottom-4 left-4">
             <PlayerIcon color="red" isPlayer={true} />
         </div>
-        <div className="absolute bottom-8 right-8">
-            <PlayerIcon color="blue" isPlayer={false} />
+        <div className="absolute bottom-4 right-4">
+            <PlayerIcon color="green" isPlayer={false} />
         </div>
 
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
-            <div className="w-full max-w-2xl">
-                <div className="relative">
-                    <AnimatePresence>
-                    {phase === 'AI_THINKING' && (
-                        <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/50 rounded-lg"
-                        >
-                        <Loader2 className="h-16 w-16 animate-spin text-white" />
-                        <p className="text-white mt-2 font-semibold">{players[currentTurn].name} is thinking...</p>
-                        </motion.div>
-                    )}
-                    </AnimatePresence>
-                    <GameBoard playersInfo={renderPlayersInfo()}>
-                       {renderPawns()}
-                    </GameBoard>
-                </div>
+            <div className="w-full max-w-2xl relative">
+                <AnimatePresence>
+                {phase === 'AI_THINKING' && (
+                    <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/50 rounded-lg"
+                    >
+                    <Loader2 className="h-16 w-16 animate-spin text-white" />
+                    <p className="text-white mt-2 font-semibold">{players[currentTurn].name} is thinking...</p>
+                    </motion.div>
+                )}
+                </AnimatePresence>
+                <GameBoard playersInfo={renderPlayersInfo()}>
+                   {renderPawns()}
+                </GameBoard>
             </div>
         </main>
 
-         <footer className="w-full flex justify-center items-center pb-8">
-            <GameControls
-                currentTurn={currentTurn}
-                phase={phase}
-                diceValue={diceValue}
-                onDiceRoll={handleDiceRoll}
-                pawns={pawns}
-            />
+         <footer className="w-full flex justify-center items-center pb-4">
+            <div className="relative flex items-center gap-8">
+                 <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-black/20">
+                    <Hand className="w-6 h-6" />
+                </Button>
+                <GameControls
+                    currentTurn={currentTurn}
+                    phase={phase}
+                    diceValue={diceValue}
+                    onDiceRoll={handleDiceRoll}
+                    pawns={pawns}
+                />
+                <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-black/20">
+                            <MessageSquare className="w-6 h-6" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[80vh]">
+                        <ChatPanel messages={messages} onSendMessage={handleSendMessage} />
+                    </SheetContent>
+                </Sheet>
+            </div>
         </footer>
     </div>
   );
