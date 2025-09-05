@@ -8,11 +8,11 @@ body {
 
 @layer base {
   :root {
-    --background: 259 52% 16%;
+    --background: 259 52% 10%;
     --foreground: 0 0% 98%;
-    --card: 259 52% 21%;
+    --card: 259 52% 16%;
     --card-foreground: 0 0% 98%;
-    --popover: 259 52% 16%;
+    --popover: 259 52% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 347 77% 50%;
     --primary-foreground: 0 0% 98%;
@@ -43,11 +43,11 @@ body {
     --radius: 0.5rem;
   }
   .dark {
-    --background: 259 52% 16%;
+    --background: 259 52% 10%;
     --foreground: 0 0% 98%;
-    --card: 259 52% 21%;
+    --card: 259 52% 16%;
     --card-foreground: 0 0% 98%;
-    --popover: 259 52% 16%;
+    --popover: 259 52% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 347 77% 50%;
     --primary-foreground: 0 0% 98%;
