@@ -115,6 +115,17 @@ export default function GameClient() {
     addMessage('System', `Game started! Mode: ${gameMode}. Your turn to roll.`);
   }, [gameMode]);
 
+  useEffect(() => {
+    if (winner) {
+      // Handle game over logic, maybe show a toast or redirect
+      toast({
+        title: "Game Over!",
+        description: `${players[winner].name} has won the game!`,
+        duration: 5000,
+      });
+    }
+  }, [winner, players, toast]);
+
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     setMessages((prev) => [{ sender, text, color }, ...prev].slice(0, 5));
   };
@@ -345,25 +356,27 @@ export default function GameClient() {
   
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
-        <Dialog open={!!winner}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
-                    <DialogDescription className="text-center">
-                        {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-center items-center p-4">
-                    <Logo className="h-24 w-24" />
-                </div>
-                <DialogFooter className="sm:justify-center">
-                    <Button onClick={() => window.location.reload()}>Play Again</Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/">Back to Lobby</Link>
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        {winner && (
+            <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
+                        <DialogDescription className="text-center">
+                            {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center p-4">
+                        <Logo className="h-24 w-24" />
+                    </div>
+                    <DialogFooter className="sm:justify-center">
+                        <Button onClick={() => window.location.reload()}>Play Again</Button>
+                        <Button variant="secondary" asChild>
+                            <Link href="/">Back to Lobby</Link>
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        )}
 
       <main className="w-full max-w-7xl mx-auto flex flex-col items-center gap-6">
         <div className="w-full flex justify-between px-4 lg:px-20">
