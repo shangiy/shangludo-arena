@@ -71,7 +71,7 @@ const PlayerInfo = ({
       >
         <div
           className={cn(
-            'flex h-16 w-16 items-center justify-center rounded-lg border-4',
+            'flex h-16 w-16 items-center justify-center rounded-full border-4',
             `border-${color}-500 bg-${color}-500/50`
           )}
         >
@@ -106,7 +106,7 @@ export default function GameClient() {
     { name: 'Player', color: 'red' },
     { name: 'Computer', color: 'green' },
   ];
-  const playerOrder: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
+  const playerOrder: PlayerColor[] = ['red', 'yellow', 'green', 'blue'];
 
 
   useEffect(() => {
@@ -377,15 +377,13 @@ export default function GameClient() {
             </DialogContent>
         </Dialog>
 
-      <main className="w-full max-w-5xl mx-auto flex flex-col items-center">
-        <div className="w-full grid grid-cols-3 items-center justify-items-center mb-4">
-            <div/>
+      <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start lg:justify-between gap-8">
+        <div className="w-full lg:w-1/4 flex flex-row lg:flex-col justify-around lg:justify-start gap-4 order-2 lg:order-1">
+            <PlayerInfo color="red" name="Player" isCurrentPlayer={currentTurn === 'red'} />
             <PlayerInfo color="yellow" name="Computer" isCurrentPlayer={currentTurn === 'yellow'} />
-            <div/>
         </div>
 
-        <div className="w-full grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-            <PlayerInfo color="blue" name="Computer" isCurrentPlayer={currentTurn === 'blue'} />
+        <div className="w-full max-w-2xl lg:w-1/2 order-1 lg:order-2">
             <div className="relative">
                 <AnimatePresence>
                 {phase === 'AI_THINKING' && (
@@ -405,8 +403,8 @@ export default function GameClient() {
 
                 {/* Progress bars */}
                 <div className="absolute top-[45%] -left-12 w-10">
-                    <Progress value={getProgress('blue')} className={`w-10 h-2 -rotate-90 bg-${'blue'}-200/20`} indicatorClassName={`bg-${'blue'}-500`} />
-                    <p className="text-white text-xs text-center -rotate-90 mt-2"> {Math.round(getProgress('blue'))}%</p>
+                    <Progress value={getProgress('red')} className={`w-10 h-2 -rotate-90 bg-${'red'}-200/20`} indicatorClassName={`bg-${'red'}-500`} />
+                    <p className="text-white text-xs text-center -rotate-90 mt-2"> {Math.round(getProgress('red'))}%</p>
                 </div>
                  <div className="absolute top-[45%] -right-12 w-10">
                     <Progress value={getProgress('green')} className={`w-10 h-2 rotate-90 bg-${'green'}-200/20`} indicatorClassName={`bg-${'green'}-500`} />
@@ -417,34 +415,28 @@ export default function GameClient() {
                     <p className="text-white text-xs text-center mt-1">{Math.round(getProgress('yellow'))}%</p>
                 </div>
                  <div className="absolute bottom-[-3rem] left-1/2 -translate-x-1/2 w-10">
-                    <Progress value={getProgress('red')} className={`w-10 h-2 bg-${'red'}-200/20`} indicatorClassName={`bg-${'red'}-500`} />
-                     <p className="text-white text-xs text-center mt-1">{Math.round(getProgress('red'))}%</p>
+                    <Progress value={getProgress('blue')} className={`w-10 h-2 bg-${'blue'}-200/20`} indicatorClassName={`bg-${'blue'}-500`} />
+                     <p className="text-white text-xs text-center mt-1">{Math.round(getProgress('blue'))}%</p>
                 </div>
             </div>
-            <PlayerInfo color="green" name="Computer" isCurrentPlayer={currentTurn === 'green'} />
-        </div>
-
-        <div className="w-full grid grid-cols-3 items-center justify-items-center mt-4">
-            <div className="justify-self-start">
-                 {currentTurn === 'red' && phase === 'MOVING' && (
-                    <div className="flex items-center gap-2 animate-pulse">
-                        <Image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJkSURBVHgB7Zq9iZJQGMD/d/YCIjwUhUK6dGgpCFn0IqUv2UYdBC0s7GIs2FlYxVaxtLSwsd2sUliIKCjoo1lRBx3EQdDQUBBBQRLk/3F+DDe7m3kv7A88D5x7z/nO/e7n3nPvFhGZ0QhgDPAX2Bf74C9Q7KswDbwABsB+YI3/fAGmQR+QJQJdgJ1ATxDcNsD408i3gGngb5AF7gBfRDoFPAI2gPO/4zWwBpyIfAVeAq+ALpE6b4DbwKwvm+gL/AKGgS6R3gA+KdaP4Y5hGHgCVIE2kU4AbwCD3q/Rs/l9gZ+AdpF2An8B074+o4F/gS5/g4l0EfgY+NvrM4T7h9AJYBTY6fUZDHwHNoF+kN4Gfvb6DIA+tAq0iXQL+BH4zOszQAuwR2p0L7B9T4V8BX4BHft+LzL26eRvoD3QIdJ24CHweuQvYBNwBdgD9AjdCew/PjH83wEOgcY6d4E/D/8CPAHmAe8M9yswL/I3sAisxH6W23wLzANmAmU3B9h2ffL3GSmgGqhFYBfYbXyqBv4H9p2pY4H9wN2wz0ZdgSmRXgV+hDb/qgL2A0+Bt8AP4NvwfQe2AT8h23gPPAX+hC7/B1LAs+A/aPNT+0h3gS/B8h+vAR+BPwG9v3QG+An4I1j+s8B34F/g54/WkG4E3wDLf/wGfAr8Cuz0/v/kL9BDoD3gJ8R84Wvg68R/wDPAQ0iXgZ5/wX0TGA0Gg4iIiMh+I3L+A8q1D5vL+A/ZAAAAAElFTkSuQmCC" alt="Hand pointing" width={50} height={50} className="transform -scale-x-100" />
-                        <p className="text-white font-semibold">Your turn!</p>
-                    </div>
+             <div className="mt-8 flex justify-center items-center">
+                 {currentTurn === 'red' && phase === 'ROLLING' && (
+                     <p className="text-white font-semibold text-lg animate-pulse">Your turn to roll!</p>
                  )}
-            </div>
-            <PlayerInfo color="red" name="Player" isCurrentPlayer={currentTurn === 'red'} />
-            <div className="justify-self-end">
-                <GameControls
-                currentTurn={currentTurn}
-                phase={phase}
-                diceValue={diceValue}
-                onDiceRoll={handleDiceRoll}
-                pawns={pawns}
+                 <GameControls
+                    currentTurn={currentTurn}
+                    phase={phase}
+                    diceValue={diceValue}
+                    onDiceRoll={handleDiceRoll}
+                    pawns={pawns}
                 />
             </div>
         </div>
 
+        <div className="w-full lg:w-1/4 flex flex-row lg:flex-col justify-around lg:justify-start gap-4 order-3 lg:order-3">
+             <PlayerInfo color="green" name="Computer" isCurrentPlayer={currentTurn === 'green'} />
+             <PlayerInfo color="blue" name="Computer" isCurrentPlayer={currentTurn === 'blue'} />
+        </div>
       </main>
     </div>
   );

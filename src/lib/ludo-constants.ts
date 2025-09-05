@@ -24,9 +24,9 @@ export interface ChatMessage {
 const p = (x: number, y: number) => y * 15 + x;
 
 export const HOME_YARDS: Record<PlayerColor, number> = {
-    blue: p(0,0),
+    red: p(0,0),
     yellow: p(9,0),
-    red: p(0,9),
+    blue: p(0,9),
     green: p(9,9),
 };
 
@@ -48,7 +48,7 @@ const bluePathRaw = [
 
 const homeRuns: Record<PlayerColor, number[]> = {
     red: [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)],
-    green: [p(8,13), p(8,12), p(8,11), p(8,10), p(8,9)],
+    green: [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9)],
     yellow: [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7)],
     blue: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5)],
 }
@@ -62,24 +62,24 @@ const generatePath = (startOffset: number, homeColor: PlayerColor) => {
 }
 
 export const PATHS: Record<PlayerColor, number[]> = {
-    blue: generatePath(40, 'blue'),
-    yellow: generatePath(1, 'yellow'),
-    green: generatePath(14, 'green'),
-    red: generatePath(27, 'red'),
+    red: generatePath(0, 'red'),
+    yellow: generatePath(13, 'yellow'),
+    green: generatePath(26, 'green'),
+    blue: generatePath(39, 'blue'),
 };
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
-    blue: p(8,1),
     red: p(1,6),
-    green: p(6,13),
-    yellow: p(13,8),
+    yellow: p(6,1),
+    green: p(13,8),
+    blue: p(8,13),
 };
 
 export const HOME_ENTRANCES: Record<PlayerColor, number> = {
-    blue: p(8,0),
-    red: p(0,6),
-    green: p(6,14),
-    yellow: p(14,8),
+    red: p(0,8),
+    yellow: p(8,0),
+    green: p(14,6),
+    blue: p(6,14),
 };
 
 export const SAFE_ZONES = [

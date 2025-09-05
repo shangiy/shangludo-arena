@@ -22,16 +22,16 @@ export function GameBoard({ children }: { children: ReactNode }) {
             let bgColor = 'bg-white';
             
             // Home columns
-            if (x === 7 && y > 0 && y < 6) bgColor = 'bg-blue-300'; // Blue home column
-            if (x > 8 && x < 14 && y === 7) bgColor = 'bg-green-300'; // Green home column
-            if (x === 7 && y > 8 && y < 14) bgColor = 'bg-red-300'; // Red home column
-            if (x > 0 && x < 6 && y === 7) bgColor = 'bg-yellow-300'; // Yellow home column
+            if (x === 7 && y > 0 && y < 6) bgColor = 'bg-yellow-300';
+            if (x > 8 && x < 14 && y === 7) bgColor = 'bg-green-300';
+            if (x === 7 && y > 8 && y < 14) bgColor = 'bg-blue-300';
+            if (x > 0 && x < 6 && y === 7) bgColor = 'bg-red-300';
 
             // Start positions
-            if (x===1 && y===6) bgColor = 'bg-blue-300';
+            if (x===1 && y===6) bgColor = 'bg-red-300';
             if (x===8 && y===1) bgColor = 'bg-yellow-300';
             if (x===13 && y===8) bgColor = 'bg-green-300';
-            if (x===6 && y===13) bgColor = 'bg-red-300';
+            if (x===6 && y===13) bgColor = 'bg-blue-300';
 
 
             return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full")}>
@@ -53,22 +53,25 @@ export function GameBoard({ children }: { children: ReactNode }) {
                 </div>
             </div>
         );
-        if (x < 6 && y < 6) return renderYard('blue');
+        if (x < 6 && y < 6) return renderYard('red');
         if (x > 8 && y < 6) return renderYard('yellow');
-        if (x < 6 && y > 8) return renderYard('red');
+        if (x < 6 && y > 8) return renderYard('blue');
         if (x > 8 && y > 8) return renderYard('green');
         
         // Center home triangle
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
             return <div className="h-full w-full flex items-center justify-center overflow-hidden">
-                <div style={{ width: 0, height: 0, borderLeft: 'calc(var(--cell-size) * 1.5) solid transparent', borderRight: 'calc(var(--cell-size) * 1.5) solid transparent', borderBottom: 'calc(var(--cell-size) * 1.5) solid #facc15' }} />
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '300%', height: '300%' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 0, 0 100%, 0 0)', backgroundColor: '#3b82f6' }} />
-                    <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 100%, 0 0, 100% 0)', backgroundColor: '#facc15' }} />
-                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: '50%', height: '50%', clipPath: 'polygon(0 100%, 100% 0, 100% 100%)', backgroundColor: '#4ade80' }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '50%', height: '50%', clipPath: 'polygon(0 0, 100% 100%, 0 100%)', backgroundColor: '#ef4444' }} />
+                    {/* Blue Arrow pointing down */}
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '33.33%', height: '33.33%', transform: 'translate(-50%, -100%)', clipPath: 'polygon(50% 100%, 0 0, 100% 0)', backgroundColor: '#3b82f6' }} />
+                    {/* Green Arrow pointing left */}
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '33.33%', height: '33.33%', transform: 'translate(0, -50%)', clipPath: 'polygon(0 0, 100% 50%, 0 100%)', backgroundColor: '#22c55e' }} />
+                    {/* Yellow Arrow pointing up */}
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '33.33%', height: '33.33%', transform: 'translate(-50%, 0)', clipPath: 'polygon(0 100%, 50% 0, 100% 100%)', backgroundColor: '#facc15' }} />
+                    {/* Red Arrow pointing right */}
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', width: '33.33%', height: '33.33%', transform: 'translate(-100%, -50%)', clipPath: 'polygon(100% 0, 0 50%, 100% 100%)', backgroundColor: '#ef4444' }} />
                 </div>
-            </div>
+            </div>;
         }
 
         return <div className="h-full w-full"></div>;
