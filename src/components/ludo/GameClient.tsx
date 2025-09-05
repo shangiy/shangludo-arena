@@ -350,7 +350,7 @@ export default function GameClient() {
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
                     <DialogDescription className="text-center">
-                        <span className={`font-semibold capitalize text-${winner}`}>{players[winner!].name}</span> has won the game!
+                        {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex justify-center items-center p-4">
