@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Dices } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,35 +12,17 @@ type DiceProps = {
   value: number | null;
 };
 
+const diceFaces = [
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="4" fill="white"/></svg>,
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="white"/><circle cx="32" cy="32" r="4" fill="white"/></svg>,
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="white"/><circle cx="22" cy="22" r="4" fill="white"/><circle cx="32" cy="32" r="4" fill="white"/></svg>,
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="white"/><circle cx="32" cy="12" r="4" fill="white"/><circle cx="12" cy="32" r="4" fill="white"/><circle cx="32" cy="32" r="4" fill="white"/></svg>,
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="white"/><circle cx="32" cy="12" r="4" fill="white"/><circle cx="22" cy="22" r="4" fill="white"/><circle cx="12" cy="32" r="4" fill="white"/><circle cx="32" cy="32" r="4" fill="white"/></svg>,
+    (key: any) => <svg key={key} width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" fill="white"/><circle cx="32" cy="12" r="4" fill="white"/><circle cx="12" cy="22" r="4" fill="white"/><circle cx="32" cy="22" r="4" fill="white"/><circle cx="12" cy="32" r="4" fill="white"/><circle cx="32" cy="32" r="4" fill="white"/></svg>
+]
+
 const DiceFace = ({ value }: { value: number }) => {
-  const pips = Array.from({ length: value }, (_, i) => (
-    <div key={i} className="h-3 w-3 bg-black rounded-full" />
-  ));
-  
-  const faceClasses: { [key: number]: string } = {
-    1: 'justify-center items-center',
-    2: 'justify-between',
-    3: 'justify-between items-center',
-    4: 'justify-between',
-    5: 'justify-between',
-    6: 'justify-between',
-  };
-  
-  const pipWrapperClasses: { [key: number]: string } = {
-    4: 'flex flex-col justify-between h-full',
-    5: 'flex flex-col justify-between h-full items-center',
-    6: 'flex flex-col justify-between h-full',
-  }
-
-  const FaceContainer = ({children}: {children: React.ReactNode}) => (
-    <div className={cn("h-full w-full flex p-2", faceClasses[value])}>{children}</div>
-  )
-
-  if (value === 4) return <FaceContainer><div className={pipWrapperClasses[value]}> <div className="flex justify-between w-full">{[pips[0], pips[1]]}</div> <div className="flex justify-between w-full">{[pips[2], pips[3]]}</div> </div></FaceContainer>
-  if (value === 5) return <FaceContainer><div className={pipWrapperClasses[value]}> <div className="flex justify-between w-full">{[pips[0], pips[1]]}</div> <div>{pips[2]}</div> <div className="flex justify-between w-full">{[pips[3], pips[4]]}</div> </div></FaceContainer>
-  if (value === 6) return <FaceContainer><div className={pipWrapperClasses[value]}> <div className="flex justify-between w-full">{[pips[0], pips[1]]}</div> <div className="flex justify-between w-full">{[pips[2], pips[3]]}</div> <div className="flex justify-between w-full">{[pips[4], pips[5]]}</div> </div></FaceContainer>
-  
-  return <FaceContainer>{pips}</FaceContainer>;
+  return diceFaces[value - 1](value);
 };
 
 export function Dice({ onRoll, isRolling, value: propValue }: DiceProps) {
@@ -71,18 +53,16 @@ export function Dice({ onRoll, isRolling, value: propValue }: DiceProps) {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <motion.div
+      <motion.button
         key={internalValue}
         initial={{ scale: 0.8, rotate: -15, opacity: 0 }}
         animate={{ scale: 1, rotate: 0, opacity: 1 }}
-        className="w-24 h-24 bg-white rounded-lg shadow-lg border-2 flex items-center justify-center"
+        onClick={handleRoll} 
+        disabled={isRolling || isAnimating}
+        className="w-20 h-20 bg-red-500 rounded-lg shadow-lg border-4 border-red-700 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 focus:outline-none focus:ring-4 focus:ring-accent"
       >
         <DiceFace value={internalValue} />
-      </motion.div>
-      <Button onClick={handleRoll} disabled={isRolling || isAnimating} size="lg">
-        <Dices className="mr-2 h-5 w-5" />
-        {isAnimating ? 'Rolling...' : 'Roll Dice'}
-      </Button>
+      </motion.button>
     </div>
   );
 }

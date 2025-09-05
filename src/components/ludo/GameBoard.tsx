@@ -6,7 +6,6 @@ import { Home, Star } from 'lucide-react';
 import { PlayerColor, Pawn as PawnType, HOME_YARDS, PATHS, SAFE_ZONES } from '@/lib/ludo-constants';
 
 const gridCellStyle = "flex items-center justify-center border border-black/10";
-const pathCellStyle = (color: string) => `bg-${color}-200`;
 
 export function GameBoard({ children }: { children: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
@@ -20,12 +19,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
         const isSafe = SAFE_ZONES.includes(x + y * 15);
 
         if (isPath) {
-            let bgColor = 'bg-gray-100';
-            if (x > 0 && x < 6 && y > 5 && y < 9) bgColor = 'bg-yellow-200'; // Yellow path
-            if (x > 5 && x < 9 && y > 0 && y < 6) bgColor = 'bg-blue-200'; // Blue path
-            if (x > 8 && x < 14 && y > 5 && y < 9) bgColor = 'bg-green-200'; // Green path
-            if (x > 5 && x < 9 && y > 8 && y < 14) bgColor = 'bg-red-200'; // Red path
+            let bgColor = 'bg-white';
             
+            // Home columns
             if (x === 7 && y > 0 && y < 6) bgColor = 'bg-blue-300'; // Blue home column
             if (x > 8 && x < 14 && y === 7) bgColor = 'bg-green-300'; // Green home column
             if (x === 7 && y > 8 && y < 14) bgColor = 'bg-red-300'; // Red home column
@@ -33,9 +29,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
 
             // Start positions
             if (x===1 && y===6) bgColor = 'bg-blue-300';
-            if (x===6 && y===13) bgColor = 'bg-red-300';
-            if (x===13 && y===8) bgColor = 'bg-green-300';
             if (x===8 && y===1) bgColor = 'bg-yellow-300';
+            if (x===13 && y===8) bgColor = 'bg-green-300';
+            if (x===6 && y===13) bgColor = 'bg-red-300';
 
 
             return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full")}>
@@ -44,67 +40,45 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
 
         // Home yards
-        if (x < 6 && y < 6) return <div className={cn(gridCellStyle, 'bg-blue-400 h-full w-full')}></div>;
-        if (x > 8 && y < 6) return <div className={cn(gridCellStyle, 'bg-yellow-400 h-full w-full')}></div>;
-        if (x < 6 && y > 8) return <div className={cn(gridCellStyle, 'bg-red-400 h-full w-full')}></div>;
-        if (x > 8 && y > 8) return <div className={cn(gridCellStyle, 'bg-green-400 h-full w-full')}></div>;
+        const renderYard = (color: string) => (
+            <div className={cn('h-full w-full p-1')}>
+                <div className={cn('h-full w-full rounded-md relative', `bg-${color}-500`)}>
+                     <div className="absolute inset-0 rounded-md bg-black/10"></div>
+                     <div className="absolute inset-2 rounded bg-white/30 grid grid-cols-2 grid-rows-2 gap-1 p-1">
+                        <div className="rounded-full bg-white/50"></div>
+                        <div className="rounded-full bg-white/50"></div>
+                        <div className="rounded-full bg-white/50"></div>
+                        <div className="rounded-full bg-white/50"></div>
+                     </div>
+                </div>
+            </div>
+        );
+        if (x < 6 && y < 6) return renderYard('blue');
+        if (x > 8 && y < 6) return renderYard('yellow');
+        if (x < 6 && y > 8) return renderYard('red');
+        if (x > 8 && y > 8) return renderYard('green');
         
         // Center home triangle
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
-            return <div className="h-full w-full bg-background flex items-center justify-center">
-              <div
-                style={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: '40px solid transparent',
-                    borderRight: '40px solid transparent',
-                    borderBottom: '40px solid #60a5fa', // blue
-                    transform: 'translateY(-20px)',
-                    position: 'absolute'
-                }}
-              />
-              <div
-                style={{
-                    width: 0,
-                    height: 0,
-                    borderTop: '40px solid #f87171', // red
-                    borderLeft: '40px solid transparent',
-                    borderRight: '40px solid transparent',
-                    transform: 'translateY(20px)',
-                    position: 'absolute'
-                }}
-              />
-               <div
-                style={{
-                    width: 0,
-                    height: 0,
-                    borderTop: '40px solid transparent',
-                    borderBottom: '40px solid transparent',
-                    borderLeft: '40px solid #facc15', // yellow
-                    transform: 'translateX(-20px)',
-                    position: 'absolute'
-                }}
-              />
-               <div
-                style={{
-                    width: 0,
-                    height: 0,
-                    borderTop: '40px solid transparent',
-                    borderBottom: '40px solid transparent',
-                    borderRight: '40px solid #4ade80', // green
-                    transform: 'translateX(20px)',
-                    position: 'absolute'
-                }}
-              />
+            return <div className="h-full w-full flex items-center justify-center overflow-hidden">
+                <div style={{ width: 0, height: 0, borderLeft: 'calc(var(--cell-size) * 1.5) solid transparent', borderRight: 'calc(var(--cell-size) * 1.5) solid transparent', borderBottom: 'calc(var(--cell-size) * 1.5) solid #facc15' }} />
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '300%', height: '300%' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 0, 0 100%, 0 0)', backgroundColor: '#3b82f6' }} />
+                    <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: '50%', clipPath: 'polygon(100% 100%, 0 0, 100% 0)', backgroundColor: '#facc15' }} />
+                    <div style={{ position: 'absolute', bottom: 0, right: 0, width: '50%', height: '50%', clipPath: 'polygon(0 100%, 100% 0, 100% 100%)', backgroundColor: '#4ade80' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '50%', height: '50%', clipPath: 'polygon(0 0, 100% 100%, 0 100%)', backgroundColor: '#ef4444' }} />
+                </div>
             </div>
         }
 
-        return <div className="bg-background h-full w-full"></div>;
+        return <div className="h-full w-full"></div>;
     }
   
   return (
-    <div className="aspect-square w-full max-w-[70vh] mx-auto relative">
-      <div className="grid grid-cols-15 grid-rows-15 h-full w-full bg-white p-2 rounded-lg shadow-lg border">
+    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-4 rounded-3xl bg-gray-800/50 shadow-2xl"
+      style={{'--cell-size': 'calc(100% / 15)'} as React.CSSProperties}
+    >
+      <div className="grid grid-cols-15 grid-rows-15 h-full w-full bg-gray-200 p-2 rounded-lg shadow-inner border border-gray-900/50">
          {cells.map((_, i) => (
             <div key={i} className="relative aspect-square">
                {getCellContent(i)}
@@ -134,8 +108,18 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight }: Pa
   const cellSize = 100/15; // percentage
   let top, left;
 
+  const getYardPosition = (pawnId: number) => {
+    const offsets = [
+        {x: 1.5, y: 1.5},
+        {x: 3.5, y: 1.5},
+        {x: 1.5, y: 3.5},
+        {x: 3.5, y: 3.5}
+    ];
+    return offsets[pawnId];
+  }
+
+
   if (isHome) {
-    // Position pawns in the center when they are home
     const homeOffsets: Record<PlayerColor, {t: number, l: number}> = {
       blue: {t: 6.5, l: 7},
       green: {t: 7, l: 7.5},
@@ -145,10 +129,10 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight }: Pa
     top = homeOffsets[color].t * cellSize;
     left = homeOffsets[color].l * cellSize;
   } else if (position === -1) {
-    // Position in home yard
-    const yardPos = HOME_YARDS[color][id];
-    top = yardPos.y * cellSize;
-    left = yardPos.x * cellSize;
+    const base = HOME_YARDS[color][0];
+    const yardPos = getYardPosition(id);
+    top = (Math.floor(base/15) + yardPos.y) * cellSize / 1.5;
+    left = ((base%15) + yardPos.x) * cellSize / 1.5;
   } else {
     // Position on board path
     const x = position % 15;
@@ -177,10 +161,12 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight }: Pa
       <div
         className={cn(
           'w-full h-full rounded-full flex items-center justify-center text-white font-bold text-xs border-2 shadow-md cursor-pointer transition-all',
+          'relative',
           PAWN_COLORS[color],
           highlight && 'ring-4 ring-offset-2 ring-accent scale-110'
         )}
       >
+        <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-white/30 rounded-full" />
         {isHome ? <Home className="h-4 w-4" /> : ""}
       </div>
     </motion.div>

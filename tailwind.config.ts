@@ -8,12 +8,10 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   safelist: [
-    'bg-red-200', 'bg-red-300', 'bg-red-400', 'bg-red-500', 'border-red-700', 'text-red-500',
-    'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500', 'border-green-700', 'text-green-500',
-    'bg-yellow-200', 'bg-yellow-300', 'bg-yellow-400', 'bg-yellow-500', 'border-yellow-700', 'text-yellow-500',
-    'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'border-blue-700', 'text-blue-500',
-    'border-blue-400', 'bg-blue-200/50',
-    'border-red-400', 'bg-red-200/50',
+    'bg-red-200', 'bg-red-300', 'bg-red-400', 'bg-red-500', 'border-red-700', 'text-red-500', 'border-red-500', 'bg-red-500/30', 'bg-red-200/20',
+    'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500', 'border-green-700', 'text-green-500', 'border-green-500', 'bg-green-500/30', 'bg-green-200/20',
+    'bg-yellow-200', 'bg-yellow-300', 'bg-yellow-400', 'bg-yellow-500', 'border-yellow-700', 'text-yellow-500', 'border-yellow-500', 'bg-yellow-500/30', 'bg-yellow-200/20',
+    'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'border-blue-700', 'text-blue-500', 'border-blue-500', 'bg-blue-500/30', 'bg-blue-200/20',
   ],
   theme: {
     extend: {
