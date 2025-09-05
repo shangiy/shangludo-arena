@@ -117,7 +117,6 @@ export default function GameClient() {
 
   useEffect(() => {
     if (winner) {
-      // Handle game over logic, maybe show a toast or redirect
       toast({
         title: "Game Over!",
         description: `${players[winner].name} has won the game!`,
@@ -156,7 +155,10 @@ export default function GameClient() {
       }, 1000);
     } else {
         addMessage(players[currentTurn].name, `rolled a ${value}. Select a pawn to move.`, currentTurn);
-        if (possibleMoves.length === 1 || players[currentTurn].name !== 'Player') {
+        if (players[currentTurn].name !== 'Player' && possibleMoves.length > 0) {
+            // Simple AI: pick first possible move
+            setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 500);
+        } else if (possibleMoves.length === 1) {
             setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 500);
         }
     }
@@ -362,7 +364,7 @@ export default function GameClient() {
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
                         <DialogDescription className="text-center">
-                            {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
+                           {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-center items-center p-4">
