@@ -32,11 +32,8 @@ export function ChatPanel({ messages, onSendMessage }: { messages: ChatMessage[]
   };
 
   return (
-    <Card className="flex flex-col h-[60vh] lg:h-auto lg:flex-1">
-      <CardHeader>
-        <CardTitle className="text-center font-headline text-2xl">Game Chat</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 flex flex-col gap-4 p-0">
+    <Card className="flex flex-col h-full lg:h-auto lg:flex-1 shadow-none border-0">
+      <CardContent className="flex-1 flex flex-col gap-4 p-0 pt-4">
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((msg, index) => (
@@ -80,3 +77,5 @@ export function ChatPanel({ messages, onSendMessage }: { messages: ChatMessage[]
     </Card>
   );
 }
+
+    

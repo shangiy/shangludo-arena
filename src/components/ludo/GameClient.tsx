@@ -38,6 +38,8 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -466,27 +468,25 @@ export default function GameClient() {
   
   return (
      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-4 relative overflow-hidden">
-        {winner && (
-            <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
-                        <DialogDescription className="text-center">
-                           {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex justify-center items-center p-4">
-                        <Logo className="h-24 w-24" />
-                    </div>
-                    <DialogFooter className="sm:justify-center">
-                        <Button onClick={() => window.location.reload()}>Play Again</Button>
-                        <Button variant="secondary" asChild>
-                            <Link href="/">Back to Lobby</Link>
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        )}
+        <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
+                    <DialogDescription className="text-center">
+                       {winner && <><span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!</>}
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-center items-center p-4">
+                    <Logo className="h-24 w-24" />
+                </div>
+                <DialogFooter className="sm:justify-center">
+                    <Button onClick={() => window.location.reload()}>Play Again</Button>
+                    <Button variant="secondary" asChild>
+                        <Link href="/">Back to Lobby</Link>
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
         <div className="absolute top-4 left-4">
             <PlayerIcon color="blue" isPlayer={false} />
@@ -542,6 +542,9 @@ export default function GameClient() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[80vh]">
+                        <SheetHeader>
+                            <SheetTitle className="text-center font-headline text-2xl">Game Chat</SheetTitle>
+                        </SheetHeader>
                         <ChatPanel messages={messages} onSendMessage={handleSendMessage} />
                     </SheetContent>
                 </Sheet>
@@ -550,3 +553,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
