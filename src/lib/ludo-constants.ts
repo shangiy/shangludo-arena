@@ -3,7 +3,7 @@ export type PlayerColor = 'red' | 'green' | 'yellow' | 'blue';
 export const PLAYER_COLORS: Record<PlayerColor, string> = {
     red: 'bg-red-500',
     green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
+    yellow: 'bg-yellow-400',
     blue: 'bg-blue-500',
 };
 
@@ -23,19 +23,16 @@ export interface ChatMessage {
 // Using a 15x15 grid, where position is y * 15 + x
 const p = (x: number, y: number) => y * 15 + x;
 
-export const HOME_YARDS: Record<PlayerColor, number> = {
-    red: p(0,0),
-    yellow: p(9,0),
-    blue: p(0,9),
-    green: p(9,9),
+export const HOME_YARDS: Record<PlayerColor, [number, number]> = {
+    yellow: [p(0,0), p(5,5)], // Top-left
+    green: [p(9,0), p(14,5)], // Top-right
+    red: [p(0,9), p(5,14)], // Bottom-left
+    blue: [p(9,9), p(14,14)], // Bottom-right
 };
 
 
-const bluePathRaw = [
-    p(6,1), p(6,2), p(6,3), p(6,4), p(6,5),
-    p(5,6), p(4,6), p(3,6), p(2,6), p(1,6), p(0,6),
-    p(0,7),
-    p(1,8), p(2,8), p(3,8), p(4,8), p(5,8), p(6,8),
+const redPathRaw = [
+    p(1,8), p(2,8), p(3,8), p(4,8), p(5,8), 
     p(6,9), p(6,10), p(6,11), p(6,12), p(6,13), p(6,14),
     p(7,14),
     p(8,13), p(8,12), p(8,11), p(8,10), p(8,9), p(8,8),
@@ -44,51 +41,62 @@ const bluePathRaw = [
     p(13,6), p(12,6), p(11,6), p(10,6), p(9,6), p(8,6),
     p(8,5), p(8,4), p(8,3), p(8,2), p(8,1), p(8,0),
     p(7,0),
+    p(6,1), p(6,2), p(6,3), p(6,4), p(6,5), p(6,6),
+    p(7,6),
+    p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)
 ];
 
+
 const homeRuns: Record<PlayerColor, number[]> = {
-    red: [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)],
-    green: [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9)],
-    yellow: [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7)],
-    blue: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5)],
+    red:    [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)],
+    yellow: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5), p(7,6)],
+    green:  [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7), p(8,7)],
+    blue:   [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9), p(8,7)],
 }
 
-const generatePath = (startOffset: number, homeColor: PlayerColor) => {
+const generatePath = (startPosition: number, homeColor: PlayerColor) => {
+    const redStartIndex = redPathRaw.indexOf(START_POSITIONS.red);
+    const targetStartIndex = redPathRaw.indexOf(startPosition);
+    
+    const offset = (targetStartIndex - redStartIndex + 52) % 52;
+
     const path = [];
     for (let i = 0; i < 52; i++) {
-        path.push(bluePathRaw[(i + startOffset) % 52]);
+        path.push(redPathRaw[(redStartIndex + i - offset + 52) % 52]);
     }
+    
     return [...path.slice(0, 51), ...homeRuns[homeColor]];
 }
 
-export const PATHS: Record<PlayerColor, number[]> = {
-    red: generatePath(0, 'red'),
-    yellow: generatePath(13, 'yellow'),
-    green: generatePath(26, 'green'),
-    blue: generatePath(39, 'blue'),
+export const START_POSITIONS: Record<PlayerColor, number> = {
+    red: p(1, 8),
+    yellow: p(6, 1),
+    green: p(13, 6),
+    blue: p(8, 13),
 };
 
-export const START_POSITIONS: Record<PlayerColor, number> = {
-    red: p(1,6),
-    yellow: p(6,1),
-    green: p(13,8),
-    blue: p(8,13),
+export const PATHS: Record<PlayerColor, number[]> = {
+    red: generatePath(START_POSITIONS.red, 'red'),
+    yellow: generatePath(START_POSITIONS.yellow, 'yellow'),
+    green: generatePath(START_POSITIONS.green, 'green'),
+    blue: generatePath(START_POSITIONS.blue, 'blue'),
 };
+
 
 export const HOME_ENTRANCES: Record<PlayerColor, number> = {
-    red: p(0,8),
-    yellow: p(8,0),
-    green: p(14,6),
-    blue: p(6,14),
+    red: p(0,7),
+    yellow: p(7,0),
+    green: p(14,7),
+    blue: p(7,14),
 };
 
 export const SAFE_ZONES = [
-    START_POSITIONS.blue, 
     START_POSITIONS.red, 
-    START_POSITIONS.green, 
     START_POSITIONS.yellow,
-    p(6,2),
-    p(2,8),
-    p(8,12),
-    p(12,6)
+    START_POSITIONS.green, 
+    START_POSITIONS.blue,
+    p(8, 2),
+    p(2, 6),
+    p(6, 12),
+    p(12, 8)
 ];

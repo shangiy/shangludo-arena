@@ -20,8 +20,9 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, pawns 
     <div className="flex flex-col items-center gap-4">
       <Dice 
         onRoll={onDiceRoll} 
-        isRolling={phase !== 'ROLLING' || currentTurn !== 'red'}
+        isRolling={phase !== 'ROLLING'}
         value={diceValue}
+        currentTurn={currentTurn}
       />
     </div>
   );
