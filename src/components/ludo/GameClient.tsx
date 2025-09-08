@@ -177,12 +177,14 @@ export default function GameClient() {
     const allPawns = Object.values(pawns).flat();
   
     // Move from yard
-    const pawnsInYard = playerPawns.filter(p => p.position === -1);
-    if (roll === 6 && pawnsInYard.length > 0) {
-      const startPos = START_POSITIONS[player];
-      const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-      if (ownPawnsAtStart < 2) {
-         pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
+    if (roll === 6) {
+      const pawnsInYard = playerPawns.filter(p => p.position === -1);
+      if (pawnsInYard.length > 0) {
+        const startPos = START_POSITIONS[player];
+        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+        if (ownPawnsAtStart < 2) {
+           pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
+        }
       }
     }
 
@@ -279,87 +281,101 @@ export default function GameClient() {
     if (!diceValue || pawnToMove.color !== currentTurn || (phase !== 'MOVING' && phase !== 'AI_THINKING')) {
       return;
     }
-
+  
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
     const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id);
-    
-    if (!selectedMove) {
-        if (currentTurn === 'red') {
-            toast({
-                variant: "destructive",
-                title: "Invalid Move",
-                description: "This pawn cannot make that move.",
-            });
-        }
+  
+    // Special case for moving out of the yard
+    if (pawnToMove.position === -1 && diceValue === 6) {
+      const startPos = START_POSITIONS[currentTurn];
+      const moveOutOfYard = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.newPosition === startPos);
+      if (moveOutOfYard) {
+        performMove(pawnToMove, startPos);
         return;
+      }
     }
-
-    const { newPosition } = selectedMove;
+  
+    if (!selectedMove) {
+      if (currentTurn === 'red') {
+        toast({
+          variant: "destructive",
+          title: "Invalid Move",
+          description: "This pawn cannot make that move.",
+        });
+      }
+      return;
+    }
+  
+    performMove(pawnToMove, selectedMove.newPosition);
+  };
+  
+  const performMove = (pawnToMove: Pawn, newPosition: number) => {
+    if (!diceValue) return;
     let getsAnotherTurn = false;
-
+  
     setPawns(prev => {
-        const newPawns = JSON.parse(JSON.stringify(prev));
-        const pawnsOfPlayer = newPawns[currentTurn];
-        const pawnIndex = pawnsOfPlayer.findIndex((p: Pawn) => p.id === pawnToMove.id);
-        
-        pawnsOfPlayer[pawnIndex].position = newPosition;
-
-        // Capture logic
-        if (!SAFE_ZONES.includes(newPosition)) {
-            (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
-                if (color !== currentTurn) {
-                    let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
-                    // On the main path, single pawns can be captured. Stacks cannot be captured.
-                    if (opponentPawnsAtPos.length === 1 && !START_POSITIONS[color as PlayerColor].toString().includes(newPosition.toString())) {
-                         newPawns[color] = newPawns[color].map((p: Pawn) => {
-                            if (p.position === newPosition) {
-                                addMessage("System", `${players[currentTurn].name} captured ${color}'s pawn!`, currentTurn);
-                                getsAnotherTurn = true;
-                                return { ...p, position: -1 };
-                            }
-                            return p;
-                        });
-                    }
+      const newPawns = JSON.parse(JSON.stringify(prev));
+      const pawnsOfPlayer = newPawns[currentTurn];
+      const pawnIndex = pawnsOfPlayer.findIndex((p: Pawn) => p.id === pawnToMove.id);
+  
+      pawnsOfPlayer[pawnIndex].position = newPosition;
+  
+      // Capture logic
+      if (!SAFE_ZONES.includes(newPosition)) {
+        (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
+          if (color !== currentTurn) {
+            let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
+            if (opponentPawnsAtPos.length === 1 && newPosition !== START_POSITIONS[color]) {
+              newPawns[color] = newPawns[color].map((p: Pawn) => {
+                if (p.position === newPosition) {
+                  addMessage("System", `${players[currentTurn].name} captured ${color}'s pawn!`, currentTurn);
+                  getsAnotherTurn = true;
+                  return { ...p, position: -1 };
                 }
-            });
-        }
-        
-        // Home logic
-        const currentPath = PATHS[currentTurn];
-        if (currentPath.slice(51).includes(newPosition)) { // Check if pawn is on home run
-             const pawnsHome = pawnsOfPlayer.filter((p:Pawn) => p.isHome).length
-             // Final home position is at index 56 (51 path + 5 home run)
-             if(currentPath.indexOf(newPosition) === 56 - pawnsHome){
-                pawnsOfPlayer[pawnIndex].isHome = true;
-                addMessage("System", `${players[currentTurn].name}'s pawn reached home!`, currentTurn);
-                getsAnotherTurn = true;
-             }
-        }
-
-        newPawns[currentTurn] = pawnsOfPlayer;
-
-        // Win condition
-        const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-        if (allHome) {
-            setWinner(currentTurn);
-            setPhase('GAME_OVER');
-        } 
-        
-        if(diceValue === 6) {
-          getsAnotherTurn = true;
-        }
-
-        if(getsAnotherTurn) {
-            setPhase('ROLLING');
-            const turnPlayerName = players[currentTurn].name === 'Player' ? 'You get' : `${players[currentTurn].name} gets`;
-            addMessage('System', `${turnPlayerName} another turn!`);
-        } else {
-            nextTurn();
-        }
-
-        return newPawns;
+                return p;
+              });
+            }
+          }
+        });
+      }
+  
+      // Home logic
+      const currentPath = PATHS[currentTurn];
+      const homePathIndex = currentPath.indexOf(HOME_ENTRANCES[currentTurn]);
+      if(currentPath.indexOf(newPosition) > homePathIndex) {
+          const pawnsHome = newPawns[currentTurn].filter((p:Pawn) => p.isHome).length;
+          const finalHomeIndex = currentPath.length - 1; // Center
+          if (currentPath.indexOf(newPosition) >= finalHomeIndex - pawnsHome) {
+             pawnsOfPlayer[pawnIndex].isHome = true;
+             addMessage("System", `${players[currentTurn].name}'s pawn reached home!`, currentTurn);
+             getsAnotherTurn = true;
+          }
+      }
+  
+      newPawns[currentTurn] = pawnsOfPlayer;
+  
+      // Win condition
+      const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
+      if (allHome) {
+        setWinner(currentTurn);
+        setPhase('GAME_OVER');
+      }
+  
+      if (diceValue === 6) {
+        getsAnotherTurn = true;
+      }
+  
+      if (getsAnotherTurn) {
+        setPhase('ROLLING');
+        const turnPlayerName = players[currentTurn].name === 'Player' ? 'You get' : `${players[currentTurn].name} gets`;
+        addMessage('System', `${turnPlayerName} another turn!`);
+      } else {
+        nextTurn();
+      }
+  
+      return newPawns;
     });
-
+  
     setDiceValue(null);
   };
   
@@ -402,6 +418,17 @@ export default function GameClient() {
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
         pawns[color].forEach(pawn => {
             const isPlayerTurn = pawn.color === currentTurn && (phase === 'MOVING' || phase === 'AI_THINKING');
+            
+            // For pawns in yard, highlight if dice is 6
+            if (pawn.position === -1 && diceValue === 6 && isPlayerTurn) {
+                const startPos = START_POSITIONS[color];
+                const ownPawnsAtStart = pawns[color].filter(p => p.position === startPos).length;
+                if(ownPawnsAtStart < 2) {
+                    allPawns.push({ ...pawn, highlight: true, isStacked: false });
+                    return;
+                }
+            }
+
             const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
             const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
             allPawns.push({ ...pawn, highlight: isPlayerTurn && canMove, isStacked });
