@@ -2,17 +2,11 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Home, Star } from 'lucide-react';
 import { PlayerColor, Pawn as PawnType, HOME_YARDS, PATHS, SAFE_ZONES, START_POSITIONS } from '@/lib/ludo-constants';
+import { HomeIcon } from '../icons/HomeIcon';
+import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center";
-
-const StarIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", className)}>
-        <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404.433 2.082-5.007z" clipRule="evenodd" />
-    </svg>
-);
-
 
 export function GameBoard({ children, playersInfo }: { children: ReactNode, playersInfo: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
@@ -48,22 +42,23 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
 
         if (isPath) {
             let bgColor = 'bg-white/90';
+            let starColor: PlayerColor | 'white' = 'white';
             
             // Home columns
             if(colorForPath) {
                 bgColor = HOME_RUN_BGS[colorForPath]
+                starColor = colorForPath;
             }
 
             if(isStart) {
-                if (x === 1 && y === 6) bgColor = YARD_BGS['red'];
-                if (x === 8 && y === 1) bgColor = YARD_BGS['yellow'];
-                if (x === 13 && y === 8) bgColor = YARD_BGS['green'];
-                if (x === 6 && y === 13) bgColor = YARD_BGS['blue'];
+                if (x === 1 && y === 6) { bgColor = YARD_BGS['red']; starColor = 'red'; }
+                if (x === 8 && y === 1) { bgColor = YARD_BGS['yellow']; starColor = 'yellow'; }
+                if (x === 13 && y === 8) { bgColor = YARD_BGS['green']; starColor = 'green'; }
+                if (x === 6 && y === 13) { bgColor = YARD_BGS['blue']; starColor = 'blue'; }
             }
 
             return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full border border-black/10")}>
-              {isSafe && !isStart && <StarIcon className="text-gray-400" />}
-              {isStart && <StarIcon className={`text-white`} />}
+              {isSafe && <StarIcon color={isStart ? 'white' : colorForPath || 'gray'} />}
             </div>;
         }
 
@@ -81,7 +76,7 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
                 </div>
             </div>
         );
-        if (x < 6 && y < 6) return renderYard('blue'); // Top-left
+        if (x < 6 && y < 6) return renderYard('blue'); // Top-left is blue in new design
         if (x > 8 && y < 6) return renderYard('yellow'); // Top-right
         if (x < 6 && y > 8) return renderYard('red'); // Bottom-left
         if (x > 8 && y > 8) return renderYard('green'); // Bottom-right

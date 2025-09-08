@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, Fragment } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Loader2, User, Hand, MessageSquare, BadgePercent, Home } from 'lucide-react';
+import { Bot, Loader2, User, Hand, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 
 import { generateAIMove } from '@/ai/flows/ai-opponent';
@@ -44,6 +44,8 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
+import { HomeIcon } from '../icons/HomeIcon';
+import { PawnIcon } from '../icons/PawnIcon';
 
 type GamePhase = 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -93,20 +95,6 @@ const PlayerIcon = ({
       </div>
     );
   };
-
-const PawnIcon = ({color}: {color: PlayerColor}) => {
-    const PAWN_COLORS: Record<PlayerColor, string> = {
-        red: 'text-red-500',
-        green: 'text-green-500',
-        yellow: 'text-yellow-400',
-        blue: 'text-blue-500',
-    }
-    return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", PAWN_COLORS[color])}>
-            <path d="M12 2C9.243 2 7 4.243 7 7c0 2.757 2.243 5 5 5s5-2.243 5-5c0-2.757-2.243-5-5-5z"></path><path d="M12 14c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z"></path>
-        </svg>
-    )
-};
 
 
 export default function GameClient() {
@@ -476,7 +464,7 @@ export default function GameClient() {
                         {Array(4).fill(0).map((_, i) => <PawnIcon key={i} color={color} />)}
                     </div>
                     <div className='flex items-center gap-2 text-xs font-semibold'>
-                        <Home className="w-4 h-4" /> {pawnsHome}/4
+                        <HomeIcon className="w-4 h-4" /> {pawnsHome}/4
                     </div>
                  </div>
             </div>

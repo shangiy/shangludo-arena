@@ -52,20 +52,21 @@ const MAIN_PATH = [
     p(6,14), p(6,13), p(6,12), p(6,11), p(6,10), p(6,9),
     p(5,8), p(4,8), p(3,8), p(2,8), p(1,8), p(0,8),
     p(0,7),
+    p(0,6) // Connect back to start for rotation
 ];
 
 
 const homeRuns: Record<PlayerColor, number[]> = {
-    red:    [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7)],
-    yellow: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5)],
-    green:  [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7)],
-    blue:   [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9)],
+    red:    [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)],
+    yellow: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5), p(7,6)],
+    green:  [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7), p(8,7)],
+    blue:   [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9), p(7,8)],
 }
-
 
 const generatePath = (startPosition: PlayerColor) => {
     const startIndex = MAIN_PATH.indexOf(START_POSITIONS[startPosition]);
-    const rotatedPath = [...MAIN_PATH.slice(startIndex), ...MAIN_PATH.slice(0, startIndex)];
+    // The path starts *after* the start position.
+    const rotatedPath = [...MAIN_PATH.slice(startIndex + 1), ...MAIN_PATH.slice(0, startIndex + 1)];
     // The 51st step is the one before entering the home run
     const finalPath = [...rotatedPath.slice(0, 51), ...homeRuns[startPosition]];
     // Add the final home square
@@ -93,8 +94,8 @@ export const SAFE_ZONES = [
     START_POSITIONS.yellow,
     START_POSITIONS.green, 
     START_POSITIONS.blue,
-    p(2, 8),
-    p(8, 12),
-    p(12, 6),
-    p(6, 2)
+    p(1, 8), // Opposite red start
+    p(6, 1), // Opposite yellow start
+    p(13, 6), // Opposite green start
+    p(8, 13) // Opposite blue start
 ];
