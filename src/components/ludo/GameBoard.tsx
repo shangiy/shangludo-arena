@@ -90,10 +90,10 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
             return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white/90 relative">
                  <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                    <polygon points="0,0 100,0 50,50" fill="#facc15" /> 
-                    <polygon points="100,0 100,100 50,50" fill="#4ade80" /> 
-                    <polygon points="0,100 100,100 50,50" fill="#3b82f6" />
-                    <polygon points="0,0 0,100 50,50" fill="#f87171" />
+                    <polygon points="0,0 100,0 50,50" className="fill-yellow-400" /> 
+                    <polygon points="100,0 100,100 50,50" className="fill-green-500" /> 
+                    <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
+                    <polygon points="0,0 0,100 50,50" className="fill-red-500" />
 
                     {/* Arrows */}
                     <polygon points="50,15 60,35 40,35" className="fill-yellow-600" />
