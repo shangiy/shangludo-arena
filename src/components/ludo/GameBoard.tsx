@@ -61,17 +61,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
         
         let safeZoneColor: PlayerColor | null = null;
         if (p(x,y) === START_POSITIONS.red) safeZoneColor = 'red';
-        if (p(x,y) === p(2, 8)) safeZoneColor = 'yellow';
-        
-        if (p(x,y) === p(8, 12)) safeZoneColor = 'red';
+        if (p(x,y) === p(8, 2)) safeZoneColor = 'yellow';
+        if (p(x,y) === p(12, 6)) safeZoneColor = 'green';
+        if (p(x,y) === p(6, 12)) safeZoneColor = 'blue';
 
-        if (p(x,y) === START_POSITIONS.yellow) safeZoneColor = 'green';
-        if (p(x,y) === p(6, 2)) safeZoneColor = 'blue';
-        
-        if (p(x,y) === START_POSITIONS.blue) safeZoneColor = 'yellow';
-        if (p(x,y) === p(12, 6)) safeZoneColor = 'blue';
-
-        if (p(x,y) === START_POSITIONS.green) safeZoneColor = 'green';
         
         const isPath = 
             (x >= 6 && x <= 8 && y >=0 && y < 6) || // green path area
@@ -92,6 +85,16 @@ export function GameBoard({ children }: { children: ReactNode }) {
                  bgColor = HOME_RUN_BGS[homePathColor];
             }
 
+            if (p(x,y) === START_POSITIONS.green) {
+                return (
+                    <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+                        <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                           <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
+                        </svg>
+                    </div>
+                );
+            }
+
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
             </div>;
@@ -99,19 +102,19 @@ export function GameBoard({ children }: { children: ReactNode }) {
 
         // Home yards
         const renderYard = (color: PlayerColor) => (
-            <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
+             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
                 <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', YARD_BGS[color])}>
                     <div className="flex items-center justify-center p-1">
-                      <div className={cn('h-full w-full rounded-full bg-white')}></div>
+                      <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full bg-white')}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full bg-white')}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full bg-white')}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                 </div>
             </div>
@@ -228,5 +231,3 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
     </motion.div>
   );
 }
-
-    
