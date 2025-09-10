@@ -32,33 +32,33 @@ export function GameBoard({ children }: { children: ReactNode }) {
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
             // Top-left corner
             if(x === 6 && y === 6) {
-                 return <div className={cn("bg-yellow-400 relative h-full w-full", gridCellStyle)}>
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 0,100" className="fill-white" />
+                        <polygon points="0,0 100,0 0,100" className="fill-yellow-400" />
                     </svg>
                 </div>;
             }
             // Top-right corner
             if(x === 8 && y === 6) {
-                 return <div className={cn("bg-green-500 relative h-full w-full", gridCellStyle)}>
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 100,100" className="fill-white" />
+                        <polygon points="0,0 100,0 100,100" className="fill-green-500" />
                     </svg>
                 </div>;
             }
             // Bottom-left corner
             if(x === 6 && y === 8) {
-                 return <div className={cn("bg-red-500 relative h-full w-full", gridCellStyle)}>
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 0,100 100,100" className="fill-white" />
+                        <polygon points="0,0 0,100 100,100" className="fill-red-500" />
                     </svg>
                 </div>;
             }
             // Bottom-right corner
             if(x === 8 && y === 8) {
-                 return <div className={cn("bg-blue-500 relative h-full w-full", gridCellStyle)}>
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="100,0 0,100 100,100" className="fill-white" />
+                        <polygon points="100,0 0,100 100,100" className="fill-blue-500" />
                     </svg>
                 </div>;
             }
@@ -101,8 +101,8 @@ export function GameBoard({ children }: { children: ReactNode }) {
         let homePathColor: PlayerColor | null = null;
         if (y === 7 && x >= 1 && x <= 5) homePathColor = 'red';
         if (x === 7 && y >= 1 && y <= 5) homePathColor = 'green';
-        if (x === 7 && y >= 9 && y <= 13) homePathColor = 'blue';
-        if (y === 7 && x >= 9 && x <= 13) homePathColor = 'yellow';
+        if (x === 7 && y >= 9 && y <= 13) homePathColor = 'yellow';
+        if (y === 7 && x >= 9 && x <= 13) homePathColor = 'blue';
 
 
         if (isPath) {
