@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { PlayerColor, Pawn as PawnType, PATHS, SAFE_ZONES, START_POSITIONS } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
-const gridCellStyle = "flex items-center justify-center";
+const gridCellStyle = "flex items-center justify-center border border-black/20";
 
 export function GameBoard({ children }: { children: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
@@ -18,67 +18,65 @@ export function GameBoard({ children }: { children: ReactNode }) {
     }
     
     const HOME_RUN_BGS: Record<PlayerColor, string> = {
-        blue: 'bg-blue-300',
-        yellow: 'bg-yellow-200',
-        red: 'bg-red-300',
-        green: 'bg-green-300',
+        blue: 'bg-blue-500',
+        yellow: 'bg-yellow-400',
+        red: 'bg-red-500',
+        green: 'bg-green-500',
     }
 
     const getCellContent = (index: number) => {
         const x = index % 15;
         const y = Math.floor(index / 15);
 
-        // Center 3x3 grid
+        // Center 3x3 grid (Home)
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
-            const isBordered = "border border-black/20";
-            
-            // Top-left corner (red)
+            // Top-left corner
             if(x === 6 && y === 6) {
-                 return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,100 0,100" className="fill-red-500" /> 
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="0,0 100,0 0,100" className="fill-red-500" /> 
                     </svg>
                 </div>;
             }
-            // Top-right corner (yellow)
+            // Top-right corner
             if(x === 8 && y === 6) {
-                 return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,100 100,100 100,0" className="fill-yellow-400" />
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="0,0 100,0 100,100" className="fill-green-500" />
                     </svg>
                 </div>;
             }
-            // Bottom-left corner (blue)
+            // Bottom-left corner
             if(x === 6 && y === 8) {
-                 return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 100,100" className="fill-blue-500" />
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="0,0 0,100 100,100" className="fill-yellow-400" />
                     </svg>
                 </div>;
             }
-            // Bottom-right corner (green)
+            // Bottom-right corner
             if(x === 8 && y === 8) {
-                 return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 0,100" className="fill-green-500" />
+                 return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="100,0 0,100 100,100" className="fill-blue-500" />
                     </svg>
                 </div>;
             }
 
             // Adjacent cells
-            if (x === 7 && y === 6) return <div className={cn(gridCellStyle, isBordered, "bg-yellow-400")} />; // Top
-            if (x === 8 && y === 7) return <div className={cn(gridCellStyle, isBordered, "bg-green-500")} />; // Right
-            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, isBordered, "bg-blue-500")} />; // Bottom
-            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, isBordered, "bg-red-500")} />; // Left
+            if (x === 7 && y === 6) return <div className={cn(gridCellStyle, "bg-green-500")} />; // Top
+            if (x === 8 && y === 7) return <div className={cn(gridCellStyle, "bg-blue-500")} />; // Right
+            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, "bg-yellow-500")} />; // Bottom
+            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, "bg-red-500")} />; // Left
             
             // Center cell
             if (x === 7 && y === 7) {
-                return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
+                return <div className={cn(gridCellStyle, "bg-white relative")}>
                      <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                         <polygon points="0,0 50,50 0,100" className="fill-red-500" />
-                        <polygon points="0,0 100,0 50,50" className="fill-yellow-400" />
-                        <polygon points="100,0 100,100 50,50" className="fill-green-500" />
-                        <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
+                        <polygon points="0,0 100,0 50,50" className="fill-green-500" />
+                        <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
+                        <polygon points="0,100 100,100 50,50" className="fill-yellow-400" />
                     </svg>
                 </div>;
             }
@@ -87,59 +85,64 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Path cells
         const isPath = Object.values(PATHS).some(path => path.includes(x + y * 15));
         const isSafe = SAFE_ZONES.includes(x + y * 15);
-        const isStart = Object.values(START_POSITIONS).includes(x + y * 15);
         
         let colorForPath: PlayerColor | null = null;
         if (x >= 1 && x <= 5 && y === 7) colorForPath = 'red';
         if (x === 7 && y >= 9 && y <= 13) colorForPath = 'blue';
         if (x >= 9 && x <= 13 && y === 7) colorForPath = 'green';
         if (x === 7 && y >= 1 && y <= 5) colorForPath = 'yellow';
+        
+        //This is wrong, let's check the image again
+        // Red yard is top left (0,0 to 5,5), path is horizontal at y=7, from x=1 to x=5
+        // Green yard is top right (9,0 to 14,5), path is vertical at x=7, from y=1 to y=5
+        // Yellow yard is bottom left (0,9 to 5,14), path is vertical at x=7, from y=9 to y=13
+        // Blue yard is bottom right (9,9 to 14,14), path is horizontal at y=7, from x=9 to x=13
+        
+        // Corrected home paths:
+        let homePathColor: PlayerColor | null = null;
+        if (x >= 1 && x <= 5 && y === 7) homePathColor = 'red';
+        if (x === 7 && y >= 1 && y <= 5) homePathColor = 'green';
+        if (x >= 9 && x <= 13 && y === 7) homePathColor = 'blue';
+        if (x === 7 && y >= 9 && y <= 13) homePathColor = 'yellow';
+
 
         if (isPath) {
             let bgColor = 'bg-white';
-            let starColor: PlayerColor | 'white' = 'white';
             
-            if(colorForPath) {
-                bgColor = HOME_RUN_BGS[colorForPath]
+            if(homePathColor) {
+                bgColor = HOME_RUN_BGS[homePathColor]
             }
 
-            if(isStart) {
-                if (x === 1 && y === 6) { starColor = 'red'; }
-                if (x === 8 && y === 1) { starColor = 'yellow'; }
-                if (x === 13 && y === 8) { starColor = 'green'; }
-                if (x === 6 && y === 13) { starColor = 'blue'; }
-            }
-
-            return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full border border-black/20")}>
-              {isSafe && <StarIcon color={isStart ? starColor : colorForPath || 'gray'} />}
+            return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full")}>
+              {isSafe && <StarIcon color={homePathColor ?? 'gray'} />}
             </div>;
         }
 
         // Home yards
         const renderYard = (color: PlayerColor) => (
-            <div className={cn('h-full w-full p-1 relative', YARD_BGS[color])}>
-                <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-2 p-2 rounded-md">
-                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
-                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
-                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
-                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
+            <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], gridCellStyle)}>
+                <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-2 p-2">
+                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
+                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
+                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
+                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
                 </div>
             </div>
         );
 
         if (x < 6 && y < 6) return renderYard('red');
-        if (x > 8 && y < 6) return renderYard('yellow');
-        if (x < 6 && y > 8) return renderYard('blue');
-        if (x > 8 && y > 8) return renderYard('green');
+        if (x > 8 && y < 6) return renderYard('green');
+        if (x < 6 && y > 8) return renderYard('yellow');
+        if (x > 8 && y > 8) return renderYard('blue');
         
-        return <div className="h-full w-full bg-transparent"></div>;
+        return <div className={cn("h-full w-full", gridCellStyle)}></div>;
     }
   
   return (
-    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-gray-800"
+    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-2 border-gray-800"
       style={{'--cell-size': 'calc(100% / 15)'} as React.CSSProperties}
     >
-      <div className="grid grid-cols-15 grid-rows-15 h-full w-full rounded-lg shadow-inner overflow-hidden">
+      <div className="grid grid-cols-15 grid-rows-15 h-full w-full overflow-hidden border-2 border-black">
          {cells.map((_, i) => (
             <div key={i} className="relative aspect-square">
                {getCellContent(i)}
@@ -171,11 +174,12 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
   let top, left;
 
   const getYardPosition = (pawnId: number) => {
+    // These map to the 4 circles inside the 6x6 yard
     const offsets = [
-        {x: 1, y: 1},
-        {x: 3, y: 1},
-        {x: 1, y: 3},
-        {x: 3, y: 3}
+        {x: 1.5, y: 1.5},
+        {x: 3.5, y: 1.5},
+        {x: 1.5, y: 3.5},
+        {x: 3.5, y: 3.5}
     ];
     return offsets[pawnId];
   }
@@ -184,24 +188,24 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
   if (isHome) {
      const homeTriangleCenter: Record<PlayerColor, {x: number, y: number}> = {
         red: { x: 7, y: 3.5 },
-        yellow: { x: 10.5, y: 7 },
-        green: { x: 7, y: 10.5 },
+        green: { x: 10.5, y: 7 },
         blue: { x: 3.5, y: 7 },
+        yellow: { x: 7, y: 10.5 },
      }
      top = (homeTriangleCenter[color].y) * cellSize;
      left = (homeTriangleCenter[color].x) * cellSize;
   } else if (position === -1) {
     const yardBases: Record<PlayerColor, {x: number, y: number}> = {
         red: { x: 0, y: 0 },
-        yellow: { x: 9, y: 0 },
-        blue: { x: 0, y: 9 },
-        green: { x: 9, y: 9 },
+        green: { x: 9, y: 0 },
+        yellow: { x: 0, y: 9 },
+        blue: { x: 9, y: 9 },
     }
     const base = yardBases[color];
     const yardPos = getYardPosition(id);
     
-    top = (base.y + yardPos.y + 0.5) * cellSize;
-    left = (base.x + yardPos.x + 0.5) * cellSize;
+    top = (base.y + yardPos.y) * cellSize;
+    left = (base.x + yardPos.x) * cellSize;
   } else {
     // Position on board path
     const x = position % 15;
