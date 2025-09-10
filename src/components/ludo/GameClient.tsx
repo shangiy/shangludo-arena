@@ -140,11 +140,13 @@ export default function GameClient() {
     const possibleMoves = getPossibleMoves(currentTurn, value);
     
     if (possibleMoves.length === 0) {
+      addMessage('System', `${players[currentTurn].name} has no possible moves.`);
       setTimeout(() => {
         if (value !== 6) {
           nextTurn();
         } else {
           setPhase('ROLLING'); // Roll again
+          addMessage('System', `${players[currentTurn].name} gets to roll again.`);
         }
       }, 1000);
     } else {
@@ -223,6 +225,7 @@ export default function GameClient() {
           if (color !== currentTurn) {
             let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
             if (opponentPawnsAtPos.length === 1 && newPosition !== START_POSITIONS[color]) {
+              addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
                   getsAnotherTurn = true;
@@ -244,6 +247,7 @@ export default function GameClient() {
           const finalHomeIndex = currentPath.length - 1;
           if (newPosition === finalHomeIndex) {
              pawnsOfPlayer[pawnIndex].isHome = true;
+             addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
              getsAnotherTurn = true;
           }
       }
@@ -259,6 +263,7 @@ export default function GameClient() {
   
       if (diceValue === 6) {
         getsAnotherTurn = true;
+        addMessage('System', `${players[currentTurn].name} rolled a 6 and gets another turn.`);
       }
   
       if (getsAnotherTurn && !winner) {
@@ -309,37 +314,27 @@ export default function GameClient() {
     });
 
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-        pawns[color].forEach(pawn => {
-            if (pawn.position === -1 || pawn.isHome) return;
+      pawns[color].forEach(pawn => {
+        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING';
+        let highlight = false;
 
-            const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING';
-            
-            let highlight = false;
-            if (isPlayerTurn) {
-                const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
-                if (canMove) {
-                    highlight = true;
-                }
+        if (isPlayerTurn) {
+          if (pawn.position === -1) {
+            if (diceValue === 6 && possibleMovesForHighlight.some(move => move.pawn.id === pawn.id)) {
+              highlight = true;
             }
-            // Highlight pawns in yard if a 6 is rolled
-            if (isPlayerTurn && diceValue === 6 && pawns[color].some(p => p.position === -1)) {
-                 const pawnsInYard = pawns[color].filter(p=>p.position === -1);
-                 // this pawn is not the one to highlight, the one in yard is.
+          } else {
+            const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
+            if (canMove) {
+                highlight = true;
             }
+          }
+        }
 
-
-            const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
-            allPawns.push({ ...pawn, highlight, isStacked });
-        });
+        const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
+        allPawns.push({ ...pawn, highlight, isStacked });
+      });
     });
-
-    // Special highlighting for yard pawns
-     if (phase === 'MOVING' && diceValue === 6 && currentTurn === 'red') {
-       const yardPawn = pawns.red.find(p => p.position === -1);
-       if (yardPawn) {
-          allPawns.push({ ...yardPawn, highlight: true, isStacked: false });
-       }
-     }
 
 
     return allPawns.map(pawn => (
@@ -381,6 +376,15 @@ export default function GameClient() {
             </DialogContent>
         </Dialog>
 
+        <header className="w-full flex justify-center items-center py-4">
+             <GameControls
+                currentTurn={currentTurn}
+                phase={phase}
+                diceValue={diceValue}
+                onDiceRoll={handleDiceRoll}
+            />
+        </header>
+
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
                 <GameBoard>
@@ -388,15 +392,6 @@ export default function GameClient() {
                 </GameBoard>
             </div>
         </main>
-
-         <footer className="w-full flex justify-center items-center py-4">
-             <GameControls
-                currentTurn={currentTurn}
-                phase={phase}
-                diceValue={diceValue}
-                onDiceRoll={handleDiceRoll}
-            />
-        </footer>
     </div>
   );
 }
