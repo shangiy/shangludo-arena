@@ -60,10 +60,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         const safeZonePositions: Record<number, PlayerColor> = {
-            [p(8, 12)]: 'blue',
-            [p(12, 6)]: 'red',
-            [p(6, 2)]: 'green',
-            [p(2, 8)]: 'yellow'
+            [p(1, 8)]: 'red',
+            [p(6, 13)]: 'green',
+            [p(8, 1)]: 'yellow',
+            [p(13, 6)]: 'blue',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -119,7 +119,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Home yards
         const renderYard = (color: PlayerColor) => (
              <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1 bg-white')}>
+                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', YARD_BGS[color])}>
                     <div className="flex items-center justify-center p-1">
                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
@@ -130,7 +130,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
                        <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className_>cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                 </div>
             </div>
