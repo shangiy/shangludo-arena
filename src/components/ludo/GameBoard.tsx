@@ -66,15 +66,15 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         let safeZoneColor: PlayerColor | null = null;
-        if (x === 6 && y === 2) safeZoneColor = 'green';
-        if (x === 2 && y === 8) safeZoneColor = 'yellow';
-        if (x === 8 && y === 12) safeZoneColor = 'blue';
-        if (x === 12 && y === 6) safeZoneColor = 'red';
+        if (x === 2 && y === 6) safeZoneColor = 'red';
+        if (x === 6 && y === 12) safeZoneColor = 'yellow';
+        if (x === 12 && y === 8) safeZoneColor = 'blue';
+        if (x === 8 && y === 2) safeZoneColor = 'green';
         
-        if (x === 1 && y === 6) safeZoneColor = 'red';
-        if (x === 8 && y === 1) safeZoneColor = 'green';
-        if (x === 13 && y === 8) safeZoneColor = 'blue';
-        if (x === 6 && y === 13) safeZoneColor = 'yellow';
+        if (x === 1 && y === 8) safeZoneColor = 'red';
+        if (x === 6 && y === 1) safeZoneColor = 'green';
+        if (x === 13 && y === 6) safeZoneColor = 'blue';
+        if (x === 8 && y === 13) safeZoneColor = 'yellow';
         
         const isPath = 
             (x >= 6 && x <= 8 && y >=0 && y < 6) || // green path area
@@ -104,33 +104,17 @@ export function GameBoard({ children }: { children: ReactNode }) {
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
                 <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-1 p-1">
-                    <div className="bg-white flex items-center justify-center p-1">
-                      <div className={cn('h-full w-full rounded-full border-2', `border-${color}-500`, `bg-white`)}>
-                        <div className="h-full w-full rounded-full bg-white m-px flex items-center justify-center">
-                            <div className={cn('h-1/2 w-1/2 rounded-full', `bg-${color}-500`)}></div>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-center p-1">
+                      <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
                     </div>
-                    <div className="bg-white flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2', `border-${color}-500`, `bg-white`)}>
-                        <div className="h-full w-full rounded-full bg-white m-px flex items-center justify-center">
-                            <div className={cn('h-1/2 w-1/2 rounded-full', `bg-${color}-500`)}></div>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-center p-1">
+                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
                     </div>
-                    <div className="bg-white flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2', `border-${color}-500`, `bg-white`)}>
-                        <div className="h-full w-full rounded-full bg-white m-px flex items-center justify-center">
-                            <div className={cn('h-1/2 w-1/2 rounded-full', `bg-${color}-500`)}></div>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-center p-1">
+                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
                     </div>
-                    <div className="bg-white flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2', `border-${color}-500`, `bg-white`)}>
-                        <div className="h-full w-full rounded-full bg-white m-px flex items-center justify-center">
-                            <div className={cn('h-1/2 w-1/2 rounded-full', `bg-${color}-500`)}></div>
-                        </div>
-                      </div>
+                    <div className="flex items-center justify-center p-1">
+                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
                     </div>
                 </div>
             </div>
