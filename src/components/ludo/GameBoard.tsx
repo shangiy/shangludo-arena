@@ -44,7 +44,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
                      <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                         <polygon points="50,50 0,0 100,0" className="fill-red-500" />
-                        <polygon points="50,50 100,0 100,100" className="fill-yellow-500" />
+                        <polygon points="50,50 100,0 100,100" className="fill-yellow-400" />
                         <polygon points="50,50 100,100 0,100" className="fill-blue-500" />
                         <polygon points="50,50 0,100 0,0" className="fill-green-500" />
                     </svg>
@@ -52,7 +52,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
-            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-500")} />;
+            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")} />;
             if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
             
             // Unused center cells
@@ -60,10 +60,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         const safeZonePositions: Record<number, PlayerColor> = {
-            [p(2, 6)]: 'red',
-            [p(6, 12)]: 'blue',
-            [p(12, 8)]: 'yellow',
-            [p(8, 2)]: 'green',
+            [p(1, 8)]: 'red',
+            [p(6, 13)]: 'blue',
+            [p(13, 6)]: 'yellow',
+            [p(8, 1)]: 'green',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
