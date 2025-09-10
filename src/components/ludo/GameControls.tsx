@@ -23,6 +23,13 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
     onDiceRoll(finalValue);
   }
 
+  const turnColorClasses: Record<PlayerColor, string> = {
+    red: 'turn-red',
+    green: 'turn-green',
+    yellow: 'turn-yellow',
+    blue: 'turn-blue',
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       <Button
@@ -30,7 +37,8 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
         disabled={isRolling || !isPlayerTurn}
         className={cn(
             "gradient-button text-lg font-bold py-3 px-6 rounded-lg animate-pulse",
-            (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed"
+            (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed",
+            turnColorClasses[currentTurn]
         )}
       >
         <Dices className="mr-2" />
