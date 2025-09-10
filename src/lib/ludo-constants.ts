@@ -53,7 +53,7 @@ const homeRuns: Record<PlayerColor, number[]> = {
     red:    [p(1,7), p(2,7), p(3,7), p(4,7), p(5,7), p(6,7)],
     yellow: [p(7,1), p(7,2), p(7,3), p(7,4), p(7,5), p(7,6)],
     green:  [p(13,7), p(12,7), p(11,7), p(10,7), p(9,7), p(8,7)],
-    blue:   [p(7,13), p(7,12), p(7,11), p(7,10), p(7,9), p(7,8)],
+    blue:   [p(7,9), p(7,10), p(7,11), p(7,12), p(7,13), p(7,8)],
 }
 
 const generatePath = (startPosition: PlayerColor) => {

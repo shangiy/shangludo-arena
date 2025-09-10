@@ -28,6 +28,32 @@ export function GameBoard({ children }: { children: ReactNode }) {
         const x = index % 15;
         const y = Math.floor(index / 15);
 
+        // Center 3x3 grid
+        if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
+            const isBordered = "border border-black/20";
+            // Corner cells with 4 triangles
+            if ((x === 6 || x === 8) && (y === 6 || y === 8)) {
+                return <div className={cn(gridCellStyle, isBordered, "bg-white relative")}>
+                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="0,0 100,0 50,50" className="fill-yellow-400" /> 
+                        <polygon points="100,0 100,100 50,50" className="fill-green-500" /> 
+                        <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
+                        <polygon points="0,0 0,100 50,50" className="fill-red-500" />
+                    </svg>
+                </div>;
+            }
+            // Adjacent cells
+            if (x === 7 && y === 6) return <div className={cn(gridCellStyle, isBordered, "bg-yellow-400")} />; // Top
+            if (x === 8 && y === 7) return <div className={cn(gridCellStyle, isBordered, "bg-green-500")} />; // Right
+            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, isBordered, "bg-blue-500")} />; // Bottom
+            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, isBordered, "bg-red-500")} />; // Left
+            
+            // Center cell
+            if (x === 7 && y === 7) {
+                return <div className={cn(gridCellStyle, isBordered, "bg-white")}></div>;
+            }
+        }
+        
         // Path cells
         const isPath = Object.values(PATHS).some(path => path.includes(x + y * 15));
         const isSafe = SAFE_ZONES.includes(x + y * 15);
@@ -35,7 +61,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
         
         let colorForPath: PlayerColor | null = null;
         if (x >= 1 && x <= 5 && y === 7) colorForPath = 'red';
-        if (x === 7 && y >= 8 && y <= 13) colorForPath = 'blue';
+        if (x === 7 && y >= 9 && y <= 13) colorForPath = 'blue';
         if (x >= 9 && x <= 13 && y === 7) colorForPath = 'green';
         if (x === 7 && y >= 1 && y <= 5) colorForPath = 'yellow';
 
@@ -76,18 +102,6 @@ export function GameBoard({ children }: { children: ReactNode }) {
         if (x < 6 && y > 8) return renderYard('blue');
         if (x > 8 && y > 8) return renderYard('green');
         
-        // Center home triangle
-        if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
-            return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white relative border border-black/20">
-                 <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                    <polygon points="0,0 100,0 50,50" className="fill-yellow-400" /> 
-                    <polygon points="100,0 100,100 50,50" className="fill-green-500" /> 
-                    <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
-                    <polygon points="0,0 0,100 50,50" className="fill-red-500" />
-                </svg>
-            </div>;
-        }
-
         return <div className="h-full w-full bg-transparent"></div>;
     }
   
