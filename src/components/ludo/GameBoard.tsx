@@ -60,16 +60,15 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         let safeZoneColor: PlayerColor | null = null;
-        if (p(x,y) === START_POSITIONS.red) safeZoneColor = 'red';
-        if (p(x,y) === p(8, 2)) safeZoneColor = 'yellow';
-        if (p(x,y) === p(12, 6)) safeZoneColor = 'green';
-        if (p(x,y) === p(6, 12)) safeZoneColor = 'blue';
-
+        if (p(x,y) === p(2, 8)) safeZoneColor = 'red';
+        if (p(x,y) === p(6, 2)) safeZoneColor = 'yellow';
+        if (p(x,y) === p(12, 6)) safeZoneColor = 'blue';
+        if (p(x,y) === p(8, 12)) safeZoneColor = 'green';
         
         const isPath = 
-            (x >= 6 && x <= 8 && y >=0 && y < 6) || // green path area
+            (x >= 6 && x <= 8 && y >=0 && y < 6) || // yellow path area
             (x >= 9 && x <= 14 && y >= 6 && y <= 8) || // blue path area
-            (x >= 6 && x <= 8 && y >= 9 && y <= 14) || // yellow path area
+            (x >= 6 && x <= 8 && y >= 9 && y <= 14) || // green path area
             (x >= 0 && x <= 5 && y >= 6 && y <= 8); // red path area
 
         let homePathColor: PlayerColor | null = null;
@@ -85,12 +84,22 @@ export function GameBoard({ children }: { children: ReactNode }) {
                  bgColor = HOME_RUN_BGS[homePathColor];
             }
 
+            if (p(x,y) === START_POSITIONS.red) {
+                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}><StarIcon color={'red'} /></div>;
+            }
+
             if (p(x,y) === START_POSITIONS.green) {
                 return (
                     <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
                         <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                            <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
                         </svg>
+                    </div>
+                );
+            }
+             if (p(x,y) === START_POSITIONS.blue) {
+                return (
+                    <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
                     </div>
                 );
             }
