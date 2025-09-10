@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, PATHS, SAFE_ZONES, START_POSITIONS } from '@/lib/ludo-constants';
+import { PlayerColor, Pawn as PawnType, PATHS, SAFE_ZONES } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center border border-black/20";
@@ -11,17 +11,17 @@ export function GameBoard({ children }: { children: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
     
     const YARD_BGS: Record<PlayerColor, string> = {
-        blue: 'bg-blue-500',
-        yellow: 'bg-yellow-400',
         red: 'bg-red-500',
         green: 'bg-green-500',
+        yellow: 'bg-yellow-400',
+        blue: 'bg-blue-500',
     }
     
     const HOME_RUN_BGS: Record<PlayerColor, string> = {
-        blue: 'bg-blue-500',
-        yellow: 'bg-yellow-400',
         red: 'bg-red-500',
         green: 'bg-green-500',
+        yellow: 'bg-yellow-400',
+        blue: 'bg-blue-500',
     }
 
     const getCellContent = (index: number) => {
@@ -34,7 +34,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if(x === 6 && y === 6) {
                  return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 0,100" className="fill-red-500" /> 
+                        <polygon points="0,0 100,0 0,100" className="fill-yellow-400" /> 
                     </svg>
                 </div>;
             }
@@ -50,7 +50,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if(x === 6 && y === 8) {
                  return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 0,100 100,100" className="fill-yellow-400" />
+                        <polygon points="0,0 0,100 100,100" className="fill-red-500" />
                     </svg>
                 </div>;
             }
@@ -64,10 +64,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
 
             // Adjacent cells
-            if (x === 7 && y === 6) return <div className={cn(gridCellStyle, "bg-green-500")} />; // Top
-            if (x === 8 && y === 7) return <div className={cn(gridCellStyle, "bg-blue-500")} />; // Right
-            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, "bg-yellow-500")} />; // Bottom
-            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, "bg-red-500")} />; // Left
+            if (x === 7 && y === 6) return <div className={cn(gridCellStyle, "bg-green-500")} />;
+            if (x === 8 && y === 7) return <div className={cn(gridCellStyle, "bg-blue-500")} />;
+            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, "bg-yellow-400")} />;
+            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, "bg-red-500")} />;
             
             // Center cell
             if (x === 7 && y === 7) {
@@ -82,28 +82,26 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
         }
         
+        let safeZoneColor: PlayerColor | null = null;
+        if (x === 6 && y === 1) safeZoneColor = 'green';
+        if (x === 1 && y === 8) safeZoneColor = 'yellow';
+        if (x === 8 && y === 13) safeZoneColor = 'blue';
+        if (x === 13 && y === 6) safeZoneColor = 'red';
+
+        // Start positions have stars
+        if (x === 1 && y === 6) safeZoneColor = 'red';
+        if (x === 8 && y === 1) safeZoneColor = 'green';
+        if (x === 13 && y === 8) safeZoneColor = 'blue';
+        if (x === 6 && y === 13) safeZoneColor = 'yellow';
+        
         // Path cells
         const isPath = Object.values(PATHS).some(path => path.includes(x + y * 15));
-        const isSafe = SAFE_ZONES.includes(x + y * 15);
         
-        let colorForPath: PlayerColor | null = null;
-        if (x >= 1 && x <= 5 && y === 7) colorForPath = 'red';
-        if (x === 7 && y >= 9 && y <= 13) colorForPath = 'blue';
-        if (x >= 9 && x <= 13 && y === 7) colorForPath = 'green';
-        if (x === 7 && y >= 1 && y <= 5) colorForPath = 'yellow';
-        
-        //This is wrong, let's check the image again
-        // Red yard is top left (0,0 to 5,5), path is horizontal at y=7, from x=1 to x=5
-        // Green yard is top right (9,0 to 14,5), path is vertical at x=7, from y=1 to y=5
-        // Yellow yard is bottom left (0,9 to 5,14), path is vertical at x=7, from y=9 to y=13
-        // Blue yard is bottom right (9,9 to 14,14), path is horizontal at y=7, from x=9 to x=13
-        
-        // Corrected home paths:
         let homePathColor: PlayerColor | null = null;
-        if (x >= 1 && x <= 5 && y === 7) homePathColor = 'red';
+        if (y === 7 && x >= 1 && x <= 5) homePathColor = 'red';
         if (x === 7 && y >= 1 && y <= 5) homePathColor = 'green';
-        if (x >= 9 && x <= 13 && y === 7) homePathColor = 'blue';
         if (x === 7 && y >= 9 && y <= 13) homePathColor = 'yellow';
+        if (y === 7 && x >= 9 && x <= 13) homePathColor = 'blue';
 
 
         if (isPath) {
@@ -114,18 +112,18 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
 
             return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full")}>
-              {isSafe && <StarIcon color={homePathColor ?? 'gray'} />}
+              {safeZoneColor && <StarIcon color={safeZoneColor} />}
             </div>;
         }
 
         // Home yards
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], gridCellStyle)}>
-                <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-2 p-2">
-                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
-                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
-                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
-                    <div className="rounded-full border-2 border-black/80 flex items-center justify-center"><div className={cn("w-3/5 h-3/5 rounded-full", YARD_BGS[color])}></div></div>
+                <div className="h-full w-full bg-white/90 grid grid-cols-2 grid-rows-2 gap-2 p-2 rounded-md">
+                    <div className="rounded-full border-2 border-black/80 bg-white flex items-center justify-center"></div>
+                    <div className="rounded-full border-2 border-black/80 bg-white flex items-center justify-center"></div>
+                    <div className="rounded-full border-2 border-black/80 bg-white flex items-center justify-center"></div>
+                    <div className="rounded-full border-2 border-black/80 bg-white flex items-center justify-center"></div>
                 </div>
             </div>
         );
@@ -135,11 +133,11 @@ export function GameBoard({ children }: { children: ReactNode }) {
         if (x < 6 && y > 8) return renderYard('yellow');
         if (x > 8 && y > 8) return renderYard('blue');
         
-        return <div className={cn("h-full w-full", gridCellStyle)}></div>;
+        return <div className={cn("h-full w-full", gridCellStyle, "bg-white")}></div>;
     }
   
   return (
-    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-2 border-gray-800"
+    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-black"
       style={{'--cell-size': 'calc(100% / 15)'} as React.CSSProperties}
     >
       <div className="grid grid-cols-15 grid-rows-15 h-full w-full overflow-hidden border-2 border-black">
