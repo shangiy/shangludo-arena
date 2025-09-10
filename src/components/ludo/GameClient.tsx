@@ -67,7 +67,7 @@ export default function GameClient() {
     red: { name: 'Player', color: 'red' },
     green: { name: 'Computer', color: 'green' },
   };
-  const playerOrder: PlayerColor[] = ['red', 'yellow', 'green', 'blue'];
+  const playerOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
 
 
   useEffect(() => {
@@ -164,19 +164,28 @@ export default function GameClient() {
       }, 1000);
     } else {
         setPhase('MOVING');
-        addMessage(players[currentTurn].name, `rolled a ${value}. Select a pawn to move.`, currentTurn);
         if (players[currentTurn].name !== 'Player') {
             setPhase('AI_THINKING');
-            // AI makes a move
-            setTimeout(() => handleAiMove(value, possibleMoves), 1000);
-        } else if (possibleMoves.length === 1 && currentTurn === 'red') {
-            // Auto-move if only one option for the player
-            setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+            setTimeout(() => handleAiMove(value, possibleMoves), 500);
+        } else {
+            addMessage(players[currentTurn].name, `rolled a ${value}. Select a pawn to move.`, currentTurn);
+            if (possibleMoves.length === 1) {
+                setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+            }
         }
     }
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
+      // Priority: Move pawn out of yard on a 6
+      if (roll === 6) {
+          const moveOutOfYard = possibleMoves.find(m => m.pawn.position === -1);
+          if (moveOutOfYard) {
+              handlePawnMove(moveOutOfYard.pawn);
+              return;
+          }
+      }
+      
       const boardState = JSON.stringify(pawns);
       try {
         const { move: moveString } = await generateAIMove({
@@ -185,7 +194,6 @@ export default function GameClient() {
           diceRoll: roll,
         });
         
-        // Basic parser for "pawn:[pawnNumber], from:[start], to:[end]"
         const pawnIdMatch = moveString.match(/pawn:(\\d+)/);
         if (pawnIdMatch) {
             const pawnId = parseInt(pawnIdMatch[1], 10);
@@ -200,8 +208,9 @@ export default function GameClient() {
 
       } catch (error) {
         console.error("AI move generation failed:", error);
-        // Fallback to first possible move on error
-        handlePawnMove(possibleMoves[0].pawn);
+        // Fallback to a random possible move on error
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        handlePawnMove(randomMove.pawn);
       }
   }
   
@@ -212,7 +221,7 @@ export default function GameClient() {
     }
   
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-    const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id);
+    const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color);
   
     // Special case for moving out of the yard
     if (pawnToMove.position === -1 && diceValue === 6) {
@@ -248,6 +257,9 @@ export default function GameClient() {
       const pawnIndex = pawnsOfPlayer.findIndex((p: Pawn) => p.id === pawnToMove.id);
   
       pawnsOfPlayer[pawnIndex].position = newPosition;
+      
+      const movedPawnName = players[currentTurn].name === 'Player' ? 'Your' : `${players[currentTurn].name}'s`;
+      addMessage('System', `${movedPawnName} pawn moved.`, currentTurn);
   
       // Capture logic
       if (!SAFE_ZONES.includes(newPosition)) {
@@ -294,11 +306,11 @@ export default function GameClient() {
         getsAnotherTurn = true;
       }
   
-      if (getsAnotherTurn) {
+      if (getsAnotherTurn && !winner) {
         setPhase('ROLLING');
         const turnPlayerName = players[currentTurn].name === 'Player' ? 'You get' : `${players[currentTurn].name} gets`;
         addMessage('System', `${turnPlayerName} another turn!`);
-      } else {
+      } else if (!winner) {
         nextTurn();
       }
   
@@ -313,12 +325,12 @@ export default function GameClient() {
     const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn].name !== 'Player';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setPhase('AI_THINKING');
-      addMessage('AI', `${players[currentTurn].name} is thinking...`, currentTurn);
       
       setTimeout(() => {
         const aiRoll = Math.floor(Math.random() * 6) + 1;
+        addMessage(players[currentTurn].name, `rolled a ${aiRoll}.`, currentTurn);
         handleDiceRoll(aiRoll);
-      }, 1500);
+      }, 1000);
     }
   }, [currentTurn, phase, winner, isMounted]);
 
@@ -348,19 +360,23 @@ export default function GameClient() {
         pawns[color].forEach(pawn => {
             const isPlayerTurn = pawn.color === currentTurn && (phase === 'MOVING' || phase === 'AI_THINKING');
             
+            let highlight = false;
             // For pawns in yard, highlight if dice is 6
-            if (pawn.position === -1 && diceValue === 6 && isPlayerTurn) {
+            if (isPlayerTurn && pawn.position === -1 && diceValue === 6) {
                 const startPos = START_POSITIONS[color];
                 const ownPawnsAtStart = pawns[color].filter(p => p.position === startPos).length;
                 if(ownPawnsAtStart < 2) {
-                    allPawns.push({ ...pawn, highlight: true, isStacked: false });
-                    return;
+                   highlight = true;
+                }
+            } else if (isPlayerTurn) {
+                const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
+                if (canMove) {
+                    highlight = true;
                 }
             }
 
-            const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
             const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
-            allPawns.push({ ...pawn, highlight: isPlayerTurn && canMove, isStacked });
+            allPawns.push({ ...pawn, highlight, isStacked });
         });
     });
 
@@ -406,19 +422,6 @@ export default function GameClient() {
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
-                <AnimatePresence>
-                {phase === 'AI_THINKING' && (
-                    <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/20 rounded-lg"
-                    >
-                    <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                    <p className="text-foreground mt-2 font-semibold">{players[currentTurn].name} is thinking...</p>
-                    </motion.div>
-                )}
-                </AnimatePresence>
                 <GameBoard>
                    {renderPawns()}
                 </GameBoard>
