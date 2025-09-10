@@ -1,29 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Dices } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { PlayerColor } from '@/lib/ludo-constants';
 
 type DiceProps = {
   onRoll: (value: number) => void;
   isRolling: boolean;
   value: number | null;
-  currentTurn: string;
+  currentTurn: PlayerColor;
 };
 
-const diceFaces = [
-    (key: any) => <div key={key} className='w-full h-full flex justify-center items-center'><div className="w-3 h-3 bg-white rounded-full"></div></div>,
-    (key: any) => <div key={key} className='w-full h-full flex justify-between p-2'><div className="w-3 h-3 bg-white rounded-full self-start"></div><div className="w-3 h-3 bg-white rounded-full self-end"></div></div>,
-    (key: any) => <div key={key} className='w-full h-full flex justify-between p-2'><div className="w-3 h-3 bg-white rounded-full self-start"></div><div className="w-3 h-3 bg-white rounded-full self-center"></div><div className="w-3 h-3 bg-white rounded-full self-end"></div></div>,
-    (key: any) => <div key={key} className='w-full h-full flex justify-between p-2'><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div></div>,
-    (key: any) => <div key={key} className='w-full h-full flex justify-between p-2'><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div><div className="w-3 h-3 bg-white rounded-full self-center"></div><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div></div>,
-    (key: any) => <div key={key} className='w-full h-full flex justify-between p-2'><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div><div className='flex flex-col justify-between'><div className="w-3 h-3 bg-white rounded-full"></div><div className="w-3 h-3 bg-white rounded-full"></div></div></div>
-]
 
 const DiceFace = ({ value }: { value: number }) => {
-  return diceFaces[value - 1](value);
+    const dotPositions: { [key: number]: number[][] } = {
+        1: [[0.5, 0.5]],
+        2: [[0.25, 0.25], [0.75, 0.75]],
+        3: [[0.25, 0.25], [0.5, 0.5], [0.75, 0.75]],
+        4: [[0.25, 0.25], [0.25, 0.75], [0.75, 0.25], [0.75, 0.75]],
+        5: [[0.25, 0.25], [0.25, 0.75], [0.75, 0.25], [0.75, 0.75], [0.5, 0.5]],
+        6: [[0.25, 0.25], [0.25, 0.5], [0.25, 0.75], [0.75, 0.25], [0.75, 0.5], [0.75, 0.75]]
+    };
+    
+    return (
+      <div className="w-full h-full relative">
+        {(dotPositions[value] || []).map(([x, y], i) => (
+          <div
+            key={i}
+            className="absolute w-4 h-4 bg-black rounded-full"
+            style={{ 
+              top: `calc(${y * 100}% - 8px)`, 
+              left: `calc(${x * 100}% - 8px)` 
+            }}
+          />
+        ))}
+      </div>
+    );
 };
 
 export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceProps) {
@@ -50,25 +61,27 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
     if (propValue !== null) {
         setInternalValue(propValue);
     }
-  }, [propValue])
+  }, [propValue]);
   
+  const DICE_COLORS: Record<PlayerColor, string> = {
+    red: 'bg-red-500',
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-400',
+    blue: 'bg-blue-500',
+  }
+
   return (
     <div className="flex flex-col items-center gap-4">
-      <motion.button
-        key={internalValue}
-        initial={{ scale: 0.8, rotate: -15, opacity: 0 }}
-        animate={{ scale: 1, rotate: 0, opacity: 1 }}
-        onClick={handleRoll} 
-        disabled={isRolling || isAnimating || currentTurn !== 'red'}
-        className={cn(
-            "w-24 h-24 rounded-2xl shadow-lg border-4 flex items-center justify-center cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 focus:outline-none focus:ring-4 ring-offset-background",
-            "bg-red-500 border-red-800 ring-red-500"
-        )}
-      >
-        <div className="w-16 h-16 rounded-md bg-red-800 p-1">
-            <DiceFace value={internalValue} />
+        <div
+            className={`w-24 h-24 rounded-2xl shadow-lg border-2 border-gray-800 p-2 ${DICE_COLORS[currentTurn]}`}
+        >
+            <div className="w-full h-full bg-white rounded-lg p-1">
+                <DiceFace value={internalValue} />
+            </div>
         </div>
-      </motion.button>
+        <p id="rolled-value" className="text-lg font-bold text-gray-800">
+            {propValue !== null ? `${currentTurn.toUpperCase()} rolled: ${propValue}` : 'Roll the dice!'}
+        </p>
     </div>
   );
 }

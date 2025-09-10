@@ -4,19 +4,19 @@ import type { SVGProps } from "react";
 
 export function StarIcon({ color = 'gray', ...props }: SVGProps<SVGSVGElement> & { color?: PlayerColor | 'gray' | 'white' }) {
     const STAR_COLORS: Record<PlayerColor | 'gray' | 'white', string> = {
-        red: 'text-red-500',
-        green: 'text-green-500',
-        yellow: 'text-yellow-400',
-        blue: 'text-blue-500',
-        gray: 'text-gray-400',
-        white: 'text-white'
+        red: 'fill-red-500',
+        green: 'fill-green-500',
+        yellow: 'fill-yellow-400',
+        blue: 'fill-blue-500',
+        gray: 'fill-gray-400',
+        white: 'fill-white'
     }
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      fill="currentColor"
-      className={cn("h-5 w-5", STAR_COLORS[color])}
+      
+      className={cn("h-5 w-5 stroke-black/50 stroke-2", STAR_COLORS[color])}
       {...props}
     >
       <path

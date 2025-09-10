@@ -2,13 +2,12 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, HOME_YARDS, PATHS, SAFE_ZONES, START_POSITIONS } from '@/lib/ludo-constants';
-import { HomeIcon } from '../icons/HomeIcon';
+import { PlayerColor, Pawn as PawnType, PATHS, SAFE_ZONES, START_POSITIONS } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center";
 
-export function GameBoard({ children, playersInfo }: { children: ReactNode, playersInfo: ReactNode }) {
+export function GameBoard({ children }: { children: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
     
     const YARD_BGS: Record<PlayerColor, string> = {
@@ -41,60 +40,50 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
         if (x === 7 && y >= 1 && y <= 5) colorForPath = 'yellow';
 
         if (isPath) {
-            let bgColor = 'bg-white/90';
+            let bgColor = 'bg-white';
             let starColor: PlayerColor | 'white' = 'white';
             
-            // Home columns
             if(colorForPath) {
                 bgColor = HOME_RUN_BGS[colorForPath]
-                starColor = colorForPath;
             }
 
             if(isStart) {
-                if (x === 1 && y === 6) { bgColor = YARD_BGS['red']; starColor = 'red'; }
-                if (x === 8 && y === 1) { bgColor = YARD_BGS['yellow']; starColor = 'yellow'; }
-                if (x === 13 && y === 8) { bgColor = YARD_BGS['green']; starColor = 'green'; }
-                if (x === 6 && y === 13) { bgColor = YARD_BGS['blue']; starColor = 'blue'; }
+                if (x === 1 && y === 6) { starColor = 'red'; }
+                if (x === 8 && y === 1) { starColor = 'yellow'; }
+                if (x === 13 && y === 8) { starColor = 'green'; }
+                if (x === 6 && y === 13) { starColor = 'blue'; }
             }
 
-            return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full border border-black/10")}>
-              {isSafe && <StarIcon color={isStart ? 'white' : colorForPath || 'gray'} />}
+            return <div className={cn(gridCellStyle, bgColor, "relative h-full w-full border border-black/20")}>
+              {isSafe && <StarIcon color={isStart ? starColor : colorForPath || 'gray'} />}
             </div>;
         }
 
         // Home yards
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color])}>
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className="h-full w-full rounded-md relative bg-black/10 shadow-inner">
-                     <div className="absolute inset-2.5 rounded-lg bg-white/20 grid grid-cols-2 grid-rows-2 gap-2 p-2">
-                        <div className="rounded-full bg-black/10 shadow-inner"></div>
-                        <div className="rounded-full bg-black/10 shadow-inner"></div>
-                        <div className="rounded-full bg-black/10 shadow-inner"></div>
-                        <div className="rounded-full bg-black/10 shadow-inner"></div>
-                     </div>
+                <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-2 p-2 rounded-md">
+                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
+                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
+                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
+                    <div className="rounded-full border-2 border-dashed border-black/30"></div>
                 </div>
             </div>
         );
-        if (x < 6 && y < 6) return renderYard('blue'); // Top-left is blue in new design
-        if (x > 8 && y < 6) return renderYard('yellow'); // Top-right
-        if (x < 6 && y > 8) return renderYard('red'); // Bottom-left
-        if (x > 8 && y > 8) return renderYard('green'); // Bottom-right
+
+        if (x < 6 && y < 6) return renderYard('red');
+        if (x > 8 && y < 6) return renderYard('yellow');
+        if (x < 6 && y > 8) return renderYard('blue');
+        if (x > 8 && y > 8) return renderYard('green');
         
         // Center home triangle
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
-            return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white/90 relative">
+            return <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white relative border border-black/20">
                  <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                     <polygon points="0,0 100,0 50,50" className="fill-yellow-400" /> 
                     <polygon points="100,0 100,100 50,50" className="fill-green-500" /> 
                     <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
                     <polygon points="0,0 0,100 50,50" className="fill-red-500" />
-
-                    {/* Arrows */}
-                    <polygon points="50,15 60,35 40,35" className="fill-yellow-600" />
-                    <polygon points="85,50 65,60 65,40" className="fill-green-600" />
-                    <polygon points="50,85 40,65 60,65" className="fill-blue-600" />
-                    <polygon points="15,50 35,40 35,60" className="fill-red-600" />
                 </svg>
             </div>;
         }
@@ -103,19 +92,16 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
     }
   
   return (
-    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-black/30 shadow-2xl"
+    <div className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-gray-800"
       style={{'--cell-size': 'calc(100% / 15)'} as React.CSSProperties}
     >
-      <div className="grid grid-cols-15 grid-rows-15 h-full w-full rounded-lg shadow-inner overflow-hidden border-2 border-black/20">
+      <div className="grid grid-cols-15 grid-rows-15 h-full w-full rounded-lg shadow-inner overflow-hidden">
          {cells.map((_, i) => (
             <div key={i} className="relative aspect-square">
                {getCellContent(i)}
             </div>
          ))}
       </div>
-       <div className="absolute inset-0 grid grid-cols-15 grid-rows-15 pointer-events-none">
-          {playersInfo}
-        </div>
       <div className="absolute inset-0 grid grid-cols-15 grid-rows-15 pointer-events-none">
         {children}
       </div>
@@ -124,10 +110,10 @@ export function GameBoard({ children, playersInfo }: { children: ReactNode, play
 }
 
 const PAWN_COLORS: Record<PlayerColor, {bg: string, border:string}> = {
-  red: { bg: 'bg-red-500', border: 'border-red-800' },
-  green: { bg: 'bg-green-500', border: 'border-green-800' },
+  red: { bg: 'bg-red-500', border: 'border-red-700' },
+  green: { bg: 'bg-green-500', border: 'border-green-700' },
   yellow: { bg: 'bg-yellow-400', border: 'border-yellow-600' },
-  blue: { bg: 'bg-blue-500', border: 'border-blue-800' },
+  blue: { bg: 'bg-blue-500', border: 'border-blue-700' },
 };
 
 interface PawnProps extends PawnType {
@@ -142,32 +128,36 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
 
   const getYardPosition = (pawnId: number) => {
     const offsets = [
-        {x: 1.25, y: 1.25},
-        {x: 3.25, y: 1.25},
-        {x: 1.25, y: 3.25},
-        {x: 3.25, y: 3.25}
+        {x: 1, y: 1},
+        {x: 3, y: 1},
+        {x: 1, y: 3},
+        {x: 3, y: 3}
     ];
     return offsets[pawnId];
   }
 
 
   if (isHome) {
-     const homeYards: Record<PlayerColor, {x: number, y: number}> = {
-        red: { x: 3.5, y: 11.5 },
-        green: { x: 11.5, y: 11.5 },
-        yellow: { x: 11.5, y: 3.5 },
-        blue: { x: 3.5, y: 3.5 },
+     const homeTriangleCenter: Record<PlayerColor, {x: number, y: number}> = {
+        red: { x: 7, y: 3.5 },
+        yellow: { x: 10.5, y: 7 },
+        green: { x: 7, y: 10.5 },
+        blue: { x: 3.5, y: 7 },
      }
-     top = (homeYards[color].y) * cellSize;
-     left = (homeYards[color].x) * cellSize;
+     top = (homeTriangleCenter[color].y) * cellSize;
+     left = (homeTriangleCenter[color].x) * cellSize;
   } else if (position === -1) {
-    const base = HOME_YARDS[color][0];
+    const yardBases: Record<PlayerColor, {x: number, y: number}> = {
+        red: { x: 0, y: 0 },
+        yellow: { x: 9, y: 0 },
+        blue: { x: 0, y: 9 },
+        green: { x: 9, y: 9 },
+    }
+    const base = yardBases[color];
     const yardPos = getYardPosition(id);
-    const baseX = base%15;
-    const baseY = Math.floor(base/15);
     
-    top = (baseY + yardPos.y) * cellSize;
-    left = (baseX + yardPos.x) * cellSize;
+    top = (base.y + yardPos.y + 0.5) * cellSize;
+    left = (base.x + yardPos.x + 0.5) * cellSize;
   } else {
     // Position on board path
     const x = position % 15;

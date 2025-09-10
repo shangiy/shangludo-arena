@@ -23,13 +23,6 @@ export interface ChatMessage {
 // Using a 15x15 grid, where position is y * 15 + x
 const p = (x: number, y: number) => y * 15 + x;
 
-export const HOME_YARDS: Record<PlayerColor, [number, number]> = {
-    blue: [p(0,0), p(5,5)], // Top-left
-    yellow: [p(9,0), p(14,5)], // Top-right
-    red: [p(0,9), p(5,14)], // Bottom-left
-    green: [p(9,9), p(14,14)], // Bottom-right
-};
-
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
     yellow: p(8, 1),
@@ -94,8 +87,8 @@ export const SAFE_ZONES = [
     START_POSITIONS.yellow,
     START_POSITIONS.green, 
     START_POSITIONS.blue,
-    p(1, 8), // Opposite red start
-    p(6, 1), // Opposite yellow start
-    p(13, 6), // Opposite green start
-    p(8, 13) // Opposite blue start
+    p(2, 8), // Red safe
+    p(6, 2), // Yellow safe
+    p(12, 6), // Green safe
+    p(8, 12)  // Blue safe
 ];

@@ -8,10 +8,11 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   safelist: [
-    'bg-red-200', 'bg-red-300', 'bg-red-400', 'bg-red-500', 'border-red-700', 'border-red-800', 'text-red-500', 'border-red-500', 'bg-red-500/30', 'bg-red-200/20',
-    'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500', 'border-green-700', 'border-green-800', 'text-green-500', 'border-green-500', 'bg-green-500/30', 'bg-green-200/20',
-    'bg-yellow-200', 'bg-yellow-300', 'bg-yellow-400', 'border-yellow-600', 'text-yellow-500', 'border-yellow-400', 'bg-yellow-500/30', 'bg-yellow-200/20',
-    'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'border-blue-700', 'border-blue-800', 'text-blue-500', 'border-blue-500', 'bg-blue-500/30', 'bg-blue-200/20',
+    'bg-red-500', 'border-red-700', 'text-red-500', 'border-red-500', 
+    'bg-green-500', 'border-green-700', 'text-green-500', 'border-green-500', 
+    'bg-yellow-400', 'border-yellow-600', 'text-yellow-400', 'border-yellow-400', 
+    'bg-blue-500', 'border-blue-700', 'text-blue-500', 'border-blue-500',
+    'fill-red-500', 'fill-green-500', 'fill-yellow-400', 'fill-blue-500',
   ],
   theme: {
     extend: {
@@ -22,8 +23,8 @@ export default {
         '15': 'repeat(15, minmax(0, 1fr))',
       },
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['"Segoe UI"', 'Tahoma', 'sans-serif'],
+        headline: ['"Segoe UI"', 'Tahoma', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -60,23 +61,6 @@ export default {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
-        },
-        sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
-          foreground: 'hsl(var(--sidebar-foreground))',
-          primary: 'hsl(var(--sidebar-primary))',
-          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-          accent: 'hsl(var(--sidebar-accent))',
-          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))',
-          ring: 'hsl(var(--sidebar-ring))',
-        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -100,10 +84,22 @@ export default {
             height: '0',
           },
         },
+        pulse: {
+          '0%, 100%': { boxShadow: '0 0 5px rgba(243, 156, 18, 0.5)' },
+          '50%': { boxShadow: '0 0 20px rgba(231, 76, 60, 0.9)' },
+        },
+        shake: {
+            '0%, 100%': { transform: 'translateX(0)' },
+            '25%': { transform: 'translateX(-4px)' },
+            '50%': { transform: 'translateX(4px)' },
+            '75%': { transform: 'translateX(-4px)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse': 'pulse 2s infinite',
+        'shake': 'shake 0.4s',
       },
     },
   },

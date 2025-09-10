@@ -1,18 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, Fragment } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Loader2, User, Hand, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
-
+import { Loader2 } from 'lucide-react';
 import { generateAIMove } from '@/ai/flows/ai-opponent';
-import {
-  GameBoard,
-  Pawn as PawnComponent,
-} from '@/components/ludo/GameBoard';
+import { GameBoard, Pawn as PawnComponent } from '@/components/ludo/GameBoard';
 import { GameControls } from '@/components/ludo/GameControls';
-import { ChatPanel } from '@/components/ludo/ChatPanel';
 import {
   PLAYER_COLORS,
   PATHS,
@@ -35,17 +29,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../ui/dialog';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
-import { Progress } from '../ui/progress';
-import { HomeIcon } from '../icons/HomeIcon';
-import { PawnIcon } from '../icons/PawnIcon';
 
 type GamePhase = 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -64,38 +47,6 @@ const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   return pawns;
 };
 
-const PlayerIcon = ({
-    color,
-    isPlayer,
-  }: {
-    color: PlayerColor;
-    isPlayer: boolean;
-  }) => {
-    
-    const BORDER_COLORS: Record<PlayerColor, string> = {
-        red: 'border-red-500',
-        green: 'border-green-500',
-        yellow: 'border-yellow-400',
-        blue: 'border-blue-500',
-    }
-    return (
-      <div
-        className={cn(
-          'flex items-center justify-center rounded-lg p-1 transition-all w-16 h-16 bg-background/20 border-4',
-          BORDER_COLORS[color]
-        )}
-      >
-        <div className={cn("flex h-full w-full items-center justify-center rounded-md bg-transparent")}>
-           {isPlayer ? (
-            <User className="h-8 w-8 text-white" />
-          ) : (
-            <Bot className="h-8 w-8 text-white" />
-          )}
-        </div>
-      </div>
-    );
-  };
-
 
 export default function GameClient() {
   const searchParams = useSearchParams();
@@ -109,7 +60,6 @@ export default function GameClient() {
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -128,15 +78,6 @@ export default function GameClient() {
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     setMessages((prev) => [{ sender, text, color }, ...prev]);
   };
-  
-  const handleSendMessage = (text: string) => {
-    addMessage('You', text, 'red');
-    // Here you could add logic to send the message to other players in a multiplayer game
-    // For now, we can have a simple AI response for demonstration
-    setTimeout(() => {
-        addMessage('Computer', "I'm just a simple AI, I can't chat right now!", 'yellow')
-    }, 1000)
-  }
 
   useEffect(() => {
     if (winner) {
@@ -245,7 +186,7 @@ export default function GameClient() {
         });
         
         // Basic parser for "pawn:[pawnNumber], from:[start], to:[end]"
-        const pawnIdMatch = moveString.match(/pawn:(\d+)/);
+        const pawnIdMatch = moveString.match(/pawn:(\\d+)/);
         if (pawnIdMatch) {
             const pawnId = parseInt(pawnIdMatch[1], 10);
             const move = possibleMoves.find(m => m.pawn.id === pawnId);
@@ -428,50 +369,6 @@ export default function GameClient() {
     ));
   };
 
-
-  const getProgress = (color: PlayerColor) => {
-    const playerPawns = pawns[color];
-    const totalDistance = (PATHS[color].length - 5) * 4; // 51 steps on main path
-    let currentDistance = 0;
-    playerPawns.forEach(pawn => {
-        if(pawn.isHome) {
-            currentDistance += (PATHS[color].length - 5);
-        } else if (pawn.position !== -1) {
-            const pathIndex = PATHS[color].indexOf(pawn.position);
-            if(pathIndex !== -1) currentDistance += pathIndex + 1;
-        }
-    });
-    return Math.floor((currentDistance / totalDistance) * 100);
-  }
-  
-  const renderPlayersInfo = () => {
-    return (Object.keys(players) as PlayerColor[]).map(color => {
-        const player = players[color];
-        let gridPosition;
-        if(color === 'yellow') gridPosition = 'col-start-10 col-end-16 row-start-1 row-end-7';
-        if(color === 'green') gridPosition = 'col-start-10 col-end-16 row-start-10 row-end-16';
-        if(color === 'red') gridPosition = 'col-start-1 col-end-7 row-start-10 row-end-16';
-        if(color === 'blue') gridPosition = 'col-start-1 col-end-7 row-start-1 row-end-7';
-
-        const pawnsInYard = pawns[color].filter(p => p.position === -1).length;
-        const pawnsHome = pawns[color].filter(p => p.isHome).length;
-
-        return (
-            <div key={color} className={cn('flex flex-col items-center justify-end text-white p-2', gridPosition)}>
-                 <div className='flex flex-col items-center gap-1 bg-black/20 p-2 rounded-md'>
-                    <p className="font-bold text-white/80 text-sm drop-shadow-md">{player.name}</p>
-                    <div className='flex gap-1'>
-                        {Array(4).fill(0).map((_, i) => <PawnIcon key={i} color={color} />)}
-                    </div>
-                    <div className='flex items-center gap-2 text-xs font-semibold'>
-                        <HomeIcon className="w-4 h-4" /> {pawnsHome}/4
-                    </div>
-                 </div>
-            </div>
-        )
-    })
-  }
-
   if (!isMounted) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
@@ -482,7 +379,9 @@ export default function GameClient() {
   }
   
   return (
-     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-4 relative overflow-hidden">
+     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
+        <h1 className="text-4xl font-bold">ShangLudo Arena</h1>
+
         <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
             <DialogContent>
                 <DialogHeader>
@@ -505,20 +404,6 @@ export default function GameClient() {
             </DialogContent>
         </Dialog>
 
-        <div className="absolute top-4 left-4">
-            <PlayerIcon color="blue" isPlayer={false} />
-        </div>
-        <div className="absolute top-4 right-4">
-            <PlayerIcon color="yellow" isPlayer={false} />
-        </div>
-         <div className="absolute bottom-4 left-4">
-            <PlayerIcon color="red" isPlayer={true} />
-        </div>
-        <div className="absolute bottom-4 right-4">
-            <PlayerIcon color="green" isPlayer={false} />
-        </div>
-
-
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
                 <AnimatePresence>
@@ -527,45 +412,26 @@ export default function GameClient() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/50 rounded-lg"
+                    className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/20 rounded-lg"
                     >
-                    <Loader2 className="h-16 w-16 animate-spin text-white" />
-                    <p className="text-white mt-2 font-semibold">{players[currentTurn].name} is thinking...</p>
+                    <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                    <p className="text-foreground mt-2 font-semibold">{players[currentTurn].name} is thinking...</p>
                     </motion.div>
                 )}
                 </AnimatePresence>
-                <GameBoard playersInfo={renderPlayersInfo()}>
+                <GameBoard>
                    {renderPawns()}
                 </GameBoard>
             </div>
         </main>
 
          <footer className="w-full flex justify-center items-center pb-4">
-            <div className="relative flex items-center gap-8">
-                 <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-black/20">
-                    <Hand className="w-6 h-6" />
-                </Button>
-                <GameControls
-                    currentTurn={currentTurn}
-                    phase={phase}
-                    diceValue={diceValue}
-                    onDiceRoll={handleDiceRoll}
-                    pawns={pawns}
-                />
-                <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full bg-black/20">
-                            <MessageSquare className="w-6 h-6" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[80vh]">
-                        <SheetHeader>
-                            <SheetTitle className="text-center font-headline text-2xl">Game Chat</SheetTitle>
-                        </SheetHeader>
-                        <ChatPanel messages={messages} onSendMessage={handleSendMessage} />
-                    </SheetContent>
-                </Sheet>
-            </div>
+             <GameControls
+                currentTurn={currentTurn}
+                phase={phase}
+                diceValue={diceValue}
+                onDiceRoll={handleDiceRoll}
+            />
         </footer>
     </div>
   );

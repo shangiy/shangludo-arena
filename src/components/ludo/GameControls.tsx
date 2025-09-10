@@ -1,29 +1,47 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Award, User, Bot } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dice } from '@/components/ludo/Dice';
+import { PlayerColor } from '@/lib/ludo-constants';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn, PLAYER_COLORS } from '@/lib/ludo-constants';
+import { Dices } from 'lucide-react';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
   phase: 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
-  pawns: Record<PlayerColor, Pawn[]>;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, pawns }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: GameControlsProps) {
+  const isRolling = phase !== 'ROLLING';
+  const isPlayerTurn = currentTurn === 'red';
+
+  const handleRoll = () => {
+    if(isRolling || !isPlayerTurn) return;
+    const finalValue = Math.floor(Math.random() * 6) + 1;
+    onDiceRoll(finalValue);
+  }
+
   return (
     <div className="flex flex-col items-center gap-4">
       <Dice 
         onRoll={onDiceRoll} 
-        isRolling={phase !== 'ROLLING'}
+        isRolling={isRolling}
         value={diceValue}
         currentTurn={currentTurn}
       />
+      <Button
+        onClick={handleRoll}
+        disabled={isRolling || !isPlayerTurn}
+        className={cn(
+            "gradient-button text-lg font-bold py-3 px-6 rounded-lg animate-pulse",
+            (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed"
+        )}
+      >
+        <Dices className="mr-2" />
+        Roll Dice
+      </Button>
     </div>
   );
 }
