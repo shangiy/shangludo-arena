@@ -42,12 +42,6 @@ export function GameBoard({ children }: { children: ReactNode }) {
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
              if (x === 7 && y === 7) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="50,50 0,0 100,0" className="fill-green-500" />
-                        <polygon points="50,50 100,0 100,100" className="fill-yellow-400" />
-                        <polygon points="50,50 100,100 0,100" className="fill-blue-500" />
-                        <polygon points="50,50 0,100 0,0" className="fill-red-500" />
-                    </svg>
                 </div>;
             }
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
