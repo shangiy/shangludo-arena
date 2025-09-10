@@ -16,7 +16,7 @@ export function StarIcon({ color = 'gray', ...props }: SVGProps<SVGSVGElement> &
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       
-      className={cn("h-full w-full stroke-black/80 stroke-[1.5] p-1", STAR_COLORS[color])}
+      className={cn("h-full w-full stroke-black/80 stroke-[1] p-0.5", STAR_COLORS[color])}
       {...props}
     >
       <path

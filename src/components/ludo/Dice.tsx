@@ -22,7 +22,7 @@ const DiceFace = ({ value }: { value: number }) => {
     };
     
     return (
-      <div className="w-full h-full relative">
+      <div className="w-full h-full relative p-2">
         {(dotPositions[value] || []).map(([x, y], i) => (
           <div
             key={i}
@@ -73,14 +73,14 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
   return (
     <div className="flex flex-col items-center gap-2">
         <div
-            className={`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800 p-2 ${DICE_COLORS[currentTurn]}`}
+            className={`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800 ${DICE_COLORS['red']}`}
         >
-            <div className="w-full h-full rounded-md p-1">
-                <DiceFace value={internalValue} />
+            <div className="w-full h-full rounded-md bg-white">
+                <DiceFace value={propValue ?? 1} />
             </div>
         </div>
         <p id="rolled-value" className="text-md font-bold text-gray-800 h-6">
-            {propValue !== null ? `${currentTurn.toUpperCase()} rolled: ${propValue}` : ''}
+            {propValue !== null ? `RED rolled: ${propValue}` : ''}
         </p>
     </div>
   );
