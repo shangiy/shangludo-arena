@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
+import { cn } from '@/lib/utils';
 
 type DiceProps = {
   onRoll: (value: number) => void;
@@ -66,21 +67,21 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
   const DICE_COLORS: Record<PlayerColor, string> = {
     red: 'bg-red-500',
     green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
+    yellow: 'bg-yellow-400',
     blue: 'bg-blue-500',
   }
 
   return (
     <div className="flex flex-col items-center gap-2">
         <div
-            className={`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800 ${DICE_COLORS['red']}`}
+            className={cn(`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800`, DICE_COLORS[currentTurn])}
         >
             <div className="w-full h-full rounded-md bg-white">
                 <DiceFace value={propValue ?? 1} />
             </div>
         </div>
-        <p id="rolled-value" className="text-md font-bold text-gray-800 h-6">
-            {propValue !== null ? `RED rolled: ${propValue}` : ''}
+        <p id="rolled-value" className="text-md font-bold text-gray-800 h-6 capitalize">
+            {propValue !== null ? `${currentTurn} rolled: ${propValue}` : ''}
         </p>
     </div>
   );
