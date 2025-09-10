@@ -43,10 +43,11 @@ export function GameBoard({ children }: { children: ReactNode }) {
              if (x === 7 && y === 7) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
                      <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="50,50 0,0 100,0" className="fill-red-500" />
+                        <polygon points="50,50 0,0 100,0" className="fill-green-500" />
                         <polygon points="50,50 100,0 100,100" className="fill-yellow-400" />
                         <polygon points="50,50 100,100 0,100" className="fill-blue-500" />
-                        <polygon points="50,50 0,100 0,0" className="fill-green-500" />
+                        <polygon points="50,50 0,100 0,0" className="fill-red-500" />
+                        <line x1="100" y1="0" x2="0" y2="100" stroke="black" strokeWidth="2" />
                     </svg>
                 </div>;
             }
@@ -59,7 +60,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
         }
         
-        const safeZonePositions: Record<number, PlayerColor> = {
+        const safeZonePositions: Record<number, PlayerColor | 'gray'> = {
             [p(1, 8)]: 'red',
             [p(8, 13)]: 'blue',
             [p(13, 6)]: 'yellow',
@@ -88,6 +89,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
 
             if (p(x,y) === START_POSITIONS.red) {
                  return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                       <line x1="100" y1="0" x2="0" y2="100" stroke="black" strokeWidth="2" />
+                    </svg>
                  </div>;
             }
              if (p(x,y) === START_POSITIONS.green) {
