@@ -13,14 +13,14 @@ export function GameBoard({ children }: { children: ReactNode }) {
     const YARD_BGS: Record<PlayerColor, string> = {
         red: 'bg-red-500',
         green: 'bg-green-500',
-        yellow: 'bg-yellow-500',
+        yellow: 'bg-yellow-400',
         blue: 'bg-blue-500',
     }
     
     const HOME_RUN_BGS: Record<PlayerColor, string> = {
         red: 'bg-red-500',
         green: 'bg-green-500',
-        yellow: 'bg-yellow-500',
+        yellow: 'bg-yellow-400',
         blue: 'bg-blue-500',
     }
 
@@ -38,41 +38,39 @@ export function GameBoard({ children }: { children: ReactNode }) {
 
         // Center 3x3 grid (Home)
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
+             if (x === 7 && y === 7) {
+                return <div className={cn(borderClasses, "bg-white relative")}>
+                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <polygon points="0,0 100,0 50,50" className="fill-green-500" />
+                        <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
+                        <polygon points="100,100 0,100 50,50" className="fill-yellow-400" />
+                        <polygon points="0,100 0,0 50,50" className="fill-red-500" />
+                    </svg>
+                </div>;
+            }
             // Corner cells
             if (x === 6 && y === 6) return <div className={cn(borderClasses, "bg-red-500")} />;
             if (x === 8 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
-            if (x === 6 && y === 8) return <div className={cn(borderClasses, "bg-yellow-500")} />;
+            if (x === 6 && y === 8) return <div className={cn(borderClasses, "bg-yellow-400")} />;
             if (x === 8 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
 
             // Adjacent cells
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-blue-500")} />; 
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-yellow-500")} />;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-yellow-400")} />;
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
-            
-            // Center cell
-            if (x === 7 && y === 7) {
-                return <div className={cn(borderClasses, "bg-white relative")}>
-                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 50,50" className="fill-green-500" />
-                        <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
-                        <polygon points="100,100 0,100 50,50" className="fill-yellow-500" />
-                        <polygon points="0,100 0,0 50,50" className="fill-red-500" />
-                    </svg>
-                </div>;
-            }
         }
         
         let safeZoneColor: PlayerColor | null = null;
-        if (x === 2 && y === 6) safeZoneColor = 'red';
-        if (x === 6 && y === 12) safeZoneColor = 'yellow';
-        if (x === 12 && y === 8) safeZoneColor = 'blue';
-        if (x === 8 && y === 2) safeZoneColor = 'green';
+        if (x === 2 && y === 6) safeZoneColor = 'yellow';
+        if (x === 6 && y === 12) safeZoneColor = 'green';
+        if (x === 12 && y === 8) safeZoneColor = 'red';
+        if (x === 8 && y === 2) safeZoneColor = 'blue';
         
-        if (x === 1 && y === 8) safeZoneColor = 'red';
-        if (x === 6 && y === 1) safeZoneColor = 'green';
-        if (x === 13 && y === 6) safeZoneColor = 'blue';
-        if (x === 8 && y === 13) safeZoneColor = 'yellow';
+        if (x === 1 && y === 8) safeZoneColor = 'yellow';
+        if (x === 6 && y === 1) safeZoneColor = 'blue';
+        if (x === 13 && y === 6) safeZoneColor = 'red';
+        if (x === 8 && y === 13) safeZoneColor = 'green';
         
         const isPath = 
             (x >= 6 && x <= 8 && y >=0 && y < 6) || // green path area
@@ -147,7 +145,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
 const PAWN_COLORS: Record<PlayerColor, { bg: string; border:string }> = {
   red: { bg: 'bg-red-500', border: 'border-black' },
   green: { bg: 'bg-green-500', border: 'border-black' },
-  yellow: { bg: 'bg-yellow-500', border: 'border-black' },
+  yellow: { bg: 'bg-yellow-400', border: 'border-black' },
   blue: { bg: 'bg-blue-500', border: 'border-black' },
 };
 
@@ -229,3 +227,5 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
     </motion.div>
   );
 }
+
+    
