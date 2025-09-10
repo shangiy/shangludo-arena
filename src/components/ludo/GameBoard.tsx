@@ -58,8 +58,6 @@ export function GameBoard({ children }: { children: ReactNode }) {
                         <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
                         <polygon points="100,100 0,100 50,50" className="fill-yellow-500" />
                         <polygon points="0,100 0,0 50,50" className="fill-red-500" />
-                        <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="1" />
-                        <line x1="100" y1="0" x2="0" y2="100" stroke="black" strokeWidth="1" />
                     </svg>
                 </div>;
             }
@@ -103,18 +101,18 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Home yards
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className="h-full w-full bg-red-500 grid grid-cols-2 grid-rows-2 gap-1 p-1">
+                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', YARD_BGS[color])}>
                     <div className="flex items-center justify-center p-1">
-                      <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
+                      <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
+                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
                 </div>
             </div>
