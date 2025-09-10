@@ -55,9 +55,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
                      <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                         <polygon points="0,0 100,0 50,50" className="fill-green-500" />
-                        <polygon points="100,0 50,50 100,100" className="fill-blue-500" />
+                        <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
                         <polygon points="100,100 0,100 50,50" className="fill-yellow-500" />
-                        <polygon points="0,100 50,50 0,0" className="fill-red-500" />
+                        <polygon points="0,100 0,0 50,50" className="fill-red-500" />
                         <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="1" />
                         <line x1="100" y1="0" x2="0" y2="100" stroke="black" strokeWidth="1" />
                     </svg>
