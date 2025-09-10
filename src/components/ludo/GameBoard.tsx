@@ -60,10 +60,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         const safeZonePositions: Record<number, PlayerColor> = {
-            [p(2, 6)]: 'yellow',
-            [p(6, 12)]: 'blue',
-            [p(12, 8)]: 'green',
-            [p(8, 2)]: 'red',
+            [p(6, 2)]: 'red',
+            [p(12, 8)]: 'yellow',
+            [p(8, 12)]: 'green',
+            [p(2, 6)]: 'blue',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -110,9 +110,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
              if (p(x,y) === START_POSITIONS.blue) {
                 return (
                     <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
-                        <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                            <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
-                        </svg>
+                        
                     </div>
                 );
             }
@@ -125,7 +123,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Home yards
         const renderYard = (color: PlayerColor) => (
              <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', YARD_BGS[color])}>
+                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1 bg-white')}>
                     <div className="flex items-center justify-center p-1">
                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
