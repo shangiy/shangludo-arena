@@ -61,9 +61,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
         
         const safeZonePositions: Record<number, PlayerColor> = {
             [p(1, 8)]: 'red',
-            [p(6, 13)]: 'blue',
+            [p(8, 1)]: 'yellow',
             [p(13, 6)]: 'yellow',
-            [p(8, 1)]: 'green',
+            [p(6, 13)]: 'blue',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
