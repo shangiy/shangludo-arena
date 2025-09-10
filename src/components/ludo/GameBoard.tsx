@@ -103,7 +103,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Home yards
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className="h-full w-full bg-white grid grid-cols-2 grid-rows-2 gap-1 p-1">
+                <div className="h-full w-full bg-yellow-400 grid grid-cols-2 grid-rows-2 gap-1 p-1">
                     <div className="flex items-center justify-center p-1">
                       <div className={cn('h-full w-full rounded-full', `bg-${color}-500`)}></div>
                     </div>
