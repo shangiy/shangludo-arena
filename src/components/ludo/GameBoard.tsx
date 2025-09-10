@@ -88,9 +88,6 @@ export function GameBoard({ children }: { children: ReactNode }) {
 
             if (p(x,y) === START_POSITIONS.red) {
                  return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
-                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
-                    </svg>
                  </div>;
             }
              if (p(x,y) === START_POSITIONS.green) {
