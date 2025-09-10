@@ -34,7 +34,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if(x === 6 && y === 6) {
                  return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 100,0 0,100" className="fill-yellow-400" />
+                        <polygon points="0,0 100,0 0,100" className="fill-red-500" />
                     </svg>
                 </div>;
             }
@@ -50,7 +50,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if(x === 6 && y === 8) {
                  return <div className={cn("bg-white relative h-full w-full", gridCellStyle)}>
                     <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 0,100 100,100" className="fill-red-500" />
+                        <polygon points="0,0 0,100 100,100" className="fill-yellow-400" />
                     </svg>
                 </div>;
             }
@@ -66,17 +66,17 @@ export function GameBoard({ children }: { children: ReactNode }) {
             // Adjacent cells
             if (x === 7 && y === 6) return <div className={cn(gridCellStyle, "bg-green-500")} />;
             if (x === 8 && y === 7) return <div className={cn(gridCellStyle, "bg-blue-500")} />;
-            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, "bg-red-500")} />;
-            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, "bg-yellow-400")} />;
+            if (x === 7 && y === 8) return <div className={cn(gridCellStyle, "bg-yellow-400")} />;
+            if (x === 6 && y === 7) return <div className={cn(gridCellStyle, "bg-red-500")} />;
             
             // Center cell
             if (x === 7 && y === 7) {
                 return <div className={cn(gridCellStyle, "bg-white relative")}>
                      <svg viewBox="0 0 100 100" className="absolute w-full h-full">
-                        <polygon points="0,0 50,50 0,100" className="fill-yellow-400" />
                         <polygon points="0,0 100,0 50,50" className="fill-green-500" />
                         <polygon points="100,0 100,100 50,50" className="fill-blue-500" />
-                        <polygon points="0,100 100,100 50,50" className="fill-red-500" />
+                        <polygon points="0,100 100,100 50,50" className="fill-yellow-400" />
+                        <polygon points="0,0 0,100 50,50" className="fill-red-500" />
                     </svg>
                 </div>;
             }
@@ -84,16 +84,16 @@ export function GameBoard({ children }: { children: ReactNode }) {
         
         let safeZoneColor: PlayerColor | null = null;
         // The 4 stars on colored paths
-        if (x === 6 && y === 2) safeZoneColor = 'green';
-        if (x === 2 && y === 8) safeZoneColor = 'yellow';
-        if (x === 8 && y === 12) safeZoneColor = 'blue';
-        if (x === 12 && y === 6) safeZoneColor = 'red';
+        if (x === 6 && y === 1) safeZoneColor = 'green';
+        if (x === 1 && y === 8) safeZoneColor = 'yellow';
+        if (x === 8 && y === 13) safeZoneColor = 'blue';
+        if (x === 13 && y === 6) safeZoneColor = 'red';
         
         // Start positions also have stars
-        if (x === 1 && y === 6) safeZoneColor = 'red';
-        if (x === 8 && y === 1) safeZoneColor = 'green';
-        if (x === 13 && y === 8) safeZoneColor = 'blue';
-        if (x === 6 && y === 13) safeZoneColor = 'yellow';
+        if (x === 2 && y === 6) safeZoneColor = 'red';
+        if (x === 8 && y === 2) safeZoneColor = 'green';
+        if (x === 12 && y === 8) safeZoneColor = 'blue';
+        if (x === 6 && y === 12) safeZoneColor = 'yellow';
         
         // Path cells
         const isPath = Object.values(PATHS).some(path => path.includes(x + y * 15));
