@@ -25,12 +25,6 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Dice 
-        onRoll={onDiceRoll} 
-        isRolling={isRolling}
-        value={diceValue}
-        currentTurn={currentTurn}
-      />
       <Button
         onClick={handleRoll}
         disabled={isRolling || !isPlayerTurn}
@@ -42,6 +36,12 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
         <Dices className="mr-2" />
         Roll Dice
       </Button>
+      <Dice 
+        onRoll={onDiceRoll} 
+        isRolling={isRolling}
+        value={diceValue}
+        currentTurn={currentTurn}
+      />
     </div>
   );
 }
