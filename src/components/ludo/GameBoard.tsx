@@ -60,10 +60,10 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         const safeZonePositions: Record<number, PlayerColor> = {
-            [p(2, 6)]: 'red',
-            [p(6, 12)]: 'green',
-            [p(12, 8)]: 'yellow',
-            [p(8, 2)]: 'blue',
+            [p(2, 6)]: 'yellow',
+            [p(6, 12)]: 'blue',
+            [p(12, 8)]: 'green',
+            [p(8, 2)]: 'red',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -87,7 +87,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
 
             if (p(x,y) === START_POSITIONS.red) {
-                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}><StarIcon color={'red'} /></div>;
+                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>;
             }
              if (p(x,y) === START_POSITIONS.green) {
                 return (
@@ -108,7 +108,13 @@ export function GameBoard({ children }: { children: ReactNode }) {
               );
             }
              if (p(x,y) === START_POSITIONS.blue) {
-                return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>;
+                return (
+                    <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+                        <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                            <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
+                        </svg>
+                    </div>
+                );
             }
 
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
