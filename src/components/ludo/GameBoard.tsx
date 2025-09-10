@@ -61,9 +61,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
         
         const safeZonePositions: Record<number, PlayerColor> = {
             [p(1, 8)]: 'red',
-            [p(8, 13)]: 'green', 
+            [p(6, 13)]: 'green', 
             [p(13, 6)]: 'yellow',
-            [p(6, 1)]: 'green',
+            [p(8, 1)]: 'blue',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -87,7 +87,11 @@ export function GameBoard({ children }: { children: ReactNode }) {
             }
 
             if (p(x,y) === START_POSITIONS.red) {
-                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>;
+                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+                    <svg viewBox="0 0 100 100" className="absolute w-full h-full">
+                        <line x1="0" y1="0" x2="100" y2="100" stroke="black" strokeWidth="2" />
+                    </svg>
+                 </div>;
             }
              if (p(x,y) === START_POSITIONS.green) {
                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>;
