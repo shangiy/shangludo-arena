@@ -62,13 +62,8 @@ export function GameBoard({ children }: { children: ReactNode }) {
         }
         
         let safeZoneColor: PlayerColor | null = null;
-        if (x === 1 && y === 6) safeZoneColor = 'red';
-        if (x === 6 && y === 13) safeZoneColor = 'green';
-        if (x === 13 && y === 8) safeZoneColor = 'yellow';
-        if (x === 8 && y === 1) safeZoneColor = 'blue';
-        
-        if (x === 2 && y === 8) safeZoneColor = 'yellow';
-        if (x === 6 && y === 2) safeZoneColor = 'red';
+        if (x === 2 && y === 8) safeZoneColor = 'red';
+        if (x === 6 && y === 2) safeZoneColor = 'yellow';
         if (x === 12 && y === 6) safeZoneColor = 'blue';
         if (x === 8 && y === 12) safeZoneColor = 'green';
         
@@ -99,7 +94,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
         // Home yards
         const renderYard = (color: PlayerColor) => (
             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1 bg-white')}>
+                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', YARD_BGS[color])}>
                     <div className="flex items-center justify-center p-1">
                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
                     </div>
