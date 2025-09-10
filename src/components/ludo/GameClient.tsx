@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { generateAIMove } from '@/ai/flows/ai-opponent';
 import { GameBoard, Pawn as PawnComponent } from '@/components/ludo/GameBoard';
@@ -67,16 +66,16 @@ export default function GameClient() {
     red: { name: 'Player', color: 'red' },
     green: { name: 'Computer', color: 'green' },
   };
-  const playerOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
+  const playerOrder: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
 
 
   useEffect(() => {
     setIsMounted(true);
-    addMessage('System', `Game started! Mode: ${gameMode}. Your turn to roll.`);
-  }, [gameMode]);
+  }, []);
   
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
-    setMessages((prev) => [{ sender, text, color }, ...prev]);
+    // For this design, we don't show messages in the UI.
+    console.log(`Message: [${sender}] ${text}`);
   };
 
   useEffect(() => {
@@ -96,14 +95,11 @@ export default function GameClient() {
     setCurrentTurn(nextPlayer);
     setPhase('ROLLING');
     setDiceValue(null);
-    const nextPlayerName = players[nextPlayer].name === 'Player' ? 'Your' : `${players[nextPlayer].name}'s`;
-    addMessage('System', `${nextPlayerName} turn to roll.`);
   };
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
-    const allPawns = Object.values(pawns).flat();
   
     // Move from yard
     if (roll === 6) {
@@ -127,20 +123,10 @@ export default function GameClient() {
       if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
         
-        // Check for blockades on the path
-        let isBlocked = false;
-        for(let i = 1; i < roll; i++) { // check intermediate steps
-          const stepPos = currentPath[currentPathIndex + i];
-          const pawnsOnStep = allPawns.filter(p => p.position === stepPos && p.color !== player);
-          if (pawnsOnStep.length >= 2) { // Standard Ludo blockade rule
-             isBlocked = true;
-             break;
-          }
-        }
-        
+        // Blockade check can be simplified for this version, but this is more robust
         const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-        if (!isBlocked && ownPawnsAtDestination < 2) {
+        if (ownPawnsAtDestination < 2) {
           moves.push({ pawn, newPosition });
         }
       }
@@ -154,21 +140,19 @@ export default function GameClient() {
     const possibleMoves = getPossibleMoves(currentTurn, value);
     
     if (possibleMoves.length === 0) {
-      addMessage(players[currentTurn].name, `rolled a ${value} but has no valid moves.`, currentTurn);
       setTimeout(() => {
-        if (value !== 6) nextTurn();
-        else {
-          setPhase('ROLLING');
-          addMessage('System', `${players[currentTurn].name} rolled a 6 and gets to roll again.`);
+        if (value !== 6) {
+          nextTurn();
+        } else {
+          setPhase('ROLLING'); // Roll again
         }
       }, 1000);
     } else {
         setPhase('MOVING');
         if (players[currentTurn].name !== 'Player') {
-            setPhase('AI_THINKING');
             setTimeout(() => handleAiMove(value, possibleMoves), 500);
         } else {
-            addMessage(players[currentTurn].name, `rolled a ${value}. Select a pawn to move.`, currentTurn);
+            // If only one move, auto-move
             if (possibleMoves.length === 1) {
                 setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
             }
@@ -181,58 +165,33 @@ export default function GameClient() {
       if (roll === 6) {
           const moveOutOfYard = possibleMoves.find(m => m.pawn.position === -1);
           if (moveOutOfYard) {
-              handlePawnMove(moveOutOfYard.pawn);
+              performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
               return;
           }
       }
       
-      const boardState = JSON.stringify(pawns);
-      try {
-        const { move: moveString } = await generateAIMove({
-          boardState,
-          currentPlayer: currentTurn,
-          diceRoll: roll,
-        });
-        
-        const pawnIdMatch = moveString.match(/pawn:(\\d+)/);
-        if (pawnIdMatch) {
-            const pawnId = parseInt(pawnIdMatch[1], 10);
-            const move = possibleMoves.find(m => m.pawn.id === pawnId);
-            if (move) {
-                handlePawnMove(move.pawn);
-                return;
-            }
-        }
-        // Fallback to first possible move if AI fails
-        handlePawnMove(possibleMoves[0].pawn);
-
-      } catch (error) {
-        console.error("AI move generation failed:", error);
-        // Fallback to a random possible move on error
-        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        handlePawnMove(randomMove.pawn);
+      // Basic AI: just take the first possible move
+      if (possibleMoves.length > 0) {
+        performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
       }
   }
   
   
   const handlePawnMove = (pawnToMove: Pawn) => {
-    if (!diceValue || pawnToMove.color !== currentTurn || (phase !== 'MOVING' && phase !== 'AI_THINKING')) {
+    if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING') {
+      return;
+    }
+  
+    // Special case for moving out of the yard
+    if (pawnToMove.position === -1 && diceValue === 6) {
+      const startPos = START_POSITIONS[currentTurn];
+      performMove(pawnToMove, startPos);
       return;
     }
   
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
     const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color);
-  
-    // Special case for moving out of the yard
-    if (pawnToMove.position === -1 && diceValue === 6) {
-      const startPos = START_POSITIONS[currentTurn];
-      const moveOutOfYard = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.newPosition === startPos);
-      if (moveOutOfYard) {
-        performMove(pawnToMove, startPos);
-        return;
-      }
-    }
-  
+    
     if (!selectedMove) {
       if (currentTurn === 'red') {
         toast({
@@ -258,9 +217,6 @@ export default function GameClient() {
   
       pawnsOfPlayer[pawnIndex].position = newPosition;
       
-      const movedPawnName = players[currentTurn].name === 'Player' ? 'Your' : `${players[currentTurn].name}'s`;
-      addMessage('System', `${movedPawnName} pawn moved.`, currentTurn);
-  
       // Capture logic
       if (!SAFE_ZONES.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
@@ -269,7 +225,6 @@ export default function GameClient() {
             if (opponentPawnsAtPos.length === 1 && newPosition !== START_POSITIONS[color]) {
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
-                  addMessage("System", `${players[currentTurn].name} captured ${color}'s pawn!`, currentTurn);
                   getsAnotherTurn = true;
                   return { ...p, position: -1 };
                 }
@@ -282,13 +237,13 @@ export default function GameClient() {
   
       // Home logic
       const currentPath = PATHS[currentTurn];
-      const homePathIndex = currentPath.indexOf(HOME_ENTRANCES[currentTurn]);
-      if(currentPath.indexOf(newPosition) > homePathIndex) {
-          const pawnsHome = newPawns[currentTurn].filter((p:Pawn) => p.isHome).length;
-          const finalHomeIndex = currentPath.length - 1; // Center
-          if (currentPath.indexOf(newPosition) >= finalHomeIndex - pawnsHome) {
+      const homeEntranceIndex = currentPath.indexOf(HOME_ENTRANCES[currentTurn]);
+      const currentPosIndex = currentPath.indexOf(newPosition);
+
+      if (currentPosIndex > homeEntranceIndex) { // It's on the home run
+          const finalHomeIndex = currentPath.length - 1;
+          if (newPosition === finalHomeIndex) {
              pawnsOfPlayer[pawnIndex].isHome = true;
-             addMessage("System", `${players[currentTurn].name}'s pawn reached home!`, currentTurn);
              getsAnotherTurn = true;
           }
       }
@@ -308,8 +263,6 @@ export default function GameClient() {
   
       if (getsAnotherTurn && !winner) {
         setPhase('ROLLING');
-        const turnPlayerName = players[currentTurn].name === 'Player' ? 'You get' : `${players[currentTurn].name} gets`;
-        addMessage('System', `${turnPlayerName} another turn!`);
       } else if (!winner) {
         nextTurn();
       }
@@ -328,7 +281,6 @@ export default function GameClient() {
       
       setTimeout(() => {
         const aiRoll = Math.floor(Math.random() * 6) + 1;
-        addMessage(players[currentTurn].name, `rolled a ${aiRoll}.`, currentTurn);
         handleDiceRoll(aiRoll);
       }, 1000);
     }
@@ -358,27 +310,37 @@ export default function GameClient() {
 
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
         pawns[color].forEach(pawn => {
-            const isPlayerTurn = pawn.color === currentTurn && (phase === 'MOVING' || phase === 'AI_THINKING');
+            if (pawn.position === -1 || pawn.isHome) return;
+
+            const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING';
             
             let highlight = false;
-            // For pawns in yard, highlight if dice is 6
-            if (isPlayerTurn && pawn.position === -1 && diceValue === 6) {
-                const startPos = START_POSITIONS[color];
-                const ownPawnsAtStart = pawns[color].filter(p => p.position === startPos).length;
-                if(ownPawnsAtStart < 2) {
-                   highlight = true;
-                }
-            } else if (isPlayerTurn) {
+            if (isPlayerTurn) {
                 const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
                 if (canMove) {
                     highlight = true;
                 }
             }
+            // Highlight pawns in yard if a 6 is rolled
+            if (isPlayerTurn && diceValue === 6 && pawns[color].some(p => p.position === -1)) {
+                 const pawnsInYard = pawns[color].filter(p=>p.position === -1);
+                 // this pawn is not the one to highlight, the one in yard is.
+            }
+
 
             const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
             allPawns.push({ ...pawn, highlight, isStacked });
         });
     });
+
+    // Special highlighting for yard pawns
+     if (phase === 'MOVING' && diceValue === 6 && currentTurn === 'red') {
+       const yardPawn = pawns.red.find(p => p.position === -1);
+       if (yardPawn) {
+          allPawns.push({ ...yardPawn, highlight: true, isStacked: false });
+       }
+     }
+
 
     return allPawns.map(pawn => (
         <PawnComponent key={`${pawn.color}-${pawn.id}`} {...pawn} onPawnClick={handlePawnMove} />
@@ -395,9 +357,8 @@ export default function GameClient() {
   }
   
   return (
-     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-        <h1 className="text-4xl font-bold">ShangLudo Arena</h1>
-
+     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
+        
         <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
             <DialogContent>
                 <DialogHeader>
@@ -428,7 +389,7 @@ export default function GameClient() {
             </div>
         </main>
 
-         <footer className="w-full flex justify-center items-center pb-4">
+         <footer className="w-full flex justify-center items-center py-4">
              <GameControls
                 currentTurn={currentTurn}
                 phase={phase}

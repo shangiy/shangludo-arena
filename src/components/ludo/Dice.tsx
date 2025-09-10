@@ -26,10 +26,10 @@ const DiceFace = ({ value }: { value: number }) => {
         {(dotPositions[value] || []).map(([x, y], i) => (
           <div
             key={i}
-            className="absolute w-4 h-4 bg-black rounded-full"
+            className="absolute w-3 h-3 bg-black rounded-full"
             style={{ 
-              top: `calc(${y * 100}% - 8px)`, 
-              left: `calc(${x * 100}% - 8px)` 
+              top: `calc(${y * 100}% - 6px)`, 
+              left: `calc(${x * 100}% - 6px)` 
             }}
           />
         ))}
@@ -66,21 +66,21 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
   const DICE_COLORS: Record<PlayerColor, string> = {
     red: 'bg-red-500',
     green: 'bg-green-500',
-    yellow: 'bg-yellow-400',
+    yellow: 'bg-yellow-500',
     blue: 'bg-blue-500',
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-2">
         <div
-            className={`w-24 h-24 rounded-2xl shadow-lg border-2 border-gray-800 p-2 ${DICE_COLORS[currentTurn]}`}
+            className={`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800 p-2 ${DICE_COLORS[currentTurn]}`}
         >
-            <div className="w-full h-full bg-white rounded-lg p-1">
+            <div className="w-full h-full rounded-md p-1">
                 <DiceFace value={internalValue} />
             </div>
         </div>
-        <p id="rolled-value" className="text-lg font-bold text-gray-800">
-            {propValue !== null ? `${currentTurn.toUpperCase()} rolled: ${propValue}` : 'Roll the dice!'}
+        <p id="rolled-value" className="text-md font-bold text-gray-800 h-6">
+            {propValue !== null ? `${currentTurn.toUpperCase()} rolled: ${propValue}` : ''}
         </p>
     </div>
   );
