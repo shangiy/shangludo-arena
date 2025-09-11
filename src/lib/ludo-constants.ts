@@ -25,7 +25,7 @@ const p = (x: number, y: number) => y * 15 + x;
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
-    green: p(11, 6),
+    green: p(8, 2),
     yellow: p(13, 8),
     blue: p(6, 13),
 };
