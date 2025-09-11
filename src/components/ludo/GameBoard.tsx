@@ -90,7 +90,7 @@ export function GameBoard({ children, showSecondarySafepoints }: { children: Rea
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
-              {showSecondarySafepoints && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="yellow" />}
+              {showSecondarySafepoints && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="blue" />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="blue" />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
             </div>;
