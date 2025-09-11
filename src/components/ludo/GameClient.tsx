@@ -17,6 +17,7 @@ import {
   HOME_ENTRANCES,
   SECONDARY_YELLOW_SAFE_ZONE,
   SECONDARY_RED_SAFE_ZONE,
+  SECONDARY_BLUE_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,7 @@ export default function GameClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [secondaryYellowHome, setSecondaryYellowHome] = useState(false);
   const [secondaryRedHome, setSecondaryRedHome] = useState(false);
+  const [secondaryBlueHome, setSecondaryBlueHome] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -234,6 +236,9 @@ export default function GameClient() {
       if (secondaryRedHome) {
         currentSafeZones.push(SECONDARY_RED_SAFE_ZONE);
       }
+      if (secondaryBlueHome) {
+        currentSafeZones.push(SECONDARY_BLUE_SAFE_ZONE);
+      }
 
       // Capture logic
       if (!currentSafeZones.includes(newPosition)) {
@@ -395,12 +400,18 @@ export default function GameClient() {
                 onSecondaryYellowHomeChange={setSecondaryYellowHome}
                 secondaryRedHome={secondaryRedHome}
                 onSecondaryRedHomeChange={setSecondaryRedHome}
+                secondaryBlueHome={secondaryBlueHome}
+                onSecondaryBlueHomeChange={setSecondaryBlueHome}
             />
         </header>
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
-                <GameBoard showSecondaryYellowHome={secondaryYellowHome} showSecondaryRedHome={secondaryRedHome}>
+                <GameBoard 
+                    showSecondaryYellowHome={secondaryYellowHome} 
+                    showSecondaryRedHome={secondaryRedHome}
+                    showSecondaryBlueHome={secondaryBlueHome}
+                >
                    {renderPawns()}
                 </GameBoard>
             </div>

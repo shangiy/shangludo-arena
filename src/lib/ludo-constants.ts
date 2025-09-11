@@ -79,6 +79,7 @@ export const HOME_ENTRANCES: Record<PlayerColor, number> = {
 
 export const SECONDARY_YELLOW_SAFE_ZONE = p(8, 12);
 export const SECONDARY_RED_SAFE_ZONE = p(6, 2);
+export const SECONDARY_BLUE_SAFE_ZONE = p(12, 6);
 
 export const SAFE_ZONES = [
     START_POSITIONS.red, 
@@ -87,5 +88,4 @@ export const SAFE_ZONES = [
     START_POSITIONS.blue,
     p(2, 8), 
     p(8, 2), 
-    p(12, 6), 
 ];
