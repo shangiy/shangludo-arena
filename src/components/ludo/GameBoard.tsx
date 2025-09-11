@@ -53,7 +53,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")} />;
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-red-500")} />;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-green-500")} />;
             
             // Unused center cells
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
