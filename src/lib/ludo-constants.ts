@@ -87,7 +87,6 @@ export const SAFE_ZONES = [
     p(2, 8), 
     p(8, 2), 
     p(12, 6), 
-    p(6, 12), 
 ];
 
     
