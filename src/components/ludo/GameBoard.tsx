@@ -65,7 +65,6 @@ export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedH
             [START_POSITIONS.green]: 'green',
             [START_POSITIONS.yellow]: 'yellow',
             [p(2, 8)]: 'gray', 
-            [p(8, 2)]: 'gray', 
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
