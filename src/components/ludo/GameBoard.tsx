@@ -63,6 +63,7 @@ export function GameBoard({ children, showSecondaryYellowHome }: { children: Rea
             [START_POSITIONS.red]: 'red',
             [START_POSITIONS.green]: 'green',
             [START_POSITIONS.yellow]: 'yellow',
+            [START_POSITIONS.blue]: 'blue',
             [p(2, 8)]: 'gray', 
             [p(8, 2)]: 'gray', 
             [p(12, 6)]: 'gray', 
