@@ -16,9 +16,11 @@ type GameControlsProps = {
   onDiceRoll: (value: number) => void;
   secondaryYellowHome: boolean;
   onSecondaryYellowHomeChange: (value: boolean) => void;
+  secondaryRedHome: boolean;
+  onSecondaryRedHomeChange: (value: boolean) => void;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange, secondaryRedHome, onSecondaryRedHomeChange }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
   const isPlayerTurn = currentTurn === 'red';
 
@@ -66,11 +68,19 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, second
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-safepoint">Add secondary safepoint</Label>
+                                <Label htmlFor="secondary-yellow-safepoint">Add Yellow Safepoint</Label>
                                 <Switch
-                                    id="secondary-safepoint"
+                                    id="secondary-yellow-safepoint"
                                     checked={secondaryYellowHome}
                                     onCheckedChange={onSecondaryYellowHomeChange}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="secondary-red-safepoint">Add Red Safepoint</Label>
+                                <Switch
+                                    id="secondary-red-safepoint"
+                                    checked={secondaryRedHome}
+                                    onCheckedChange={onSecondaryRedHomeChange}
                                 />
                             </div>
                         </div>
