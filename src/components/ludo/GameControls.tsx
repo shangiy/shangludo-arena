@@ -14,17 +14,11 @@ type GameControlsProps = {
   phase: 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
-  secondaryYellowHome: boolean;
-  onSecondaryYellowHomeChange: (value: boolean) => void;
-  secondaryRedHome: boolean;
-  onSecondaryRedHomeChange: (value: boolean) => void;
-  secondaryBlueHome: boolean;
-  onSecondaryBlueHomeChange: (value: boolean) => void;
-  secondaryGreenHome: boolean;
-  onSecondaryGreenHomeChange: (value: boolean) => void;
+  secondarySafepoints: boolean;
+  onSecondarySafepointsChange: (value: boolean) => void;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange, secondaryRedHome, onSecondaryRedHomeChange, secondaryBlueHome, onSecondaryBlueHomeChange, secondaryGreenHome, onSecondaryGreenHomeChange }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondarySafepoints, onSecondarySafepointsChange }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
   const isPlayerTurn = currentTurn === 'red';
 
@@ -72,35 +66,11 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, second
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-yellow-safepoint">Add Yellow Safepoint</Label>
+                                <Label htmlFor="secondary-safepoints">Add Secondary Safepoints</Label>
                                 <Switch
-                                    id="secondary-yellow-safepoint"
-                                    checked={secondaryYellowHome}
-                                    onCheckedChange={onSecondaryYellowHomeChange}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-red-safepoint">Add Red Safepoint</Label>
-                                <Switch
-                                    id="secondary-red-safepoint"
-                                    checked={secondaryRedHome}
-                                    onCheckedChange={onSecondaryRedHomeChange}
-                                />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-blue-safepoint">Add Blue Safepoint</Label>
-                                <Switch
-                                    id="secondary-blue-safepoint"
-                                    checked={secondaryBlueHome}
-                                    onCheckedChange={onSecondaryBlueHomeChange}
-                                />
-                            </div>
-                             <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-green-safepoint">Add Green Safepoint</Label>
-                                <Switch
-                                    id="secondary-green-safepoint"
-                                    checked={secondaryGreenHome}
-                                    onCheckedChange={onSecondaryGreenHomeChange}
+                                    id="secondary-safepoints"
+                                    checked={secondarySafepoints}
+                                    onCheckedChange={onSecondarySafepointsChange}
                                 />
                             </div>
                         </div>

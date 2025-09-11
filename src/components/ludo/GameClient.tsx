@@ -63,10 +63,7 @@ export default function GameClient() {
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  const [secondaryYellowHome, setSecondaryYellowHome] = useState(false);
-  const [secondaryRedHome, setSecondaryRedHome] = useState(false);
-  const [secondaryBlueHome, setSecondaryBlueHome] = useState(false);
-  const [secondaryGreenHome, setSecondaryGreenHome] = useState(false);
+  const [secondarySafepoints, setSecondarySafepoints] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -232,16 +229,10 @@ export default function GameClient() {
       pawnsOfPlayer[pawnIndex].position = newPosition;
       
       const currentSafeZones = [...SAFE_ZONES];
-      if (secondaryYellowHome) {
+      if (secondarySafepoints) {
         currentSafeZones.push(SECONDARY_YELLOW_SAFE_ZONE);
-      }
-      if (secondaryRedHome) {
         currentSafeZones.push(SECONDARY_RED_SAFE_ZONE);
-      }
-      if (secondaryBlueHome) {
         currentSafeZones.push(SECONDARY_BLUE_SAFE_ZONE);
-      }
-      if (secondaryGreenHome) {
         currentSafeZones.push(SECONDARY_GREEN_SAFE_ZONE);
       }
 
@@ -401,24 +392,15 @@ export default function GameClient() {
                 phase={phase}
                 diceValue={diceValue}
                 onDiceRoll={handleDiceRoll}
-                secondaryYellowHome={secondaryYellowHome}
-                onSecondaryYellowHomeChange={setSecondaryYellowHome}
-                secondaryRedHome={secondaryRedHome}
-                onSecondaryRedHomeChange={setSecondaryRedHome}
-                secondaryBlueHome={secondaryBlueHome}
-                onSecondaryBlueHomeChange={setSecondaryBlueHome}
-                secondaryGreenHome={secondaryGreenHome}
-                onSecondaryGreenHomeChange={setSecondaryGreenHome}
+                secondarySafepoints={secondarySafepoints}
+                onSecondarySafepointsChange={setSecondarySafepoints}
             />
         </header>
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
                 <GameBoard 
-                    showSecondaryYellowHome={secondaryYellowHome} 
-                    showSecondaryRedHome={secondaryRedHome}
-                    showSecondaryBlueHome={secondaryBlueHome}
-                    showSecondaryGreenHome={secondaryGreenHome}
+                    showSecondarySafepoints={secondarySafepoints}
                 >
                    {renderPawns()}
                 </GameBoard>
