@@ -10,7 +10,7 @@ export default {
   safelist: [
     'bg-red-500', 'border-red-500', 'text-red-500', 'fill-red-500',
     'bg-green-500', 'border-green-500', 'text-green-500', 'fill-green-500',
-    'bg-yellow-500', 'border-yellow-500', 'text-yellow-500', 'fill-yellow-500',
+    'bg-yellow-400', 'border-yellow-400', 'text-yellow-400', 'fill-yellow-400',
     'bg-blue-500', 'border-blue-500', 'text-blue-500', 'fill-blue-500',
   ],
   theme: {

@@ -42,6 +42,12 @@ export function GameBoard({ children }: { children: ReactNode }) {
         if (x >= 6 && x <= 8 && y >= 6 && y <= 8) {
              if (x === 7 && y === 7) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
+                    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <polygon points="0,0 100,0 50,50" className="fill-green-500" />
+                        <polygon points="100,0 100,100 50,50" className="fill-yellow-400" />
+                        <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
+                        <polygon points="0,0 0,100 50,50" className="fill-red-500" />
+                    </svg>
                 </div>;
             }
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
@@ -109,25 +115,25 @@ export function GameBoard({ children }: { children: ReactNode }) {
              <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
                 <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', 'bg-white')}>
                     <div className="flex items-center justify-center p-1">
-                      <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
+                      <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
+                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
+                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full', YARD_BGS[color])}></div>
+                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                 </div>
             </div>
         );
 
         if (x < 6 && y < 6) return renderYard('red');
-        if (x > 8 && y < 6) return renderYard('yellow');
-        if (x < 6 && y > 8) return renderYard('green');
-        if (x > 8 && y > 8) return renderYard('blue');
+        if (x > 8 && y < 6) return renderYard('green');
+        if (x < 6 && y > 8) return renderYard('blue');
+        if (x > 8 && y > 8) return renderYard('yellow');
         
         return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
     }
@@ -184,9 +190,9 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
   } else if (position === -1) {
     const yardBases: Record<PlayerColor, {x: number, y: number}> = {
         red: { x: 0, y: 0 },
-        yellow: { x: 9, y: 0 },
-        green: { x: 0, y: 9 },
-        blue: { x: 9, y: 9 },
+        green: { x: 9, y: 0 },
+        blue: { x: 0, y: 9 },
+        yellow: { x: 9, y: 9 },
     }
     const base = yardBases[color];
     const yardPos = getYardPosition(id);
