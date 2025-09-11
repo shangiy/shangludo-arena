@@ -89,7 +89,7 @@ export function GameBoard({ children, showSecondarySafepoints }: { children: Rea
 
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
-              {showSecondarySafepoints && p(x,y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="green" />}
+              {showSecondarySafepoints && p(x,y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="green" />}
               {showSecondarySafepoints && p(x,y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="red" />}
@@ -107,7 +107,7 @@ export function GameBoard({ children, showSecondarySafepoints }: { children: Rea
                        <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
+                       <div className_name={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
                     </div>
                     <div className="flex items-center justify-center p-1">
                        <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
