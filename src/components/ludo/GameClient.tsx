@@ -146,6 +146,7 @@ export default function GameClient() {
           nextTurn();
         } else {
           setPhase('ROLLING'); // Roll again
+          setDiceValue(null);
           addMessage('System', `${players[currentTurn].name} gets to roll again.`);
         }
       }, 1000);
@@ -210,7 +211,10 @@ export default function GameClient() {
   
   const performMove = (pawnToMove: Pawn, newPosition: number) => {
     if (!diceValue) return;
-    let getsAnotherTurn = false;
+  
+    const rolledSix = diceValue === 6;
+    let capturedPawn = false;
+    let pawnReachedHome = false;
   
     setPawns(prev => {
       const newPawns = JSON.parse(JSON.stringify(prev));
@@ -228,7 +232,7 @@ export default function GameClient() {
               addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
-                  getsAnotherTurn = true;
+                  capturedPawn = true;
                   return { ...p, position: -1 };
                 }
                 return p;
@@ -240,16 +244,11 @@ export default function GameClient() {
   
       // Home logic
       const currentPath = PATHS[currentTurn];
-      const homeEntranceIndex = currentPath.indexOf(HOME_ENTRANCES[currentTurn]);
-      const currentPosIndex = currentPath.indexOf(newPosition);
-
-      if (currentPosIndex > homeEntranceIndex) { // It's on the home run
-          const finalHomeIndex = currentPath.length - 1;
-          if (newPosition === finalHomeIndex) {
-             pawnsOfPlayer[pawnIndex].isHome = true;
-             addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
-             getsAnotherTurn = true;
-          }
+      const finalHomeIndex = currentPath.length - 1;
+      if (newPosition === finalHomeIndex) {
+         pawnsOfPlayer[pawnIndex].isHome = true;
+         addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
+         pawnReachedHome = true;
       }
   
       newPawns[currentTurn] = pawnsOfPlayer;
@@ -258,24 +257,23 @@ export default function GameClient() {
       const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
       if (allHome) {
         setWinner(currentTurn);
-        setPhase('GAME_OVER');
-      }
-  
-      if (diceValue === 6) {
-        getsAnotherTurn = true;
-        addMessage('System', `${players[currentTurn].name} rolled a 6 and gets another turn.`);
-      }
-  
-      if (getsAnotherTurn && !winner) {
-        setPhase('ROLLING');
-      } else if (!winner) {
-        nextTurn();
       }
   
       return newPawns;
     });
-  
+
     setDiceValue(null);
+
+    const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
+    
+    if (getsAnotherTurn && !winner) {
+      addMessage('System', `${players[currentTurn].name} gets another turn.`);
+      setPhase('ROLLING');
+    } else if (!winner) {
+      nextTurn();
+    } else {
+      setPhase('GAME_OVER');
+    }
   };
   
   // AI Logic
