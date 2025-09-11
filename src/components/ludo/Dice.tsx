@@ -83,8 +83,8 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
     <div className="flex flex-col items-center gap-2">
         <motion.div
             className={cn(`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800`, turnColorClasses[currentTurn])}
-            animate={{ rotateY: isAnimating ? 360 : 0 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            animate={{ rotateY: isAnimating ? [0, 360, 720] : 0, rotateX: isAnimating ? [0, 180, 360] : 0 }}
+            transition={{ duration: 1, ease: 'easeInOut' }}
             style={{ transformStyle: 'preserve-3d' }}
         >
             <div className="w-full h-full rounded-md bg-white">
