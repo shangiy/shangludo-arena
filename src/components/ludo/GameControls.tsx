@@ -20,9 +20,11 @@ type GameControlsProps = {
   onSecondaryRedHomeChange: (value: boolean) => void;
   secondaryBlueHome: boolean;
   onSecondaryBlueHomeChange: (value: boolean) => void;
+  secondaryGreenHome: boolean;
+  onSecondaryGreenHomeChange: (value: boolean) => void;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange, secondaryRedHome, onSecondaryRedHomeChange, secondaryBlueHome, onSecondaryBlueHomeChange }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange, secondaryRedHome, onSecondaryRedHomeChange, secondaryBlueHome, onSecondaryBlueHomeChange, secondaryGreenHome, onSecondaryGreenHomeChange }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
   const isPlayerTurn = currentTurn === 'red';
 
@@ -91,6 +93,14 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, second
                                     id="secondary-blue-safepoint"
                                     checked={secondaryBlueHome}
                                     onCheckedChange={onSecondaryBlueHomeChange}
+                                />
+                            </div>
+                             <div className="flex items-center justify-between">
+                                <Label htmlFor="secondary-green-safepoint">Add Green Safepoint</Label>
+                                <Switch
+                                    id="secondary-green-safepoint"
+                                    checked={secondaryGreenHome}
+                                    onCheckedChange={onSecondaryGreenHomeChange}
                                 />
                             </div>
                         </div>

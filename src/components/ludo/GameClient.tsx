@@ -18,6 +18,7 @@ import {
   SECONDARY_YELLOW_SAFE_ZONE,
   SECONDARY_RED_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
+  SECONDARY_GREEN_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,7 @@ export default function GameClient() {
   const [secondaryYellowHome, setSecondaryYellowHome] = useState(false);
   const [secondaryRedHome, setSecondaryRedHome] = useState(false);
   const [secondaryBlueHome, setSecondaryBlueHome] = useState(false);
+  const [secondaryGreenHome, setSecondaryGreenHome] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -239,6 +241,9 @@ export default function GameClient() {
       if (secondaryBlueHome) {
         currentSafeZones.push(SECONDARY_BLUE_SAFE_ZONE);
       }
+      if (secondaryGreenHome) {
+        currentSafeZones.push(SECONDARY_GREEN_SAFE_ZONE);
+      }
 
       // Capture logic
       if (!currentSafeZones.includes(newPosition)) {
@@ -402,6 +407,8 @@ export default function GameClient() {
                 onSecondaryRedHomeChange={setSecondaryRedHome}
                 secondaryBlueHome={secondaryBlueHome}
                 onSecondaryBlueHomeChange={setSecondaryBlueHome}
+                secondaryGreenHome={secondaryGreenHome}
+                onSecondaryGreenHomeChange={setSecondaryGreenHome}
             />
         </header>
 
@@ -411,6 +418,7 @@ export default function GameClient() {
                     showSecondaryYellowHome={secondaryYellowHome} 
                     showSecondaryRedHome={secondaryRedHome}
                     showSecondaryBlueHome={secondaryBlueHome}
+                    showSecondaryGreenHome={secondaryGreenHome}
                 >
                    {renderPawns()}
                 </GameBoard>

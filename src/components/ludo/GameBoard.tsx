@@ -2,12 +2,12 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, START_POSITIONS, SECONDARY_YELLOW_SAFE_ZONE, SECONDARY_RED_SAFE_ZONE, SECONDARY_BLUE_SAFE_ZONE } from '@/lib/ludo-constants';
+import { PlayerColor, Pawn as PawnType, START_POSITIONS, SECONDARY_YELLOW_SAFE_ZONE, SECONDARY_RED_SAFE_ZONE, SECONDARY_BLUE_SAFE_ZONE, SECONDARY_GREEN_SAFE_ZONE } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center border-r border-b border-black/40";
 
-export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedHome, showSecondaryBlueHome }: { children: ReactNode, showSecondaryYellowHome: boolean, showSecondaryRedHome: boolean, showSecondaryBlueHome: boolean }) {
+export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedHome, showSecondaryBlueHome, showSecondaryGreenHome }: { children: ReactNode, showSecondaryYellowHome: boolean, showSecondaryRedHome: boolean, showSecondaryBlueHome: boolean, showSecondaryGreenHome: boolean }) {
     const cells = Array.from({ length: 15 * 15 });
     
     const YARD_BGS: Record<PlayerColor, string> = {
@@ -93,6 +93,7 @@ export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedH
               {showSecondaryYellowHome && p(x,y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
               {showSecondaryRedHome && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
               {showSecondaryBlueHome && p(x,y) === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="blue" />}
+              {showSecondaryGreenHome && p(x,y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
             </div>;
         }
 
