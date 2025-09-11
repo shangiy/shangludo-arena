@@ -82,8 +82,8 @@ export const SAFE_ZONES = [
     START_POSITIONS.green,
     START_POSITIONS.yellow, 
     START_POSITIONS.blue,
-    p(2, 6), 
+    p(2, 8), 
     p(8, 2), 
-    p(12, 8), 
+    p(12, 6), 
     p(6, 12), 
 ];

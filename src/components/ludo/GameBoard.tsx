@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, START_POSITIONS } from '@/lib/ludo-constants';
+import { PlayerColor, Pawn as PawnType, START_POSITIONS, SAFE_ZONES } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center border-r border-b border-black/40";
@@ -63,6 +63,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             [p(1, 8)]: 'gray',
             [p(8, 13)]: 'blue',
             [p(6, 1)]: 'green',
+            [p(13, 6)]: 'yellow',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -95,6 +96,7 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if (p(x, y) === START_POSITIONS.yellow) {
               return (
                 <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+                   <StarIcon color="yellow" />
                 </div>
               );
             }
