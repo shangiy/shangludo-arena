@@ -56,6 +56,7 @@ export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedH
             if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
             
             // Unused center cells
+            if(x===7 && y === 7-1) return <div className={cn(borderClasses, "bg-green-500")}></div>;
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
         }
         
@@ -63,7 +64,6 @@ export function GameBoard({ children, showSecondaryYellowHome, showSecondaryRedH
             [START_POSITIONS.red]: 'red',
             [START_POSITIONS.green]: 'green',
             [START_POSITIONS.yellow]: 'yellow',
-            [START_POSITIONS.blue]: 'blue',
             [p(2, 8)]: 'gray', 
             [p(8, 2)]: 'gray', 
             [p(12, 6)]: 'gray', 
