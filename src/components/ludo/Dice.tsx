@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 type DiceProps = {
   onRoll: (value: number) => void;
@@ -70,16 +71,26 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
     yellow: 'bg-yellow-400',
     blue: 'bg-blue-500',
   }
+  
+  const turnColorClasses: Record<PlayerColor, string> = {
+    red: 'bg-gradient-to-br from-red-400 to-red-600',
+    green: 'bg-gradient-to-br from-green-400 to-green-600',
+    yellow: 'bg-gradient-to-br from-yellow-300 to-yellow-500',
+    blue: 'bg-gradient-to-br from-blue-400 to-blue-600',
+  };
 
   return (
     <div className="flex flex-col items-center gap-2">
-        <div
-            className={cn(`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800`, DICE_COLORS[currentTurn])}
+        <motion.div
+            className={cn(`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800`, turnColorClasses[currentTurn])}
+            animate={{ rotateY: isAnimating ? 360 : 0 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            style={{ transformStyle: 'preserve-3d' }}
         >
             <div className="w-full h-full rounded-md bg-white">
-                <DiceFace value={propValue ?? 1} />
+                <DiceFace value={isAnimating ? internalValue : (propValue ?? 1)} />
             </div>
-        </div>
+        </motion.div>
         <p id="rolled-value" className="text-md font-bold text-gray-800 h-6 capitalize">
             {propValue !== null ? `${currentTurn} rolled: ${propValue}` : ''}
         </p>
