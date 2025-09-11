@@ -62,7 +62,6 @@ export function GameBoard({ children, showSecondaryYellowHome }: { children: Rea
         const safeZonePositions: Record<number, PlayerColor | 'gray'> = {
             [START_POSITIONS.red]: 'red',
             [START_POSITIONS.green]: 'green',
-            [START_POSITIONS.blue]: 'blue',
             [START_POSITIONS.yellow]: 'yellow',
             [p(2, 8)]: 'gray', 
             [p(8, 2)]: 'gray', 
