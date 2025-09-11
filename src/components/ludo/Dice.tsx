@@ -12,8 +12,14 @@ type DiceProps = {
   currentTurn: PlayerColor;
 };
 
+const DICE_FACE_COLORS: Record<PlayerColor, string> = {
+    red: 'bg-red-500',
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-400',
+    blue: 'bg-blue-500',
+};
 
-const DiceFace = ({ value }: { value: number }) => {
+const DiceFace = ({ value, color }: { value: number; color: PlayerColor }) => {
     const dotPositions: { [key: number]: number[][] } = {
         1: [[0.5, 0.5]],
         2: [[0.25, 0.25], [0.75, 0.75]],
@@ -24,11 +30,11 @@ const DiceFace = ({ value }: { value: number }) => {
     };
     
     return (
-      <div className="w-full h-full relative p-2">
+      <div className={cn("w-full h-full relative p-2 rounded-lg", DICE_FACE_COLORS[color])}>
         {(dotPositions[value] || []).map(([x, y], i) => (
           <div
             key={i}
-            className="absolute w-3 h-3 bg-black rounded-full"
+            className="absolute w-3 h-3 bg-white rounded-full"
             style={{ 
               top: `calc(${y * 100}% - 6px)`, 
               left: `calc(${x * 100}% - 6px)` 
@@ -65,13 +71,6 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
     }
   }, [propValue]);
   
-  const DICE_COLORS: Record<PlayerColor, string> = {
-    red: 'bg-red-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-400',
-    blue: 'bg-blue-500',
-  }
-  
   const turnColorClasses: Record<PlayerColor, string> = {
     red: 'bg-gradient-to-br from-red-400 to-red-600',
     green: 'bg-gradient-to-br from-green-400 to-green-600',
@@ -82,14 +81,12 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn }: DiceP
   return (
     <div className="flex flex-col items-center gap-2">
         <motion.div
-            className={cn(`w-20 h-20 rounded-lg shadow-lg border-2 border-gray-800`, turnColorClasses[currentTurn])}
-            animate={{ rotateY: isAnimating ? [0, 360, 720] : 0, rotateX: isAnimating ? [0, 180, 360] : 0 }}
+            className={cn(`w-20 h-20 rounded-lg shadow-lg`)}
+            animate={{ rotateY: isAnimating ? 720 : 0, rotateX: isAnimating ? 360 : 0 }}
             transition={{ duration: 1, ease: 'easeInOut' }}
-            style={{ transformStyle: 'preserve-3d' }}
+            style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
         >
-            <div className="w-full h-full rounded-md bg-white">
-                <DiceFace value={isAnimating ? internalValue : (propValue ?? 1)} />
-            </div>
+            <DiceFace value={isAnimating ? internalValue : (propValue ?? 1)} color={currentTurn} />
         </motion.div>
         <p id="rolled-value" className="text-md font-bold text-gray-800 h-6 capitalize">
             {propValue !== null ? `${currentTurn} rolled: ${propValue}` : ''}
