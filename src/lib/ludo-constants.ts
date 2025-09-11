@@ -27,7 +27,7 @@ export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
     green: p(11, 6),
     yellow: p(13, 8),
-    blue: p(6, 12),
+    blue: p(6, 13),
 };
 
 // Main path around the board (clockwise)
@@ -79,7 +79,7 @@ export const HOME_ENTRANCES: Record<PlayerColor, number> = {
 
 export const SECONDARY_YELLOW_SAFE_ZONE = p(8, 1);
 export const SECONDARY_RED_SAFE_ZONE = p(8, 2);
-export const SECONDARY_BLUE_SAFE_ZONE = p(2, 8);
+export const SECONDARY_BLUE_SAFE_ZONE = p(11, 7);
 export const SECONDARY_GREEN_SAFE_ZONE = p(6, 2);
 
 export const SAFE_ZONES = [
