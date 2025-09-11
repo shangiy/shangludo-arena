@@ -25,9 +25,9 @@ const p = (x: number, y: number) => y * 15 + x;
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
-    green: p(8, 0),
+    green: p(8, 1),
     yellow: p(13, 8),
-    blue: p(7, 13),
+    blue: p(7, 12),
 };
 
 // Main path around the board (clockwise)
@@ -78,9 +78,9 @@ export const HOME_ENTRANCES: Record<PlayerColor, number> = {
 };
 
 export const SECONDARY_YELLOW_SAFE_ZONE = p(8, 1);
-export const SECONDARY_RED_SAFE_ZONE = p(8, 2);
+export const SECONDARY_RED_SAFE_ZONE = p(6, 2);
 export const SECONDARY_BLUE_SAFE_ZONE = p(11, 7);
-export const SECONDARY_GREEN_SAFE_ZONE = p(6, 2);
+export const SECONDARY_GREEN_SAFE_ZONE = p(12, 6);
 
 export const SAFE_ZONES = [
     START_POSITIONS.red, 
