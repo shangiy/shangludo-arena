@@ -4,16 +4,21 @@ import { Dice } from '@/components/ludo/Dice';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Dices } from 'lucide-react';
+import { Dices, Settings } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
   phase: 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
+  secondaryYellowHome: boolean;
+  onSecondaryYellowHomeChange: (value: boolean) => void;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, secondaryYellowHome, onSecondaryYellowHomeChange }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
   const isPlayerTurn = currentTurn === 'red';
 
@@ -32,18 +37,47 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Button
-        onClick={handleRoll}
-        disabled={isRolling || !isPlayerTurn}
-        className={cn(
-            "gradient-button text-lg font-bold py-3 px-6 rounded-lg animate-pulse",
-            (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed",
-            turnColorClasses[currentTurn]
-        )}
-      >
-        <Dices className="mr-2" />
-        Roll Dice
-      </Button>
+        <div className="flex items-center gap-4">
+            <Button
+                onClick={handleRoll}
+                disabled={isRolling || !isPlayerTurn}
+                className={cn(
+                    "gradient-button text-lg font-bold py-3 px-6 rounded-lg animate-pulse",
+                    (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed",
+                    turnColorClasses[currentTurn]
+                )}
+            >
+                <Dices className="mr-2" />
+                Roll Dice
+            </Button>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon">
+                        <Settings />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                    <div className="grid gap-4">
+                        <div className="space-y-2">
+                            <h4 className="font-medium leading-none">Game Settings</h4>
+                            <p className="text-sm text-muted-foreground">
+                                Adjust custom game rules.
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="secondary-home">Secondary Yellow Home</Label>
+                                <Switch
+                                    id="secondary-home"
+                                    checked={secondaryYellowHome}
+                                    onCheckedChange={onSecondaryYellowHomeChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
       <Dice 
         onRoll={onDiceRoll} 
         isRolling={isRolling}
@@ -53,3 +87,5 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
     </div>
   );
 }
+
+    

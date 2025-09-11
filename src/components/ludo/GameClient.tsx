@@ -15,6 +15,7 @@ import {
   Pawn,
   ChatMessage,
   HOME_ENTRANCES,
+  SECONDARY_YELLOW_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -59,6 +60,7 @@ export default function GameClient() {
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [secondaryYellowHome, setSecondaryYellowHome] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -223,8 +225,13 @@ export default function GameClient() {
   
       pawnsOfPlayer[pawnIndex].position = newPosition;
       
+      const currentSafeZones = [...SAFE_ZONES];
+      if (secondaryYellowHome) {
+        currentSafeZones.push(SECONDARY_YELLOW_SAFE_ZONE);
+      }
+
       // Capture logic
-      if (!SAFE_ZONES.includes(newPosition)) {
+      if (!currentSafeZones.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
           if (color !== currentTurn) {
             let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
@@ -380,12 +387,14 @@ export default function GameClient() {
                 phase={phase}
                 diceValue={diceValue}
                 onDiceRoll={handleDiceRoll}
+                secondaryYellowHome={secondaryYellowHome}
+                onSecondaryYellowHomeChange={setSecondaryYellowHome}
             />
         </header>
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
-                <GameBoard>
+                <GameBoard showSecondaryYellowHome={secondaryYellowHome}>
                    {renderPawns()}
                 </GameBoard>
             </div>
@@ -393,3 +402,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    

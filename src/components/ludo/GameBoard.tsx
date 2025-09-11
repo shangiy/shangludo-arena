@@ -2,12 +2,12 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, START_POSITIONS, SAFE_ZONES } from '@/lib/ludo-constants';
+import { PlayerColor, Pawn as PawnType, START_POSITIONS, SECONDARY_YELLOW_SAFE_ZONE } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center border-r border-b border-black/40";
 
-export function GameBoard({ children }: { children: ReactNode }) {
+export function GameBoard({ children, showSecondaryYellowHome }: { children: ReactNode, showSecondaryYellowHome: boolean }) {
     const cells = Array.from({ length: 15 * 15 });
     
     const YARD_BGS: Record<PlayerColor, string> = {
@@ -53,17 +53,21 @@ export function GameBoard({ children }: { children: ReactNode }) {
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")} />;
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-green-500")} />;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
             
             // Unused center cells
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
         }
         
         const safeZonePositions: Record<number, PlayerColor | 'gray'> = {
-            [p(1, 8)]: 'gray',
-            [p(8, 13)]: 'blue',
-            [p(6, 1)]: 'green',
-            [p(13, 6)]: 'yellow',
+            [START_POSITIONS.red]: 'red',
+            [START_POSITIONS.green]: 'green',
+            [START_POSITIONS.blue]: 'blue',
+            [START_POSITIONS.yellow]: 'yellow',
+            [p(2, 8)]: 'gray', 
+            [p(8, 2)]: 'gray', 
+            [p(12, 6)]: 'gray', 
+            [p(6, 12)]: 'gray', 
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         
@@ -86,28 +90,9 @@ export function GameBoard({ children }: { children: ReactNode }) {
                  bgColor = HOME_RUN_BGS[homePathColor];
             }
 
-            if (p(x,y) === START_POSITIONS.red) {
-                 return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
-                 </div>;
-            }
-             if (p(x,y) === START_POSITIONS.green) {
-                return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>;
-            }
-            if (p(x, y) === START_POSITIONS.yellow) {
-              return (
-                <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
-                   <StarIcon color="yellow" />
-                </div>
-              );
-            }
-             if (p(x,y) === START_POSITIONS.blue) {
-                return (
-                    <div className={cn(borderClasses, bgColor, "relative h-full w-full")}></div>
-                );
-            }
-
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
+              {showSecondaryYellowHome && p(x,y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
             </div>;
         }
 
@@ -242,3 +227,5 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
     </motion.div>
   );
 }
+
+    
