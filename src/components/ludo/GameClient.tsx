@@ -251,8 +251,7 @@ export default function GameClient() {
   
       // Home logic
       const currentPath = PATHS[currentTurn];
-      const finalHomeIndex = currentPath.length - 1;
-      if (newPosition === finalHomeIndex) {
+      if (currentPath.indexOf(newPosition) >= 51) { // 51 is the length of the main path
          pawnsOfPlayer[pawnIndex].isHome = true;
          addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
          pawnReachedHome = true;
@@ -402,5 +401,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

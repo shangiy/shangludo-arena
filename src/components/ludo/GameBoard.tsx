@@ -67,6 +67,7 @@ export function GameBoard({ children, showSecondaryYellowHome }: { children: Rea
             [p(2, 8)]: 'gray', 
             [p(8, 2)]: 'gray', 
             [p(12, 6)]: 'gray', 
+            [p(6, 12)]: 'gray',
         };
         const safeZoneColor = safeZonePositions[p(x, y)];
         

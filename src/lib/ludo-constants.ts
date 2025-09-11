@@ -57,8 +57,8 @@ const homeRuns: Record<PlayerColor, number[]> = {
 const generatePath = (startPosition: PlayerColor) => {
     const startIndex = MAIN_PATH.indexOf(START_POSITIONS[startPosition]);
     const rotatedPath = [...MAIN_PATH.slice(startIndex), ...MAIN_PATH.slice(0, startIndex)];
+    // The path to home is 51 steps, then the home run
     const finalPath = [...rotatedPath.slice(0, 51), ...homeRuns[startPosition]];
-    finalPath.push(p(7,7));
     return finalPath;
 }
 
@@ -87,6 +87,5 @@ export const SAFE_ZONES = [
     p(2, 8), 
     p(8, 2), 
     p(12, 6), 
+    p(6, 12),
 ];
-
-    

@@ -66,9 +66,9 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, second
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="secondary-home">Secondary Yellow Home</Label>
+                                <Label htmlFor="secondary-safepoint">Add secondary safepoint</Label>
                                 <Switch
-                                    id="secondary-home"
+                                    id="secondary-safepoint"
                                     checked={secondaryYellowHome}
                                     onCheckedChange={onSecondaryYellowHomeChange}
                                 />
@@ -87,5 +87,3 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, second
     </div>
   );
 }
-
-    
