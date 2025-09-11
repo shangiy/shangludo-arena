@@ -25,9 +25,9 @@ const p = (x: number, y: number) => y * 15 + x;
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
-    green: p(8, 2),
+    green: p(8, 1),
     yellow: p(13, 8),
-    blue: p(6, 12),
+    blue: p(6, 13),
 };
 
 // Main path around the board (clockwise)
