@@ -25,7 +25,7 @@ const p = (x: number, y: number) => y * 15 + x;
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
-    green: p(8, 2),
+    green: p(9, 2),
     yellow: p(13, 8),
     blue: p(6, 13),
 };
@@ -78,13 +78,13 @@ export const HOME_ENTRANCES: Record<PlayerColor, number> = {
 };
 
 export const SECONDARY_YELLOW_SAFE_ZONE = p(12, 8);
-export const SECONDARY_RED_SAFE_ZONE = p(6, 2);
-export const SECONDARY_BLUE_SAFE_ZONE = p(12, 8);
+export const SECONDARY_RED_SAFE_ZONE = p(8, 2);
+export const SECONDARY_BLUE_SAFE_ZONE = p(2, 8);
 export const SECONDARY_GREEN_SAFE_ZONE = p(2, 8);
 
 export const SAFE_ZONES = [
     START_POSITIONS.red, 
     START_POSITIONS.green,
     START_POSITIONS.yellow, 
-    p(2, 8), 
+    START_POSITIONS.blue, 
 ];
