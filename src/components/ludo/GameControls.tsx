@@ -61,7 +61,7 @@ export function GameControls({
           disabled={isRolling || !isHumanTurn}
           className={cn(
             'gradient-button text-lg font-bold py-3 px-6 rounded-lg',
-            isHumanTurn && 'animate-pulse',
+            isHumanTurn && !isRolling && 'animate-pulse',
             (isRolling || !isHumanTurn) && 'opacity-50 cursor-not-allowed',
             turnColorClasses[currentTurn]
           )}
@@ -127,7 +127,7 @@ export function GameControls({
           </PopoverContent>
         </Popover>
       </div>
-      <Dice onRoll={onDiceRoll} isRolling={isRolling} value={diceValue} currentTurn={currentTurn} />
+      <Dice onRoll={handleRoll} isRolling={phase === 'MOVING'} value={diceValue} currentTurn={currentTurn} isHumanTurn={isHumanTurn} />
     </div>
   );
 }
