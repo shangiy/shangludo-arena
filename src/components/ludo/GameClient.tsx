@@ -102,7 +102,6 @@ export default function GameClient() {
   
   const handleGameSetup = (setup: GameSetup) => {
     setGameSetup(setup);
-    setPlayerOrder(setup.turnOrder);
     setCurrentTurn(setup.turnOrder[0]);
     setPhase('ROLLING');
   }
