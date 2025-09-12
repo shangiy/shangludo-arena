@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const playerSchema = z.object({
   color: z.enum(['red', 'green', 'yellow', 'blue']),
@@ -23,6 +23,7 @@ const setupSchema = z.object({
   gameMode: z.enum(['vs-computer', 'multiplayer']),
   players: z.array(playerSchema).min(2, 'At least 2 players required'),
   turnOrder: z.array(z.enum(['red', 'green', 'yellow', 'blue'])),
+  humanPlayerColor: z.enum(['red', 'green', 'yellow', 'blue']),
 });
 
 export type GameSetup = z.infer<typeof setupSchema>;
@@ -36,6 +37,7 @@ const defaultValues: GameSetup = {
     { color: 'blue', name: 'Blue AI', type: 'ai' },
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
+  humanPlayerColor: 'red',
 };
 
 export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: GameSetup) => void }) {
@@ -51,15 +53,19 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
 
   const gameMode = form.watch('gameMode');
   const players = form.watch('players');
+  const humanPlayerColor = form.watch('humanPlayerColor');
 
   useEffect(() => {
-    const newPlayers = form.getValues('players').map(p => ({
+    const newPlayers = form.getValues('players').map(p => {
+      const isHuman = (gameMode === 'multiplayer' || p.color === humanPlayerColor);
+      return {
         ...p,
-        type: (p.color === 'red' || gameMode === 'multiplayer') ? 'human' : 'ai',
-        name: (p.color === 'red' || gameMode === 'multiplayer') ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
-    }));
+        type: isHuman ? 'human' : 'ai',
+        name: isHuman ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
+      };
+    });
     form.setValue('players', newPlayers as any, { shouldValidate: true });
-  }, [gameMode, form]);
+  }, [gameMode, humanPlayerColor, form]);
 
   const onSubmit = (data: GameSetup) => {
     const selectedFirstPlayer = data.turnOrder[0];
@@ -108,6 +114,38 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                 </FormItem>
               )}
             />
+            
+            {gameMode === 'vs-computer' && (
+              <FormField
+                control={form.control}
+                name="humanPlayerColor"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Play as?</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-wrap gap-4"
+                      >
+                        {(['red', 'green', 'yellow', 'blue'] as PlayerColor[]).map(color => (
+                          <FormItem key={color} className="flex items-center space-x-2">
+                            <FormControl>
+                              <RadioGroupItem value={color} />
+                            </FormControl>
+                            <FormLabel className="font-normal flex items-center gap-2">
+                              <div className={`w-4 h-4 rounded-full bg-${color}-500`} />
+                              {color.charAt(0).toUpperCase() + color.slice(1)}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             
             <div className="space-y-4">
                 <Label>Player Names</Label>
