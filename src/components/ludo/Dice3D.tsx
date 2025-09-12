@@ -77,7 +77,9 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
             <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
         </motion.div>
         </div>
-         <p id="rolled-value" className="text-md font-bold text-gray-800 h-6 capitalize">
+         <p id="rolled-value" className="text-md font-bold h-6 capitalize"
+           style={{ color: `hsl(var(--${color}-text))` }}
+         >
             {isHumanTurn && !rolling && value === null && "Click to roll!"}
             {value !== null && !rolling ? `${color} rolled: ${value}` : ''}
         </p>

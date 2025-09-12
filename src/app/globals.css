@@ -24,6 +24,11 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+
+    --red-text: 357 91% 50%;
+    --green-text: 139 71% 40%;
+    --yellow-text: 45 93% 47%;
+    --blue-text: 217 91% 60%;
   }
 
   .dark {
@@ -46,6 +51,11 @@
     --border: 224 71% 10%;
     --input: 224 71% 10%;
     --ring: 45 93% 55%;
+
+    --red-text: 357 91% 60%;
+    --green-text: 139 71% 50%;
+    --yellow-text: 45 93% 55%;
+    --blue-text: 217 91% 70%;
   }
 }
 

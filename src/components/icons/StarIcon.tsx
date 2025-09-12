@@ -6,7 +6,7 @@ export function StarIcon({ color = 'gray', ...props }: SVGProps<SVGSVGElement> &
     const STAR_COLORS: Record<PlayerColor | 'gray' | 'white', string> = {
         red: 'fill-red-500',
         green: 'fill-green-500',
-        yellow: 'fill-yellow-500',
+        yellow: 'fill-yellow-400',
         blue: 'fill-blue-500',
         gray: 'fill-gray-400',
         white: 'fill-white'

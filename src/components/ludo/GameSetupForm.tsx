@@ -40,6 +40,13 @@ const defaultValues: GameSetup = {
   humanPlayerColor: 'red',
 };
 
+const COLOR_CLASSES: Record<PlayerColor, string> = {
+    red: 'bg-red-500',
+    green: 'bg-green-500',
+    yellow: 'bg-yellow-400',
+    blue: 'bg-blue-500',
+}
+
 export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: GameSetup) => void }) {
   const form = useForm<GameSetup>({
     resolver: zodResolver(setupSchema),
@@ -134,7 +141,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                               <RadioGroupItem value={color} />
                             </FormControl>
                             <FormLabel className="font-normal flex items-center gap-2">
-                              <div className={`w-4 h-4 rounded-full bg-${color}-500`} />
+                              <div className={`w-4 h-4 rounded-full ${COLOR_CLASSES[color]}`} />
                               {color.charAt(0).toUpperCase() + color.slice(1)}
                             </FormLabel>
                           </FormItem>
@@ -158,7 +165,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                         render={({ field: nameField }) => (
                             <FormItem>
                                <div className="flex items-center gap-2">
-                                <div className={`w-4 h-4 rounded-full bg-${field.color}-500`}/>
+                                <div className={`w-4 h-4 rounded-full ${COLOR_CLASSES[field.color]}`}/>
                                 <FormControl>
                                     <Input {...nameField} placeholder={`${field.color} player name`} />
                                 </FormControl>
@@ -187,7 +194,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                                 {players.map(p => (
                                     <SelectItem key={p.color} value={p.color}>
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-3 h-3 rounded-full bg-${p.color}-500`}/>
+                                            <div className={`w-3 h-3 rounded-full ${COLOR_CLASSES[p.color}`}/>
                                             {p.name}
                                         </div>
                                     </SelectItem>
