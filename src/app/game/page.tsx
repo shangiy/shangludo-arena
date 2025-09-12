@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
-import GameClient from '@/components/ludo/GameClient';
+import dynamic from 'next/dynamic';
+
+const GameClient = dynamic(() => import('@/components/ludo/GameClient'), { ssr: false });
 
 function GamePageContent() {
   return <GameClient />;

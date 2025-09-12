@@ -63,20 +63,20 @@ function Dice({ onSettled, color, isRolling }: { onSettled: (val: number) => voi
     const settled = useRef(false);
 
     useFrame(() => {
-        if (!ref.current) return;
+        if (!ref.current || !isRolling) return;
         
         const checkSettled = () => {
              const up = new THREE.Vector3(0, 1, 0);
-             const rotationMatrix = new THREE.Matrix4().extractRotation(ref.current.matrix);
-             up.applyMatrix4(rotationMatrix);
+             const quat = new THREE.Quaternion(...ref.current.quaternion.toArray());
+             up.applyQuaternion(quat);
 
              const faces = [
                 { value: 1, normal: [0, 0, 1] },   // Front face
                 { value: 6, normal: [0, 0, -1] }, // Back face
-                { value: 2, normal: [0, 1, 0] },   // Top face
-                { value: 5, normal: [-0, -1, 0] },// Bottom face
-                { value: 3, normal: [1, 0, 0] },   // Right face
-                { value: 4, normal: [-1, 0, 0] }, // Left face
+                { value: 5, normal: [0, 1, 0] },   // Top face
+                { value: 2, normal: [0, -1, 0] },// Bottom face
+                { value: 4, normal: [1, 0, 0] },   // Right face
+                { value: 3, normal: [-1, 0, 0] }, // Left face
              ];
 
             let maxDot = -Infinity;
@@ -95,12 +95,10 @@ function Dice({ onSettled, color, isRolling }: { onSettled: (val: number) => voi
         }
 
         api.velocity.subscribe((v) => {
-            if (!isRolling) return;
-
             const vel = new THREE.Vector3(...v);
             const isMoving = vel.length() > 0.05 || lastVel.current.length() > 0.05;
 
-            if (!isMoving && !settled.current) {
+            if (!isMoving && !settled.current && isRolling) {
                 if (!timeoutRef.current) {
                     timeoutRef.current = setTimeout(checkSettled, 100);
                 }
