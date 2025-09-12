@@ -60,6 +60,7 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
+  diceRollDuration: "3000",
 };
 
 
@@ -122,6 +123,7 @@ export default function GameClient() {
   
   const handleGameSetup = (setup: GameSetup) => {
     setGameSetup(setup);
+    setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
     setPhase('ROLLING');
   }

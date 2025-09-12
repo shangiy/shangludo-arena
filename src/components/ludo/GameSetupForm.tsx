@@ -46,6 +46,7 @@ const setupSchema = z.object({
   players: z.array(playerSchema).min(2, "At least 2 players required"),
   turnOrder: z.array(z.enum(["red", "green", "yellow", "blue"])),
   humanPlayerColor: z.enum(["red", "green", "yellow", "blue"]),
+  diceRollDuration: z.enum(["3000", "7000", "10000", "15000"]),
 });
 
 export type GameSetup = z.infer<typeof setupSchema>;
@@ -60,6 +61,7 @@ const defaultValues: GameSetup = {
   ],
   turnOrder: ["red", "green", "yellow", "blue"],
   humanPlayerColor: "red",
+  diceRollDuration: "3000",
 };
 
 const COLOR_CLASSES: Record<PlayerColor, string> = {
@@ -239,6 +241,33 @@ export function GameSetupForm({
                   )
               )}
             </div>
+            
+            <FormField
+              control={form.control}
+              name="diceRollDuration"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dice Roll Duration</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select roll duration" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="3000">3 seconds (fast)</SelectItem>
+                      <SelectItem value="7000">7 seconds (medium)</SelectItem>
+                      <SelectItem value="10000">10 seconds (slow)</SelectItem>
+                      <SelectItem value="15000">15 seconds (very slow)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Who plays first? */}
             <FormField
