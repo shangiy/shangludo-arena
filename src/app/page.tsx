@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
 import { FindFriendForm } from '@/components/ludo/FindFriendForm';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   return (
@@ -52,8 +53,8 @@ export default function Home() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="bg-accent/10 p-3 rounded-full">
-                    <Zap className="h-6 w-6 text-accent" />
+                  <div className="bg-yellow-400/10 p-3 rounded-full">
+                    <Zap className="h-6 w-6 text-yellow-500" />
                   </div>
                   <CardTitle className="font-headline">Quick Play</CardTitle>
                 </div>
@@ -62,7 +63,7 @@ export default function Home() {
                 <CardDescription className="mb-4">
                   A faster-paced version for when you're short on time. Get straight into the action and race to the finish!
                 </CardDescription>
-                <Button asChild className="w-full" variant="secondary">
+                <Button asChild className={cn("w-full gradient-button-yellow")}>
                   <Link href="/game?mode=quick">Play Quick</Link>
                 </Button>
               </CardContent>
