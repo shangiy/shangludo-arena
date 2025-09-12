@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
@@ -103,19 +104,25 @@ export function GameControls({
                 </div>
               </div>
               <Separator />
-              <div className="space-y-2">
-                 <h4 className="font-medium leading-none flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4" />
-                    How to Play
-                </h4>
-                 <div className="text-xs text-muted-foreground space-y-1">
-                    <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
-                    <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
-                    <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
-                    <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
-                    <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
-                 </div>
-              </div>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="how-to-play">
+                    <AccordionTrigger>
+                        <h4 className="font-medium leading-none flex items-center gap-2">
+                            <HelpCircle className="h-4 w-4" />
+                            How to Play
+                        </h4>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className="text-xs text-muted-foreground space-y-1 pr-6">
+                            <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
+                            <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
+                            <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
+                            <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
+                            <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </PopoverContent>
         </Popover>
