@@ -1,6 +1,6 @@
 'use client';
 
-import { Dice } from '@/components/ludo/Dice';
+import { Dice3D } from '@/components/ludo/Dice3D';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
@@ -23,6 +24,8 @@ type GameControlsProps = {
   onToggleShowNotifications: () => void;
   muteSound: boolean;
   onToggleMuteSound: () => void;
+  diceRollDuration: number;
+  onDiceRollDurationChange: (duration: number) => void;
 };
 
 export function GameControls({
@@ -37,11 +40,13 @@ export function GameControls({
   onToggleShowNotifications,
   muteSound,
   onToggleMuteSound,
+  diceRollDuration,
+  onDiceRollDurationChange,
 }: GameControlsProps) {
-  const isRolling = phase !== 'ROLLING';
+  const isRollingDisabled = phase !== 'ROLLING' || !isHumanTurn;
 
   const handleRoll = () => {
-    if (isRolling || !isHumanTurn) return;
+    if (isRollingDisabled) return;
     const finalValue = Math.floor(Math.random() * 6) + 1;
     onDiceRoll(finalValue);
   };
@@ -58,11 +63,11 @@ export function GameControls({
       <div className="flex items-center gap-4">
         <Button
           onClick={handleRoll}
-          disabled={isRolling || !isHumanTurn}
+          disabled={isRollingDisabled}
           className={cn(
             'gradient-button text-lg font-bold py-3 px-6 rounded-lg',
-            isHumanTurn && !isRolling && 'animate-pulse',
-            (isRolling || !isHumanTurn) && 'opacity-50 cursor-not-allowed',
+            !isRollingDisabled && 'animate-pulse',
+            isRollingDisabled && 'opacity-50 cursor-not-allowed',
             turnColorClasses[currentTurn]
           )}
         >
@@ -88,6 +93,7 @@ export function GameControls({
                     id="secondary-safepoints"
                     checked={addSecondarySafePoints}
                     onCheckedChange={onToggleSecondarySafePoints}
+                    disabled={phase !== 'SETUP'}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -102,6 +108,22 @@ export function GameControls({
                   <Label htmlFor="mute-sound">Mute Sound</Label>
                   <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
                 </div>
+                <Separator />
+                 <div className="space-y-2">
+                    <Label>Dice Roll Animation</Label>
+                    <RadioGroup
+                        value={String(diceRollDuration)}
+                        onValueChange={(value) => onDiceRollDurationChange(Number(value))}
+                        className="grid grid-cols-2 gap-2"
+                    >
+                        {[3000, 7000, 10000, 15000].map(duration => (
+                            <div key={duration} className="flex items-center space-x-2">
+                                <RadioGroupItem value={String(duration)} id={`duration-${duration}`} />
+                                <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000} seconds</Label>
+                            </div>
+                        ))}
+                    </RadioGroup>
+                 </div>
               </div>
               <Separator />
               <Accordion type="single" collapsible className="w-full">
@@ -127,7 +149,14 @@ export function GameControls({
           </PopoverContent>
         </Popover>
       </div>
-      <Dice onRoll={handleRoll} isRolling={phase === 'MOVING'} value={diceValue} currentTurn={currentTurn} isHumanTurn={isHumanTurn} />
+      <Dice3D 
+        onClick={handleRoll} 
+        rolling={phase === 'MOVING' || phase === 'AI_THINKING'}
+        value={diceValue}
+        color={currentTurn}
+        isHumanTurn={isHumanTurn}
+        duration={diceRollDuration}
+      />
     </div>
   );
 }

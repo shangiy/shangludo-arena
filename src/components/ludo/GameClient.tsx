@@ -67,6 +67,7 @@ export default function GameClient() {
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
+  const [diceRollDuration, setDiceRollDuration] = useState(3000);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -177,30 +178,33 @@ export default function GameClient() {
         diceRollAudioRef.current.play();
     }
     setDiceValue(value);
-    const possibleMoves = getPossibleMoves(currentTurn, value);
+    setPhase('MOVING'); // Start animation
+
+    setTimeout(() => {
+        const possibleMoves = getPossibleMoves(currentTurn, value);
     
-    if (possibleMoves.length === 0) {
-      addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-      setTimeout(() => {
-        if (value !== 6) {
-          nextTurn();
+        if (possibleMoves.length === 0) {
+          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+          setTimeout(() => {
+            if (value !== 6) {
+              nextTurn();
+            } else {
+              setPhase('ROLLING'); // Roll again
+              setDiceValue(null);
+              addMessage('System', `${players[currentTurn].name} gets to roll again.`);
+            }
+          }, 1000);
         } else {
-          setPhase('ROLLING'); // Roll again
-          setDiceValue(null);
-          addMessage('System', `${players[currentTurn].name} gets to roll again.`);
-        }
-      }, 1000);
-    } else {
-        setPhase('MOVING');
-        if (players[currentTurn].type === 'ai') {
-            setTimeout(() => handleAiMove(value, possibleMoves), 500);
-        } else {
-            // If only one move, auto-move
-            if (possibleMoves.length === 1) {
-                setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+            if (players[currentTurn].type === 'ai') {
+                setTimeout(() => handleAiMove(value, possibleMoves), 500);
+            } else {
+                // If only one move, auto-move
+                if (possibleMoves.length === 1) {
+                    setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+                }
             }
         }
-    }
+    }, diceRollDuration);
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
@@ -301,13 +305,12 @@ export default function GameClient() {
       return newPawns;
     });
 
-    setDiceValue(null);
-
     const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
     
     if (getsAnotherTurn && !winner) {
       addMessage('System', `${players[currentTurn].name} gets another turn.`);
       setPhase('ROLLING');
+      setDiceValue(null);
     } else if (!winner) {
       nextTurn();
     } else {
@@ -433,6 +436,8 @@ export default function GameClient() {
                 onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
                 muteSound={muteSound}
                 onToggleMuteSound={() => setMuteSound(prev => !prev)}
+                diceRollDuration={diceRollDuration}
+                onDiceRollDurationChange={setDiceRollDuration}
             />
         </header>
 
