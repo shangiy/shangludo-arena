@@ -24,21 +24,78 @@ const turnColorClasses: Record<PlayerColor, string> = {
 };
 
 
+// Draw pips for a given face
+function createDiceFace(value: number) {
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+
+  // White background
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.fillStyle = "black";
+  const r = 12; // radius of pip
+  const offset = size / 4;
+
+  const drawPip = (x: number, y: number) => {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  const center = size / 2;
+
+  // Pip patterns
+  const positions: Record<number, [number, number][]> = {
+    1: [[center, center]],
+    2: [[offset, offset], [size - offset, size - offset]],
+    3: [[offset, offset], [center, center], [size - offset, size - offset]],
+    4: [
+      [offset, offset],
+      [size - offset, offset],
+      [offset, size - offset],
+      [size - offset, size - offset],
+    ],
+    5: [
+      [offset, offset],
+      [size - offset, offset],
+      [center, center],
+      [offset, size - offset],
+      [size - offset, size - offset],
+    ],
+    6: [
+      [offset, offset],
+      [size - offset, offset],
+      [offset, center],
+      [size - offset, center],
+      [offset, size - offset],
+      [size - offset, size - offset],
+    ],
+  };
+  
+  if (positions[value]) {
+    positions[value].forEach(([x, y]) => drawPip(x, y));
+  }
+
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+
 function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRolling: boolean }) {
     const ref = useRef<any>();
 
-    const textureLoader = useMemo(() => new THREE.TextureLoader(), []);
-    const materials = useMemo(() => {
-        const faceTextures = [
-            'dice-face-4.png', 'dice-face-3.png',
-            'dice-face-5.png', 'dice-face-2.png',
-            'dice-face-6.png', 'dice-face-1.png',
-        ];
-
-        return faceTextures.map(face => new THREE.MeshStandardMaterial({
-             map: textureLoader.load(`/textures/${face}`),
-        }));
-    }, [textureLoader]);
+    const materials = useMemo(() => [
+        new THREE.MeshStandardMaterial({ map: createDiceFace(4) }), // right
+        new THREE.MeshStandardMaterial({ map: createDiceFace(3) }), // left
+        new THREE.MeshStandardMaterial({ map: createDiceFace(5) }), // top
+        new THREE.MeshStandardMaterial({ map: createDiceFace(2) }), // bottom
+        new THREE.MeshStandardMaterial({ map: createDiceFace(1) }), // front
+        new THREE.MeshStandardMaterial({ map: createDiceFace(6) }), // back
+    ], []);
     
     useEffect(() => {
       if (isRolling && ref.current) {
@@ -66,13 +123,14 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
         const quat = ref.current.rotation();
         const worldUp = new THREE.Vector3(0, 1, 0);
 
+        // Normals of the dice faces in local space
         const faces = [
-            { value: 1, normal: new THREE.Vector3(0, 0, 1) },   // Front face
-            { value: 6, normal: new THREE.Vector3(0, 0, -1) },  // Back face
-            { value: 2, normal: new THREE.Vector3(0, -1, 0) }, // Bottom face
-            { value: 5, normal: new THREE.Vector3(0, 1, 0) },   // Top face
-            { value: 3, normal: new THREE.Vector3(-1, 0, 0) },  // Left face
-            { value: 4, normal: new THREE.Vector3(1, 0, 0) },   // Right face
+            { value: 1, normal: new THREE.Vector3(0, 0, 1) },   // Front face (value 1)
+            { value: 6, normal: new THREE.Vector3(0, 0, -1) },  // Back face (value 6)
+            { value: 2, normal: new THREE.Vector3(0, -1, 0) }, // Bottom face (value 2)
+            { value: 5, normal: new THREE.Vector3(0, 1, 0) },   // Top face (value 5)
+            { value: 3, normal: new THREE.Vector3(-1, 0, 0) },  // Left face (value 3)
+            { value: 4, normal: new THREE.Vector3(1, 0, 0) },   // Right face (value 4)
         ];
 
         let maxDot = -Infinity;
@@ -199,5 +257,3 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
     </div>
   );
 }
-
-    
