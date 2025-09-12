@@ -397,7 +397,7 @@ export default function GameClient() {
     ));
   };
 
-  if (!isMounted || (phase === 'SETUP' && gameMode !== 'quick')) {
+  if (!isMounted) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -467,5 +467,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
