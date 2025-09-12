@@ -112,22 +112,24 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
             <div className="space-y-4">
                 <Label>Player Names</Label>
                 {fields.map((field, index) => (
-                    <FormField
-                    key={field.id}
-                    control={form.control}
-                    name={`players.${index}.name`}
-                    render={({ field: nameField }) => (
-                        <FormItem>
-                           <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 rounded-full bg-${field.color}-500`}/>
-                            <FormControl>
-                                <Input {...nameField} placeholder={`${field.color} player name`} disabled={players[index].type === 'ai'}/>
-                            </FormControl>
-                           </div>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                    players[index].type === 'human' && (
+                        <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={`players.${index}.name`}
+                        render={({ field: nameField }) => (
+                            <FormItem>
+                               <div className="flex items-center gap-2">
+                                <div className={`w-4 h-4 rounded-full bg-${field.color}-500`}/>
+                                <FormControl>
+                                    <Input {...nameField} placeholder={`${field.color} player name`} />
+                                </FormControl>
+                               </div>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    )
                 ))}
             </div>
 
