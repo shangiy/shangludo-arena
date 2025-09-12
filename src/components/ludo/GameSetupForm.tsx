@@ -56,7 +56,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
   const { fields } = useFieldArray({
     control: form.control,
     name: "players",
-  })
+  });
 
   const gameMode = form.watch('gameMode');
   const players = form.watch('players');
