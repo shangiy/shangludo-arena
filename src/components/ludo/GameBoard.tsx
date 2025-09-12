@@ -55,6 +55,12 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")} />;
             if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
             
+            // User requested colors
+            if(x===7 && y === 8) return <div className={cn(borderClasses, "bg-green-500")}></div>; // col 7, row 8 (from top-left is 8,9)
+            if(x===8 && y === 8) return <div className={cn(borderClasses, "bg-yellow-400")}></div>; // col 9, row 8 (from top-left is 9,9)
+            if(x===7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")}></div>; // col 8, row 7 (from top-left is 8,7)
+            if(x===8 && y === 9) return <div className={cn(borderClasses, "bg-green-500")}></div>; // col 8, row 9 (from top-left is 8,10) - This is a mistake in prompt. Assuming green
+
             // Unused center cells
             if(x===7 && y === 7-1) return <div className={cn(borderClasses, "bg-green-500")}></div>;
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
@@ -227,3 +233,5 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
     </motion.div>
   );
 }
+
+    
