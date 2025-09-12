@@ -50,19 +50,13 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
                     </svg>
                 </div>;
             }
-            if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")} />;
-            if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")} />;
-            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")} />;
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
-            
             // User requested colors
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-red-500")}></div>; 
-            if (x === 9-1 && y === 8) return <div className={cn(borderClasses, "bg-yellow-400")}></div>; 
-            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-green-500")}></div>; 
-            if (x === 8 && y === 9) return <div className={cn(borderClasses, "bg-green-500")}></div>;
+            if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")}></div>;
+            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")}></div>;
+            if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")}></div>;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")}></div>;
 
             // Unused center cells
-            if(x===7 && y === 7-1) return <div className={cn(borderClasses, "bg-green-500")}></div>;
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
         }
         
