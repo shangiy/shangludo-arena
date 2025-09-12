@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { GameBoard, Pawn as PawnComponent, PlayerNames } from '@/components/ludo/GameBoard';
@@ -67,6 +67,8 @@ export default function GameClient() {
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
+
+  const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
   const SAFE_ZONES = useMemo(() => {
     if (addSecondarySafePoints) {
@@ -171,6 +173,9 @@ export default function GameClient() {
   
 
   const handleDiceRoll = (value: number) => {
+    if (!muteSound && diceRollAudioRef.current) {
+        diceRollAudioRef.current.play();
+    }
     setDiceValue(value);
     const possibleMoves = getPossibleMoves(currentTurn, value);
     
@@ -412,6 +417,8 @@ export default function GameClient() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+        
+        <audio ref={diceRollAudioRef} src="/sounds/dice-roll.mp3" preload="auto" />
 
         <header className="w-full flex justify-center items-center py-4">
              <GameControls
