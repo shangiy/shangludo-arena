@@ -50,7 +50,6 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
                     </svg>
                 </div>;
             }
-            // User requested colors
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")}></div>;
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")}></div>;
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")}></div>;
@@ -88,11 +87,6 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
             }
 
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
-              <div className="absolute inset-0.5">
-                <div className="relative w-full h-full">
-                  <div className="absolute top-1/2 left-1/2 w-4 h-4 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/10 backdrop-blur-sm" />
-                </div>
-              </div>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
               {showSecondarySafes && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
               {showSecondarySafes && p(x,y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
