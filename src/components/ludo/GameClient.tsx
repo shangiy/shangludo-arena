@@ -418,7 +418,7 @@ export default function GameClient() {
             </DialogContent>
         </Dialog>
         
-        <audio ref={diceRollAudioRef} src="/sounds/dice-roll.mp3" preload="auto" />
+        <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
 
         <header className="w-full flex justify-center items-center py-4">
              <GameControls
