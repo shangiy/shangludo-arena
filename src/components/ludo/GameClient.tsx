@@ -195,9 +195,10 @@ export default function GameClient() {
         diceRollAudioRef.current.play();
     }
     setDiceValue(value);
-    setPhase('MOVING'); // Start animation
+    setPhase('MOVING');
 
     setTimeout(() => {
+        setPhase('MOVING'); // End animation, show result
         const possibleMoves = getPossibleMoves(currentTurn, value);
     
         if (possibleMoves.length === 0) {

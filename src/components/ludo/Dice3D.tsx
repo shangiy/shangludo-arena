@@ -51,7 +51,8 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
     }
   }, [rolling, value]);
 
-  const show3dDice = rolling || value === null;
+  // The 3D animation should only show when rolling. Otherwise, show the static 2D face or prompt.
+  const show3dAnimation = rolling && value !== null;
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -64,12 +65,12 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
             style={{ perspective: '1000px' }}
             onClick={isHumanTurn && !rolling && value === null ? onClick : undefined}
         >
-          {show3dDice ? (
+          {show3dAnimation ? (
             <motion.div
                 className="relative w-full h-full"
                 style={{ transformStyle: 'preserve-3d' }}
                 initial={{ rotateX: 0, rotateY: 0, rotateZ: 0 }}
-                animate={rolling ? { rotateX: rotation.x, rotateY: rotation.y, rotateZ: rotation.z } : {}}
+                animate={{ rotateX: rotation.x, rotateY: rotation.y, rotateZ: rotation.z }}
                 transition={{ duration: duration / 1000, ease: 'easeInOut' }}
             >
                 <DiceFace number={1} color={color} style={{ transform: 'rotateY(0deg) translateZ(3rem)' }} />
@@ -80,13 +81,18 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
                 <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
             </motion.div>
           ) : (
-             value && <DiceFace number={value} color={color} />
+             value && !rolling ? <DiceFace number={value} color={color} /> : 
+             <div className="w-24 h-24 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-400">
+                <span className="text-muted-foreground text-sm">
+                  {isHumanTurn && !rolling && value === null ? "Click to roll" : "..."}
+                </span>
+             </div>
           )}
         </div>
          <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center"
          >
             <span>
-              {isHumanTurn && !rolling && value === null && "Click to roll!"}
+              {isHumanTurn && !rolling && value === null && "Your turn!"}
             </span>
             <span style={{ color: `hsl(var(--${color}-text))` }}>
               {value !== null && !rolling ? `${color} rolled a: ${value}` : ''}

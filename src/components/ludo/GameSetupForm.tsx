@@ -225,7 +225,9 @@ export function GameSetupForm({
                         <FormItem>
                           <div className="flex items-center gap-2">
                             <div
-                              className={`w-4 h-4 rounded-full ${COLOR_CLASSES[field.color]}`}
+                              className={`w-4 h-4 rounded-full ${
+                                COLOR_CLASSES[field.color]
+                              }`}
                             />
                             <FormControl>
                               <Input
@@ -290,7 +292,9 @@ export function GameSetupForm({
                         <SelectItem key={p.color} value={p.color}>
                           <div className="flex items-center gap-2">
                             <div
-                              className={`w-3 h-3 rounded-full ${COLOR_CLASSES[p.color]}`}
+                              className={`w-3 h-3 rounded-full ${
+                                COLOR_CLASSES[p.color]
+                              }`}
                             />
                             {p.name}
                           </div>
@@ -312,5 +316,3 @@ export function GameSetupForm({
     </Card>
   );
 }
-
-    
