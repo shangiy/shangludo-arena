@@ -64,7 +64,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
 
   useEffect(() => {
     const currentPlayers = form.getValues('players');
-    const newPlayers = currentPlayers.map(p => {
+    const newPlayers = currentPlayers.map((p) => {
       const isHuman = (gameMode === 'multiplayer') || (gameMode === 'vs-computer' && p.color === humanPlayerColor);
       const newType = isHuman ? 'human' : 'ai';
       let newName = p.name;
