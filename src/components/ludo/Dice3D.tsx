@@ -20,8 +20,8 @@ const turnColorClasses: Record<PlayerColor, string> = {
     blue: 'turn-blue',
 };
 
-const DiceIcon = ({ value }: { value: number | null }) => {
-    if (!value) return <Dices className="h-16 w-16" />;
+const DiceIcon = ({ value, color }: { value: number | null, color: PlayerColor }) => {
+    if (!value) return <Dices className={cn("h-16 w-16", `text-${color}-500`)} />;
     const icons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
     const Icon = icons[value - 1];
     return <Icon className="h-16 w-16" />;
@@ -116,7 +116,13 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
                 <DiceFace value={6} faceClass="face-6" />
             </div>
         ) : (
-             <DiceIcon value={finalValue} />
+            <button
+              onClick={handleRollClick}
+              disabled={!isHumanTurn || isRolling}
+              className="disabled:cursor-not-allowed"
+            >
+              <DiceIcon value={finalValue} color={color}/>
+            </button>
         )}
       </div>
       <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
