@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -484,5 +484,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

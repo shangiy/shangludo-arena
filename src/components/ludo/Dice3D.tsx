@@ -89,7 +89,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
               {isHumanTurn && !rolling && value === null && "Click to roll!"}
             </span>
             <span style={{ color: `hsl(var(--${color}-text))` }}>
-              {value !== null && !rolling ? `${color} rolled: ${value}` : ''}
+              {value !== null && !rolling ? `${color} rolled a: ${value}` : ''}
             </span>
         </div>
     </div>
@@ -143,5 +143,3 @@ function DiceDots({ number }: { number: number }) {
     </div>
   );
 }
-
-    
