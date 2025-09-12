@@ -44,6 +44,8 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
     useEffect(() => {
       if (isRolling && ref.current) {
         setSettled(false);
+        ref.current.setTranslation({ x: 0, y: 2, z: 0 }, true);
+        ref.current.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
         const impulse = { 
             x: (Math.random() - 0.5) * 8, 
             y: Math.random() * 5 + 5, 
@@ -69,7 +71,7 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
         const faces = [
             { value: 1, normal: new THREE.Vector3(0, 0, 1) },   // Front face
             { value: 6, normal: new THREE.Vector3(0, 0, -1) },  // Back face
-            { value: 2, normal: new THREE-Vector3(0, -1, 0) }, // Bottom face
+            { value: 2, normal: new THREE.Vector3(0, -1, 0) }, // Bottom face
             { value: 5, normal: new THREE.Vector3(0, 1, 0) },   // Top face
             { value: 3, normal: new THREE.Vector3(-1, 0, 0) },  // Left face
             { value: 4, normal: new THREE.Vector3(1, 0, 0) },   // Right face
@@ -80,7 +82,7 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
         
         for (const f of faces) {
           const localNormal = f.normal.clone();
-          const worldNormal = localNormal.applyQuaternion(quat);
+          const worldNormal = localNormal.applyQuaternion(new THREE.Quaternion(quat.x, quat.y, quat.z, quat.w));
           const dot = worldUp.dot(worldNormal);
 
           if (dot > maxDot) {
@@ -98,6 +100,7 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
         const sleepSub = setInterval(() => {
             if (ref.current && ref.current.isSleeping()) {
                 getDiceValue();
+                clearInterval(sleepSub);
             }
         }, 100);
 
@@ -131,10 +134,9 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
         setIsRolling(true);
         onClick();
         setTimeout(() => {
-            // Force settlement if physics doesn't sleep in time
-            if (!isRollingRef.current) {
-                // This part needs a way to get the final value if it hasn't settled.
-                // For now, we rely on the Rapier `isSleeping` check.
+            // This timeout is a fallback. The physics check is the primary method.
+            if (isRollingRef.current) {
+                setIsRolling(false);
             }
         }, duration);
     }
@@ -185,7 +187,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
           />
           <Physics gravity={[0, -25, 0]}>
             <Dice onSettled={onSettled} isRolling={isRolling || rolling} />
-            <CuboidCollider position={[0, -1, 0]} args={[20, 1, 20]} />
+            <CuboidCollider position={[0, -1, 0]} args={[20, 1, 20]} friction={0.7} />
           </Physics>
         </Canvas>
       </div>
