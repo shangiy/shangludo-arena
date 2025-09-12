@@ -65,6 +65,8 @@ export default function GameClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
+  const [showNotifications, setShowNotifications] = useState(true);
+  const [muteSound, setMuteSound] = useState(false);
 
   const SAFE_ZONES = useMemo(() => {
     if (addSecondarySafePoints) {
@@ -109,13 +111,15 @@ export default function GameClient() {
   useEffect(() => {
     if (winner) {
       addMessage('System', `${players[winner]?.name} has won the game!`);
-      toast({
-        title: "Game Over!",
-        description: `${players[winner]?.name} has won the game!`,
-        duration: 5000,
-      });
+      if (showNotifications) {
+        toast({
+          title: "Game Over!",
+          description: `${players[winner]?.name} has won the game!`,
+          duration: 5000,
+        });
+      }
     }
-  }, [winner, players]);
+  }, [winner, players, showNotifications]);
 
   const nextTurn = () => {
     const currentIndex = playerOrder.indexOf(currentTurn);
@@ -227,7 +231,7 @@ export default function GameClient() {
     const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color);
     
     if (!selectedMove) {
-      if (players[currentTurn].type === 'human') {
+      if (players[currentTurn].type === 'human' && showNotifications) {
         toast({
           variant: "destructive",
           title: "Invalid Move",
@@ -418,6 +422,10 @@ export default function GameClient() {
                 addSecondarySafePoints={addSecondarySafePoints}
                 onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
                 isHumanTurn={players[currentTurn]?.type === 'human'}
+                showNotifications={showNotifications}
+                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+                muteSound={muteSound}
+                onToggleMuteSound={() => setMuteSound(prev => !prev)}
             />
         </header>
 
@@ -432,5 +440,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
