@@ -383,8 +383,7 @@ export default function GameClient() {
   return (
      <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
         {phase === 'SETUP' && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
             <GameSetupForm onSetupComplete={handleGameSetup} />
           </div>
         )}
@@ -434,3 +433,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
