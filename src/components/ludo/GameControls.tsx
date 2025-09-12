@@ -14,9 +14,11 @@ type GameControlsProps = {
   phase: 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
+  addSecondarySafePoints: boolean;
+  onToggleSecondarySafePoints: () => void;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, addSecondarySafePoints, onToggleSecondarySafePoints }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
   const isPlayerTurn = currentTurn === 'red';
 
@@ -48,6 +50,33 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll }: Game
                 <Dices className="mr-2" />
                 Roll Dice
             </Button>
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon">
+                        <Settings />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                    <div className="grid gap-4">
+                        <div className="space-y-2">
+                            <h4 className="font-medium leading-none">Game Settings</h4>
+                            <p className="text-sm text-muted-foreground">
+                                Adjust game rules.
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="secondary-safepoints"
+                                    checked={addSecondarySafePoints}
+                                    onCheckedChange={onToggleSecondarySafePoints}
+                                />
+                                <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
+                            </div>
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
         </div>
       <Dice 
         onRoll={onDiceRoll} 

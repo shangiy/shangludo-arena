@@ -10,11 +10,15 @@ import {
   PLAYER_COLORS,
   PATHS,
   START_POSITIONS,
-  SAFE_ZONES,
+  SAFE_ZONES as PRIMARY_SAFE_ZONES,
   PlayerColor,
   Pawn,
   ChatMessage,
   HOME_ENTRANCES,
+  SECONDARY_RED_SAFE_ZONE,
+  SECONDARY_GREEN_SAFE_ZONE,
+  SECONDARY_BLUE_SAFE_ZONE,
+  SECONDARY_YELLOW_SAFE_ZONE
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -59,6 +63,15 @@ export default function GameClient() {
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
+
+  const SAFE_ZONES = useMemo(() => {
+    if (addSecondarySafePoints) {
+      return [...PRIMARY_SAFE_ZONES, SECONDARY_RED_SAFE_ZONE, SECONDARY_GREEN_SAFE_ZONE, SECONDARY_BLUE_SAFE_ZONE, SECONDARY_YELLOW_SAFE_ZONE];
+    }
+    return PRIMARY_SAFE_ZONES;
+  }, [addSecondarySafePoints]);
+
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -382,12 +395,14 @@ export default function GameClient() {
                 phase={phase}
                 diceValue={diceValue}
                 onDiceRoll={handleDiceRoll}
+                addSecondarySafePoints={addSecondarySafePoints}
+                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             />
         </header>
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
-                <GameBoard>
+                <GameBoard showSecondarySafes={addSecondarySafePoints}>
                    {renderPawns()}
                 </GameBoard>
             </div>
