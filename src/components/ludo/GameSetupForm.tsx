@@ -100,7 +100,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                         <FormControl>
                           <RadioGroupItem value="vs-computer" />
                         </FormControl>
-                        <FormLabel className="font-normal">vs. Computer</FormLabel>
+                        <FormLabel className="font-normal">vs. Computer bot AI</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
