@@ -106,7 +106,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                         <FormControl>
                           <RadioGroupItem value="multiplayer" />
                         </FormControl>
-                        <FormLabel className="font-normal">Multiplayer</FormLabel>
+                        <FormLabel className="font-normal">Multiplayer local challenge</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
