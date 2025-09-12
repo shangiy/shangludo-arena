@@ -55,38 +55,17 @@ export function GameControls({
 
   const handleRoll = () => {
     if (isRollingDisabled) return;
-    const finalValue = Math.floor(Math.random() * 6) + 1;
-    onDiceRoll(finalValue);
-  };
-
-  const turnColorClasses: Record<PlayerColor, string> = {
-    red: 'turn-red',
-    green: 'turn-green',
-    yellow: 'turn-yellow',
-    blue: 'turn-blue',
+    // The new Dice3D component handles the roll internally
+    // onDiceRoll will be called by the Dice3D component on settlement
   };
   
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-4">
-        <Button
-          onClick={handleRoll}
-          disabled={isRollingDisabled}
-          className={cn(
-            'gradient-button text-lg font-bold py-3 px-6 rounded-lg',
-            !isRollingDisabled && 'animate-pulse',
-            isRollingDisabled && 'opacity-50 cursor-not-allowed',
-            turnColorClasses[currentTurn]
-          )}
-        >
-          <Dices className="mr-2" />
-          Roll Dice
-        </Button>
+    <div className="flex flex-col items-center gap-4 w-full">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="absolute top-4 right-4">
               <Settings />
             </Button>
           </PopoverTrigger>
@@ -172,7 +151,6 @@ export function GameControls({
             </div>
           </PopoverContent>
         </Popover>
-      </div>
       <Dice3D 
         onClick={handleRoll} 
         rolling={phase === 'MOVING' || phase === 'AI_THINKING'}
@@ -180,6 +158,7 @@ export function GameControls({
         color={currentTurn}
         isHumanTurn={isHumanTurn}
         duration={diceRollDuration}
+        onDiceRoll={onDiceRoll}
       />
     </div>
   );

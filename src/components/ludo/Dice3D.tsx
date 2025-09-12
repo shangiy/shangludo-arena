@@ -1,151 +1,219 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { useEffect, useState }from 'react';
-import { cn } from '@/lib/utils';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Physics, useBox, usePlane } from '@react-three/cannon';
+import * as THREE from 'three';
 import { PlayerColor } from '@/lib/ludo-constants';
+import { cn } from '@/lib/utils';
+import { Dices } from 'lucide-react';
+import { Button } from '../ui/button';
+
+const DICE_FACE_COLORS: Record<PlayerColor, string> = {
+    red: '#ef4444',
+    green: '#22c55e',
+    yellow: '#f59e0b',
+    blue: '#3b82f6',
+};
+
+const turnColorClasses: Record<PlayerColor, string> = {
+    red: 'turn-red',
+    green: 'turn-green',
+    yellow: 'turn-yellow',
+    blue: 'turn-blue',
+};
+
+
+function Dice({ onSettled, color, isRolling }: { onSettled: (val: number) => void, color: PlayerColor, isRolling: boolean }) {
+    const [ref, api] = useBox(() => ({
+        mass: 1,
+        position: [0, 2, 0],
+        angularDamping: 0.2,
+        linearDamping: 0.2,
+    }));
+    
+    const textureLoader = useMemo(() => new THREE.TextureLoader(), []);
+    const materials = useMemo(() => {
+        const faceTextures = [
+            'dice-face-4.png', 'dice-face-3.png',
+            'dice-face-5.png', 'dice-face-2.png',
+            'dice-face-6.png', 'dice-face-1.png',
+        ];
+
+        return faceTextures.map(face => new THREE.MeshStandardMaterial({
+             map: textureLoader.load(`/textures/${face}`),
+        }));
+    }, [textureLoader]);
+
+    useEffect(() => {
+      if (isRolling) {
+        // Reset dice
+        api.position.set(Math.random() * 2 - 1, 2, Math.random() * 2 - 1);
+        api.velocity.set(0, 0, 0);
+        api.angularVelocity.set(0, 0, 0);
+
+        // Give random force and torque
+        api.applyImpulse([(Math.random() * 2 - 1) * 3, 2, (Math.random() * 2-1) * 3], [0, 0, 0]);
+        api.applyTorque([Math.random() * 10, Math.random() * 10, Math.random() * 10]);
+      }
+    }, [isRolling, api]);
+
+    const lastVel = useRef(new THREE.Vector3());
+    const timeoutRef = useRef<NodeJS.Timeout>();
+    const settled = useRef(false);
+
+    useFrame(() => {
+        if (!ref.current) return;
+        
+        const checkSettled = () => {
+             const up = new THREE.Vector3(0, 1, 0);
+             const rotationMatrix = new THREE.Matrix4().extractRotation(ref.current.matrix);
+             up.applyMatrix4(rotationMatrix);
+
+             const faces = [
+                { value: 1, normal: [0, 0, 1] },   // Front face
+                { value: 6, normal: [0, 0, -1] }, // Back face
+                { value: 2, normal: [0, 1, 0] },   // Top face
+                { value: 5, normal: [-0, -1, 0] },// Bottom face
+                { value: 3, normal: [1, 0, 0] },   // Right face
+                { value: 4, normal: [-1, 0, 0] }, // Left face
+             ];
+
+            let maxDot = -Infinity;
+            let result = 0;
+            
+            for (const f of faces) {
+              const normal = new THREE.Vector3(...f.normal);
+              const dot = up.dot(normal);
+              if (dot > maxDot) {
+                maxDot = dot;
+                result = f.value;
+              }
+            }
+           onSettled(result);
+           settled.current = true;
+        }
+
+        api.velocity.subscribe((v) => {
+            if (!isRolling) return;
+
+            const vel = new THREE.Vector3(...v);
+            const isMoving = vel.length() > 0.05 || lastVel.current.length() > 0.05;
+
+            if (!isMoving && !settled.current) {
+                if (!timeoutRef.current) {
+                    timeoutRef.current = setTimeout(checkSettled, 100);
+                }
+            } else {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                    timeoutRef.current = undefined;
+                }
+            }
+            lastVel.current.copy(vel);
+        });
+
+        if (isRolling) {
+            settled.current = false;
+        }
+    });
+
+    return (
+        // @ts-ignore
+        <mesh ref={ref} castShadow material={materials}>
+            <boxGeometry args={[1, 1, 1]} />
+        </mesh>
+    );
+}
+
+function Plane(props: any) {
+  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
+  return (
+    // @ts-ignore
+    <mesh ref={ref} receiveShadow>
+      <planeGeometry args={[100, 100]} />
+      <meshStandardMaterial color="#f0f2fa" />
+    </mesh>
+  )
+}
+
 
 interface Dice3DProps {
   value: number | null;
   rolling: boolean;
-  duration: number; // ms
+  duration: number;
   color: PlayerColor;
   onClick: () => void;
   isHumanTurn: boolean;
+  onDiceRoll: (value: number) => void;
 }
 
-const DICE_FACE_COLORS: Record<PlayerColor, string> = {
-    red: 'bg-red-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-400',
-    blue: 'bg-blue-500',
-};
+export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, onDiceRoll }: Dice3DProps) {
+  const [isRolling, setIsRolling] = useState(false);
+  const [rolledValue, setRolledValue] = useState<number | null>(null);
 
-const turnColorClasses: Record<PlayerColor, string> = {
-    red: 'shadow-red-500/50',
-    green: 'shadow-green-500/50',
-    yellow: 'shadow-yellow-400/50',
-    blue: 'shadow-blue-500/50',
-};
-
-export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }: Dice3DProps) {
-  const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 });
-
-  const faceRotations: Record<number, { x: number; y: number }> = {
-    1: { x: 0, y: 0 },
-    2: { x: -90, y: 0 },
-    3: { x: 0, y: 90 },
-    4: { x: 0, y: -90 },
-    5: { x: 90, y: 0 },
-    6: { x: 180, y: 0 },
-  };
-
-  useEffect(() => {
-    if (rolling && value) {
-      const target = faceRotations[value];
-      setRotation({
-        x: target.x + 720 + Math.random() * 180,
-        y: target.y + 720 + Math.random() * 180,
-        z: 360 * 3,
-      });
+  const handleRollClick = () => {
+    if (isHumanTurn && !isRolling) {
+        setIsRolling(true);
+        setRolledValue(null);
+        onClick();
     }
-  }, [rolling, value]);
+  }
 
-  // The 3D animation should only show when rolling. Otherwise, show the static 2D face or prompt.
-  const show3dAnimation = rolling && value !== null;
-
+  const onSettled = (val: number) => {
+    setIsRolling(false);
+    setRolledValue(val);
+    onDiceRoll(val);
+  }
+  
+  useEffect(() => {
+    // For AI turns
+    if (rolling && !isHumanTurn && !isRolling) {
+        setIsRolling(true);
+        setRolledValue(null);
+    }
+  }, [rolling, isHumanTurn, isRolling])
+  
   return (
-    <div className="flex flex-col items-center gap-2">
-        <div 
-            className={cn(
-                "w-24 h-24",
-                isHumanTurn && !rolling && value === null && 'cursor-pointer animate-pulse',
-                isHumanTurn && !rolling && value === null && turnColorClasses[color]
-            )}
-            style={{ perspective: '1000px' }}
-            onClick={isHumanTurn && !rolling && value === null ? onClick : undefined}
-        >
-          {show3dAnimation ? (
-            <motion.div
-                className="relative w-full h-full"
-                style={{ transformStyle: 'preserve-3d' }}
-                initial={{ rotateX: 0, rotateY: 0, rotateZ: 0 }}
-                animate={{ rotateX: rotation.x, rotateY: rotation.y, rotateZ: rotation.z }}
-                transition={{ duration: duration / 1000, ease: 'easeInOut' }}
+    <div className="flex flex-col items-center gap-4 w-full">
+        {isHumanTurn && !isRolling && (
+             <Button
+                onClick={handleRollClick}
+                disabled={!isHumanTurn || isRolling}
+                className={cn(
+                    'gradient-button text-lg font-bold py-3 px-6 rounded-lg',
+                    isHumanTurn && !isRolling && 'animate-pulse',
+                    turnColorClasses[color]
+                )}
             >
-                <DiceFace number={1} color={color} style={{ transform: 'rotateY(0deg) translateZ(3rem)' }} />
-                <DiceFace number={6} color={color} style={{ transform: 'rotateX(180deg) translateZ(3rem)' }} />
-                <DiceFace number={5} color={color} style={{ transform: 'rotateX(90deg) translateZ(3rem)' }} />
-                <DiceFace number={2} color={color} style={{ transform: 'rotateX(-90deg) translateZ(3rem)' }} />
-                <DiceFace number={3} color={color} style={{ transform: 'rotateY(90deg) translateZ(3rem)' }} />
-                <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
-            </motion.div>
-          ) : (
-             value && !rolling ? <DiceFace number={value} color={color} /> : 
-             <div className="w-24 h-24 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-400">
-                <span className="text-muted-foreground text-sm">
-                  {isHumanTurn && !rolling && value === null ? "Click to roll" : "..."}
-                </span>
-             </div>
-          )}
-        </div>
-         <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center"
-         >
-            <span>
-              {isHumanTurn && !rolling && value === null && "Your turn!"}
-            </span>
-            <span style={{ color: `hsl(var(--${color}-text))` }}>
-              {value !== null && !rolling ? `${color} rolled a: ${value}` : ''}
-            </span>
-        </div>
-    </div>
-  );
-}
+                <Dices className="mr-2" />
+                Roll Dice
+            </Button>
+        )}
 
-function DiceFace({ number, color, style }: { number: number; color: PlayerColor, style?: React.CSSProperties }) {
-  return (
-    <div
-      className={cn(
-        'absolute w-24 h-24 rounded-lg flex items-center justify-center',
-        DICE_FACE_COLORS[color]
-      )}
-      style={style}
-    >
-      <DiceDots number={number} />
-    </div>
-  );
-}
-
-function DiceDots({ number }: { number: number }) {
-  const pip = 'w-3 h-3 bg-white rounded-full absolute';
-
-  const positions: Record<number, string[]> = {
-    1: ['top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'],
-    2: ['top-4 left-4', 'bottom-4 right-4'],
-    3: ['top-4 left-4', 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2', 'bottom-4 right-4'],
-    4: ['top-4 left-4', 'top-4 right-4', 'bottom-4 left-4', 'bottom-4 right-4'],
-    5: [
-      'top-4 left-4',
-      'top-4 right-4',
-      'bottom-4 left-4',
-      'bottom-4 right-4',
-      'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-    ],
-    6: [
-      'top-4 left-4',
-      'top-4 right-4',
-      'top-1/2 left-4 -translate-y-1/2',
-      'top-1/2 right-4 -translate-y-1/2',
-      'bottom-4 left-4',
-      'bottom-4 right-4',
-    ],
-  };
-
-  return (
-    <div className="relative w-full h-full p-2">
-      {(positions[number] || []).map((pos, i) => (
-        <div key={i} className={`${pip} ${pos}`} />
-      ))}
+      <div className="h-48 w-full relative">
+        <Canvas shadows camera={{ position: [0, 2, 4], fov: 50 }}>
+          <ambientLight intensity={0.5} />
+          <directionalLight
+            position={[5, 5, 5]}
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+          />
+          <Physics gravity={[0, -20, 0]}>
+            <Dice onSettled={onSettled} color={color} isRolling={isRolling || rolling} />
+            <Plane />
+          </Physics>
+        </Canvas>
+      </div>
+      <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
+        <span>
+          {isHumanTurn && !isRolling && !value && "Your turn!"}
+        </span>
+        <span style={{ color: DICE_FACE_COLORS[color] }}>
+          {!isRolling && value ? `${color} rolled a: ${value}` : (isRolling ? 'Rolling...' : '')}
+        </span>
+      </div>
     </div>
   );
 }
