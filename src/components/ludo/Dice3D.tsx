@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState }from 'react';
 import { cn } from '@/lib/utils';
 import { PlayerColor } from '@/lib/ludo-constants';
 
@@ -77,12 +77,15 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
             <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
         </motion.div>
         </div>
-         <p id="rolled-value" className="text-md font-bold h-6 capitalize"
-           style={{ color: `hsl(var(--${color}-text))` }}
+         <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center"
          >
-            {isHumanTurn && !rolling && value === null && "Click to roll!"}
-            {value !== null && !rolling ? `${color} rolled: ${value}` : ''}
-        </p>
+            <span>
+              {isHumanTurn && !rolling && value === null && "Click to roll!"}
+            </span>
+            <span style={{ color: `hsl(var(--${color}-text))` }}>
+              {value !== null && !rolling ? `${color} rolled: ${value}` : ''}
+            </span>
+        </div>
     </div>
   );
 }
