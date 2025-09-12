@@ -65,13 +65,15 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
   useEffect(() => {
     const currentPlayers = form.getValues('players');
     const newPlayers = currentPlayers.map(p => {
-      const isHuman = (gameMode === 'multiplayer' || p.color === humanPlayerColor);
+      const isHuman = (gameMode === 'multiplayer') || (gameMode === 'vs-computer' && p.color === humanPlayerColor);
       const newType = isHuman ? 'human' : 'ai';
       let newName = p.name;
+      
       if (p.type !== newType) {
+        const colorName = p.color.charAt(0).toUpperCase() + p.color.slice(1);
         newName = isHuman 
-          ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` 
-          : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`;
+          ? `${colorName} Player` 
+          : `${colorName} AI`;
       }
 
       return {
@@ -82,6 +84,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
     });
     form.setValue('players', newPlayers, { shouldValidate: true });
   }, [gameMode, humanPlayerColor, form]);
+
 
   const onSubmit = (data: GameSetup) => {
     const selectedFirstPlayer = data.turnOrder[0];
