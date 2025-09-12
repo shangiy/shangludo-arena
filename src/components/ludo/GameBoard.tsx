@@ -2,12 +2,12 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { PlayerColor, Pawn as PawnType, START_POSITIONS, SECONDARY_YELLOW_SAFE_ZONE, SECONDARY_RED_SAFE_ZONE, SECONDARY_BLUE_SAFE_ZONE, SECONDARY_GREEN_SAFE_ZONE } from '@/lib/ludo-constants';
+import { PlayerColor, Pawn as PawnType, START_POSITIONS } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 
 const gridCellStyle = "flex items-center justify-center border-r border-b border-black/40";
 
-export function GameBoard({ children, showSecondarySafepoints }: { children: ReactNode, showSecondarySafepoints: boolean }) {
+export function GameBoard({ children }: { children: ReactNode }) {
     const cells = Array.from({ length: 15 * 15 });
     
     const YARD_BGS: Record<PlayerColor, string> = {
@@ -89,10 +89,10 @@ export function GameBoard({ children, showSecondarySafepoints }: { children: Rea
 
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
-              {showSecondarySafepoints && p(x,y) === p(6, 2) && <StarIcon color="red" />}
-              {showSecondarySafepoints && p(x,y) === p(12, 6) && <StarIcon color="green" />}
-              {showSecondarySafepoints && p(x,y) === p(2, 8) && <StarIcon color="blue" />}
-              {showSecondarySafepoints && p(x,y) === p(8, 12) && <StarIcon color="yellow" />}
+              {p(x,y) === p(6, 2) && <StarIcon color="red" />}
+              {p(x,y) === p(12, 6) && <StarIcon color="green" />}
+              {p(x,y) === p(2, 8) && <StarIcon color="blue" />}
+              {p(x,y) === p(8, 12) && <StarIcon color="yellow" />}
             </div>;
         }
 

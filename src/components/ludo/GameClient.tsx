@@ -15,10 +15,6 @@ import {
   Pawn,
   ChatMessage,
   HOME_ENTRANCES,
-  SECONDARY_YELLOW_SAFE_ZONE,
-  SECONDARY_RED_SAFE_ZONE,
-  SECONDARY_BLUE_SAFE_ZONE,
-  SECONDARY_GREEN_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -63,7 +59,6 @@ export default function GameClient() {
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  const [secondarySafepoints, setSecondarySafepoints] = useState(false);
 
   const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
     blue: { name: 'Computer', color: 'blue' },
@@ -112,8 +107,10 @@ export default function GameClient() {
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-        if (ownPawnsAtStart < 2) {
-           pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
+        if (!SAFE_ZONES.includes(startPos) && ownPawnsAtStart >= 2) {
+            // Cannot move to start if it's not a safe zone and is blockaded
+        } else {
+            pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
         }
       }
     }
@@ -128,11 +125,12 @@ export default function GameClient() {
       if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
         
-        // Blockade check can be simplified for this version, but this is more robust
         const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-        if (ownPawnsAtDestination < 2) {
-          moves.push({ pawn, newPosition });
+        if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+          // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+        } else {
+            moves.push({ pawn, newPosition });
         }
       }
     });
@@ -227,21 +225,13 @@ export default function GameClient() {
       const pawnIndex = pawnsOfPlayer.findIndex((p: Pawn) => p.id === pawnToMove.id);
   
       pawnsOfPlayer[pawnIndex].position = newPosition;
-      
-      const currentSafeZones = [...SAFE_ZONES];
-      if (secondarySafepoints) {
-        currentSafeZones.push(SECONDARY_YELLOW_SAFE_ZONE);
-        currentSafeZones.push(SECONDARY_RED_SAFE_ZONE);
-        currentSafeZones.push(SECONDARY_BLUE_SAFE_ZONE);
-        currentSafeZones.push(SECONDARY_GREEN_SAFE_ZONE);
-      }
 
       // Capture logic
-      if (!currentSafeZones.includes(newPosition)) {
+      if (!SAFE_ZONES.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
           if (color !== currentTurn) {
             let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
-            if (opponentPawnsAtPos.length === 1 && newPosition !== START_POSITIONS[color]) {
+            if (opponentPawnsAtPos.length === 1 && !START_POSITIONS[color as PlayerColor]) {
               addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
@@ -392,16 +382,12 @@ export default function GameClient() {
                 phase={phase}
                 diceValue={diceValue}
                 onDiceRoll={handleDiceRoll}
-                secondarySafepoints={secondarySafepoints}
-                onSecondarySafepointsChange={setSecondarySafepoints}
             />
         </header>
 
         <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
             <div className="w-full max-w-2xl relative">
-                <GameBoard 
-                    showSecondarySafepoints={secondarySafepoints}
-                >
+                <GameBoard>
                    {renderPawns()}
                 </GameBoard>
             </div>

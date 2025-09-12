@@ -83,8 +83,14 @@ export const SECONDARY_BLUE_SAFE_ZONE = p(2, 8);
 export const SECONDARY_YELLOW_SAFE_ZONE = p(8, 12);
 
 export const SAFE_ZONES = [
+    // Primary
     START_POSITIONS.red, 
     START_POSITIONS.green,
     START_POSITIONS.yellow, 
-    START_POSITIONS.blue, 
+    START_POSITIONS.blue,
+    // Secondary
+    p(6, 2),  // Red secondary
+    p(12, 6), // Green secondary
+    p(2, 8),  // Blue secondary
+    p(8, 12)  // Yellow secondary
 ];
