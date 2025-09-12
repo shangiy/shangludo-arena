@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -30,7 +30,7 @@ export default function Home() {
 
         <section id="play" className="container pb-16 md:pb-24">
           <h2 className="text-center font-headline text-3xl font-bold mb-8">Choose Your Game</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
@@ -65,6 +65,25 @@ export default function Home() {
                 </CardDescription>
                 <Button asChild className={cn("w-full gradient-button-yellow")}>
                   <Link href="/game?mode=quick">Play Quick</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="bg-green-400/10 p-3 rounded-full">
+                    <QrCode className="h-6 w-6 text-green-500" />
+                  </div>
+                  <CardTitle className="font-headline">Scan QR and Connect</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  Play with friends on the same network using different devices via Wi-Fi, hotspot, or Bluetooth.
+                </CardDescription>
+                <Button asChild className={cn("w-full bg-green-500 hover:bg-green-600 text-white")}>
+                  <Link href="/game?mode=local-multiplayer">Connect & Play</Link>
                 </Button>
               </CardContent>
             </Card>
