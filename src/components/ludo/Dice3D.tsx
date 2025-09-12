@@ -26,7 +26,6 @@ const turnColorClasses: Record<PlayerColor, string> = {
 
 function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRolling: boolean }) {
     const ref = useRef<any>();
-    const [settled, setSettled] = useState(false);
 
     const textureLoader = useMemo(() => new THREE.TextureLoader(), []);
     const materials = useMemo(() => {
@@ -43,7 +42,6 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
     
     useEffect(() => {
       if (isRolling && ref.current) {
-        setSettled(false);
         ref.current.setTranslation({ x: 0, y: 2, z: 0 }, true);
         ref.current.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
         const impulse = { 
@@ -91,7 +89,6 @@ function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRo
           }
         }
        onSettled(result);
-       setSettled(true);
     }
     
     useEffect(() => {
