@@ -50,6 +50,18 @@ const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   return pawns;
 };
 
+const quickPlaySetup: GameSetup = {
+  gameMode: 'vs-computer',
+  players: [
+    { color: 'red', name: 'You', type: 'human' },
+    { color: 'green', name: 'Green AI', type: 'ai' },
+    { color: 'yellow', name: 'Yellow AI', type: 'ai' },
+    { color: 'blue', name: 'Blue AI', type: 'ai' },
+  ],
+  turnOrder: ['red', 'green', 'yellow', 'blue'],
+  humanPlayerColor: 'red',
+};
+
 
 export default function GameClient() {
   const searchParams = useSearchParams();
@@ -98,7 +110,10 @@ export default function GameClient() {
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (gameMode === 'quick') {
+      handleGameSetup(quickPlaySetup);
+    }
+  }, [gameMode]);
   
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     // For this design, we don't show messages in the UI.
@@ -382,7 +397,7 @@ export default function GameClient() {
     ));
   };
 
-  if (!isMounted) {
+  if (!isMounted || (phase === 'SETUP' && gameMode !== 'quick')) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -393,7 +408,7 @@ export default function GameClient() {
   
   return (
      <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-        {phase === 'SETUP' && (
+        {phase === 'SETUP' && gameMode === 'classic' && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
             <GameSetupForm onSetupComplete={handleGameSetup} />
           </div>
@@ -452,3 +467,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
