@@ -95,7 +95,6 @@ export function Dice({ onRoll, isRolling, value: propValue, currentTurn, isHuman
         <p id="rolled-value" className="text-md font-bold text-gray-800 h-6 capitalize">
             {isHumanTurn && !isRolling && propValue === null && "Click to roll!"}
             {propValue !== null ? `${currentTurn} rolled: ${propValue}` : ''}
-            {isRolling && 'Rolling...'}
         </p>
     </div>
   );
