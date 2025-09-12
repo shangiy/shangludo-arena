@@ -63,15 +63,24 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
   const humanPlayerColor = form.watch('humanPlayerColor');
 
   useEffect(() => {
-    const newPlayers = form.getValues('players').map(p => {
+    const currentPlayers = form.getValues('players');
+    const newPlayers = currentPlayers.map(p => {
       const isHuman = (gameMode === 'multiplayer' || p.color === humanPlayerColor);
+      const newType = isHuman ? 'human' : 'ai';
+      let newName = p.name;
+      if (p.type !== newType) {
+        newName = isHuman 
+          ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` 
+          : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`;
+      }
+
       return {
         ...p,
-        type: isHuman ? 'human' : 'ai',
-        name: isHuman ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
+        type: newType,
+        name: newName,
       };
     });
-    form.setValue('players', newPlayers as any, { shouldValidate: true });
+    form.setValue('players', newPlayers, { shouldValidate: true });
   }, [gameMode, humanPlayerColor, form]);
 
   const onSubmit = (data: GameSetup) => {
