@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect } from 'react';
 
 const playerSchema = z.object({
   color: z.enum(['red', 'green', 'yellow', 'blue']),
@@ -44,25 +44,29 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
     defaultValues,
   });
 
-  const { fields, update } = useFieldArray({
+  const { fields } = useFieldArray({
     control: form.control,
     name: "players",
   });
 
   const gameMode = form.watch('gameMode');
+  const players = form.watch('players');
 
-  const handleGameModeChange = (mode: 'vs-computer' | 'multiplayer') => {
-    form.setValue('gameMode', mode);
+  useEffect(() => {
     const newPlayers = form.getValues('players').map(p => ({
         ...p,
-        type: (p.color === 'red' || mode === 'multiplayer') ? 'human' : 'ai',
-        name: (p.color === 'red' || mode === 'multiplayer') ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
+        type: (p.color === 'red' || gameMode === 'multiplayer') ? 'human' : 'ai',
+        name: (p.color === 'red' || gameMode === 'multiplayer') ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
     }));
-    form.setValue('players', newPlayers as any);
-  };
+    form.setValue('players', newPlayers as any, { shouldValidate: true });
+  }, [gameMode, form]);
 
   const onSubmit = (data: GameSetup) => {
-    onSetupComplete(data);
+    const selectedFirstPlayer = data.turnOrder[0];
+    const playerColors = data.players.map(p => p.color);
+    const startIndex = playerColors.indexOf(selectedFirstPlayer);
+    const newTurnOrder = [...playerColors.slice(startIndex), ...playerColors.slice(0, startIndex)];
+    onSetupComplete({ ...data, turnOrder: newTurnOrder as PlayerColor[] });
   };
 
   return (
@@ -82,7 +86,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                   <FormLabel>Game Mode</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={(value: 'vs-computer' | 'multiplayer') => handleGameModeChange(value)}
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       className="flex space-x-4"
                     >
@@ -117,7 +121,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                            <div className="flex items-center gap-2">
                             <div className={`w-4 h-4 rounded-full bg-${field.color}-500`}/>
                             <FormControl>
-                                <Input {...nameField} placeholder={`${field.color} player name`} disabled={form.getValues(`players.${index}.type`) === 'ai'}/>
+                                <Input {...nameField} placeholder={`${field.color} player name`} disabled={players[index].type === 'ai'}/>
                             </FormControl>
                            </div>
                             <FormMessage />
@@ -140,7 +144,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                {form.getValues('players').map(p => (
+                                {players.map(p => (
                                     <SelectItem key={p.color} value={p.color}>
                                         <div className="flex items-center gap-2">
                                             <div className={`w-3 h-3 rounded-full bg-${p.color}-500`}/>
