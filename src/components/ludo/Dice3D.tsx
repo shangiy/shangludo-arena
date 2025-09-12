@@ -21,12 +21,23 @@ const turnColorClasses: Record<PlayerColor, string> = {
 };
 
 const DiceIcon = ({ value }: { value: number | null }) => {
+    if (!value) return <Dices className="h-16 w-16" />;
     const icons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
-    const Icon = value ? icons[value - 1] : Dices;
+    const Icon = icons[value - 1];
     return <Icon className="h-16 w-16" />;
 }
 
-interface Dice2DProps {
+const DiceFace = ({ value, faceClass }: { value: number, faceClass: string }) => {
+    const icons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
+    const Icon = icons[value - 1];
+    return (
+        <div className={cn("dice-face", faceClass)}>
+            <Icon className="h-10 w-10" />
+        </div>
+    );
+};
+
+interface Dice3DProps {
   value: number | null;
   rolling: boolean;
   duration: number;
@@ -36,47 +47,46 @@ interface Dice2DProps {
   onDiceRoll: (value: number) => void;
 }
 
-export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, onDiceRoll }: Dice2DProps) {
-  const [displayValue, setDisplayValue] = useState<number | null>(value);
+export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, onDiceRoll }: Dice3DProps) {
   const [isRolling, setIsRolling] = useState(false);
+  const [finalValue, setFinalValue] = useState<number | null>(value);
 
   const handleRollClick = () => {
     if (isHumanTurn && !isRolling) {
         setIsRolling(true);
-        onClick();
+        onClick(); // This should set phase to 'MOVING'
+        
+        const rollTimeout = setTimeout(() => {
+            const finalRoll = Math.floor(Math.random() * 6) + 1;
+            onDiceRoll(finalRoll);
+            setFinalValue(finalRoll);
+            setIsRolling(false);
+        }, duration);
+
+        return () => clearTimeout(rollTimeout);
     }
   }
 
   useEffect(() => {
-    if (rolling || isRolling) {
-      const startTime = Date.now();
-      const interval = setInterval(() => {
-        const randomValue = Math.floor(Math.random() * 6) + 1;
-        setDisplayValue(randomValue);
-
-        if (Date.now() - startTime > duration) {
-            clearInterval(interval);
-            const finalValue = Math.floor(Math.random() * 6) + 1;
-            onDiceRoll(finalValue);
-            setIsRolling(false);
-        }
-      }, 100);
-
-      return () => clearInterval(interval);
-    } else {
-        setDisplayValue(value);
+    // Sync external `rolling` prop with internal `isRolling` state
+    // This is primarily for AI turns
+    if (rolling && !isRolling) {
+        setIsRolling(true);
+        setFinalValue(null);
     }
-  }, [rolling, isRolling, duration, onDiceRoll]);
+    if (!rolling && isRolling) {
+        setIsRolling(false);
+        setFinalValue(value);
+    }
+  }, [rolling]);
 
    useEffect(() => {
-    // For AI turns
-    if (rolling && !isHumanTurn) {
-        setIsRolling(true);
+    // When the external value is set (from AI roll or after player roll), update finalValue
+    if (value !== null) {
+        setFinalValue(value);
     }
-  }, [rolling, isHumanTurn])
+  }, [value]);
 
-
-  const actualValueToDisplay = isRolling ? displayValue : value;
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -96,16 +106,25 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
         )}
 
       <div className="h-48 w-full relative flex items-center justify-center">
-        <div className={cn("transition-transform duration-100", isRolling && "animate-shake")}>
-          <DiceIcon value={actualValueToDisplay} />
-        </div>
+        {isRolling ? (
+             <div className="dice-3d dice-3d-rolling">
+                <DiceFace value={1} faceClass="face-1" />
+                <DiceFace value={2} faceClass="face-2" />
+                <DiceFace value={3} faceClass="face-3" />
+                <DiceFace value={4} faceClass="face-4" />
+                <DiceFace value={5} faceClass="face-5" />
+                <DiceFace value={6} faceClass="face-6" />
+            </div>
+        ) : (
+             <DiceIcon value={finalValue} />
+        )}
       </div>
       <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
         <span>
-          {isHumanTurn && !isRolling && !value && "Your turn!"}
+          {isHumanTurn && !isRolling && !finalValue && "Your turn!"}
         </span>
         <span style={{ color: DICE_FACE_COLORS[color] }}>
-          {!isRolling && value ? `${color} rolled a: ${value}` : (isRolling ? 'Rolling...' : '')}
+          {!isRolling && finalValue ? `${color} rolled a: ${finalValue}` : (isRolling ? 'Rolling...' : '')}
         </span>
       </div>
     </div>
