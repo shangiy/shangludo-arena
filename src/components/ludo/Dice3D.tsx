@@ -51,31 +51,37 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn }
     }
   }, [rolling, value]);
 
+  const show3dDice = rolling || value === null;
+
   return (
     <div className="flex flex-col items-center gap-2">
         <div 
             className={cn(
                 "w-24 h-24",
-                isHumanTurn && !rolling && 'cursor-pointer animate-pulse',
-                isHumanTurn && !rolling && turnColorClasses[color]
+                isHumanTurn && !rolling && value === null && 'cursor-pointer animate-pulse',
+                isHumanTurn && !rolling && value === null && turnColorClasses[color]
             )}
             style={{ perspective: '1000px' }}
-            onClick={onClick}
+            onClick={isHumanTurn && !rolling && value === null ? onClick : undefined}
         >
-        <motion.div
-            className="relative w-full h-full"
-            style={{ transformStyle: 'preserve-3d' }}
-            initial={{ rotateX: 0, rotateY: 0, rotateZ: 0 }}
-            animate={rolling ? { rotateX: rotation.x, rotateY: rotation.y, rotateZ: rotation.z } : {}}
-            transition={{ duration: duration / 1000, ease: 'easeInOut' }}
-        >
-            <DiceFace number={1} color={color} style={{ transform: 'rotateY(0deg) translateZ(3rem)' }} />
-            <DiceFace number={6} color={color} style={{ transform: 'rotateX(180deg) translateZ(3rem)' }} />
-            <DiceFace number={5} color={color} style={{ transform: 'rotateX(90deg) translateZ(3rem)' }} />
-            <DiceFace number={2} color={color} style={{ transform: 'rotateX(-90deg) translateZ(3rem)' }} />
-            <DiceFace number={3} color={color} style={{ transform: 'rotateY(90deg) translateZ(3rem)' }} />
-            <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
-        </motion.div>
+          {show3dDice ? (
+            <motion.div
+                className="relative w-full h-full"
+                style={{ transformStyle: 'preserve-3d' }}
+                initial={{ rotateX: 0, rotateY: 0, rotateZ: 0 }}
+                animate={rolling ? { rotateX: rotation.x, rotateY: rotation.y, rotateZ: rotation.z } : {}}
+                transition={{ duration: duration / 1000, ease: 'easeInOut' }}
+            >
+                <DiceFace number={1} color={color} style={{ transform: 'rotateY(0deg) translateZ(3rem)' }} />
+                <DiceFace number={6} color={color} style={{ transform: 'rotateX(180deg) translateZ(3rem)' }} />
+                <DiceFace number={5} color={color} style={{ transform: 'rotateX(90deg) translateZ(3rem)' }} />
+                <DiceFace number={2} color={color} style={{ transform: 'rotateX(-90deg) translateZ(3rem)' }} />
+                <DiceFace number={3} color={color} style={{ transform: 'rotateY(90deg) translateZ(3rem)' }} />
+                <DiceFace number={4} color={color} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }} />
+            </motion.div>
+          ) : (
+             value && <DiceFace number={value} color={color} />
+          )}
         </div>
          <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center"
          >
