@@ -97,21 +97,11 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
 
         // Home yards
         const renderYard = (color: PlayerColor) => (
-             <div className={cn('h-full w-full p-1 relative', YARD_BGS[color], borderClasses)}>
-                <div className={cn('h-full w-full grid grid-cols-2 grid-rows-2 gap-1 p-1', 'bg-white')}>
-                    <div className="flex items-center justify-center p-1">
-                      <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
-                    </div>
-                    <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
-                    </div>
-                    <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
-                    </div>
-                    <div className="flex items-center justify-center p-1">
-                       <div className={cn('h-full w-full rounded-full border-2 border-black/50', YARD_BGS[color])}></div>
-                    </div>
-                </div>
+             <div className={cn('h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2', YARD_BGS[color], borderClasses)}>
+                <div className="rounded-full border-2 border-white/50 bg-transparent"></div>
+                <div className="rounded-full border-2 border-white/50 bg-transparent"></div>
+                <div className="rounded-full border-2 border-white/50 bg-transparent"></div>
+                <div className="rounded-full border-2 border-white/50 bg-transparent"></div>
             </div>
         );
 
