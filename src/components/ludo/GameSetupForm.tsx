@@ -1,0 +1,164 @@
+"use client";
+
+import { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { PlayerColor } from '@/lib/ludo-constants';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const playerSchema = z.object({
+  color: z.enum(['red', 'green', 'yellow', 'blue']),
+  name: z.string().min(1, 'Name is required').max(15, 'Name is too long'),
+  type: z.enum(['human', 'ai']),
+});
+
+const setupSchema = z.object({
+  gameMode: z.enum(['vs-computer', 'multiplayer']),
+  players: z.array(playerSchema).min(2, 'At least 2 players required'),
+  turnOrder: z.array(z.enum(['red', 'green', 'yellow', 'blue'])),
+});
+
+export type GameSetup = z.infer<typeof setupSchema>;
+
+const defaultValues: GameSetup = {
+  gameMode: 'vs-computer',
+  players: [
+    { color: 'red', name: 'Red Player', type: 'human' },
+    { color: 'green', name: 'Green AI', type: 'ai' },
+    { color: 'yellow', name: 'Yellow AI', type: 'ai' },
+    { color: 'blue', name: 'Blue AI', type: 'ai' },
+  ],
+  turnOrder: ['red', 'green', 'yellow', 'blue'],
+};
+
+export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: GameSetup) => void }) {
+  const form = useForm<GameSetup>({
+    resolver: zodResolver(setupSchema),
+    defaultValues,
+  });
+
+  const { fields, update } = useFieldArray({
+    control: form.control,
+    name: "players",
+  });
+
+  const gameMode = form.watch('gameMode');
+
+  const handleGameModeChange = (mode: 'vs-computer' | 'multiplayer') => {
+    form.setValue('gameMode', mode);
+    const newPlayers = form.getValues('players').map(p => ({
+        ...p,
+        type: (p.color === 'red' || mode === 'multiplayer') ? 'human' : 'ai',
+        name: (p.color === 'red' || mode === 'multiplayer') ? `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} Player` : `${p.color.charAt(0).toUpperCase() + p.color.slice(1)} AI`,
+    }));
+    form.setValue('players', newPlayers as any);
+  };
+
+  const onSubmit = (data: GameSetup) => {
+    onSetupComplete(data);
+  };
+
+  return (
+    <Card className="w-full max-w-lg shadow-2xl">
+      <CardHeader>
+        <CardTitle>Game Setup</CardTitle>
+        <CardDescription>Configure your Ludo match before you start.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="gameMode"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Game Mode</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={(value: 'vs-computer' | 'multiplayer') => handleGameModeChange(value)}
+                      defaultValue={field.value}
+                      className="flex space-x-4"
+                    >
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="vs-computer" />
+                        </FormControl>
+                        <FormLabel className="font-normal">vs. Computer</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="multiplayer" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Multiplayer</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="space-y-4">
+                <Label>Player Names</Label>
+                {fields.map((field, index) => (
+                    <FormField
+                    key={field.id}
+                    control={form.control}
+                    name={`players.${index}.name`}
+                    render={({ field: nameField }) => (
+                        <FormItem>
+                           <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full bg-${field.color}-500`}/>
+                            <FormControl>
+                                <Input {...nameField} placeholder={`${field.color} player name`} disabled={form.getValues(`players.${index}.type`) === 'ai'}/>
+                            </FormControl>
+                           </div>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                ))}
+            </div>
+
+            <FormField
+                control={form.control}
+                name="turnOrder.0"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Who plays first?</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder="Select who starts" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {form.getValues('players').map(p => (
+                                    <SelectItem key={p.color} value={p.color}>
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-3 h-3 rounded-full bg-${p.color}-500`}/>
+                                            {p.name}
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            
+            <Button type="submit" className="w-full">Start Game</Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}

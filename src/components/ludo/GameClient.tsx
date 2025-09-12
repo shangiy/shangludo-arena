@@ -3,8 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { generateAIMove } from '@/ai/flows/ai-opponent';
-import { GameBoard, Pawn as PawnComponent } from '@/components/ludo/GameBoard';
+import { GameBoard, Pawn as PawnComponent, PlayerNames } from '@/components/ludo/GameBoard';
 import { GameControls } from '@/components/ludo/GameControls';
 import {
   PLAYER_COLORS,
@@ -32,8 +31,9 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../ui/dialog';
+import { GameSetup, GameSetupForm } from './GameSetupForm';
 
-type GamePhase = 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
+type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -59,11 +59,12 @@ export default function GameClient() {
   const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(initialPawns);
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
-  const [phase, setPhase] = useState<GamePhase>('ROLLING');
+  const [phase, setPhase] = useState<GamePhase>('SETUP');
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
+  const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
 
   const SAFE_ZONES = useMemo(() => {
     if (addSecondarySafePoints) {
@@ -72,15 +73,23 @@ export default function GameClient() {
     return PRIMARY_SAFE_ZONES;
   }, [addSecondarySafePoints]);
 
+  const players = useMemo(() => {
+    if (!gameSetup) {
+        return {
+            blue: { name: 'Computer', color: 'blue', type: 'ai' },
+            yellow: { name: 'Computer', color: 'yellow', type: 'ai' },
+            red: { name: 'Player', color: 'red', type: 'human' },
+            green: { name: 'Computer', color: 'green', type: 'ai' },
+        };
+    }
+    const playerConfig: any = {};
+    gameSetup.players.forEach(p => {
+        playerConfig[p.color] = { name: p.name, color: p.color, type: p.type };
+    });
+    return playerConfig;
+  }, [gameSetup])
 
-  const players: Record<PlayerColor, { name: string, color: PlayerColor }> = {
-    blue: { name: 'Computer', color: 'blue' },
-    yellow: { name: 'Computer', color: 'yellow' },
-    red: { name: 'Player', color: 'red' },
-    green: { name: 'Computer', color: 'green' },
-  };
-  const playerOrder: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
-
+  const playerOrder: PlayerColor[] = useMemo(() => gameSetup?.turnOrder || ['red', 'green', 'yellow', 'blue'], [gameSetup]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -90,6 +99,13 @@ export default function GameClient() {
     // For this design, we don't show messages in the UI.
     console.log(`Message: [${sender}] ${text}`);
   };
+  
+  const handleGameSetup = (setup: GameSetup) => {
+    setGameSetup(setup);
+    setPlayerOrder(setup.turnOrder);
+    setCurrentTurn(setup.turnOrder[0]);
+    setPhase('ROLLING');
+  }
 
   useEffect(() => {
     if (winner) {
@@ -100,7 +116,7 @@ export default function GameClient() {
         duration: 5000,
       });
     }
-  }, [winner]);
+  }, [winner, players]);
 
   const nextTurn = () => {
     const currentIndex = playerOrder.indexOf(currentTurn);
@@ -168,7 +184,7 @@ export default function GameClient() {
       }, 1000);
     } else {
         setPhase('MOVING');
-        if (players[currentTurn].name !== 'Player') {
+        if (players[currentTurn].type === 'ai') {
             setTimeout(() => handleAiMove(value, possibleMoves), 500);
         } else {
             // If only one move, auto-move
@@ -212,7 +228,7 @@ export default function GameClient() {
     const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color);
     
     if (!selectedMove) {
-      if (currentTurn === 'red') {
+      if (players[currentTurn].type === 'human') {
         toast({
           variant: "destructive",
           title: "Invalid Move",
@@ -293,7 +309,7 @@ export default function GameClient() {
   
   // AI Logic
   useEffect(() => {
-    const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn].name !== 'Player';
+    const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setPhase('AI_THINKING');
       
@@ -302,14 +318,14 @@ export default function GameClient() {
         handleDiceRoll(aiRoll);
       }, 1000);
     }
-  }, [currentTurn, phase, winner, isMounted]);
+  }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
 
   const possibleMovesForHighlight = useMemo(() => {
-    if (phase === 'MOVING' && diceValue && currentTurn === 'red') {
+    if (phase === 'MOVING' && diceValue && players[currentTurn]?.type === 'human') {
       return getPossibleMoves(currentTurn, diceValue);
     }
     return [];
-  }, [phase, diceValue, currentTurn, pawns]);
+  }, [phase, diceValue, currentTurn, pawns, players]);
 
   const renderPawns = () => {
     const allPawns: (Pawn & { highlight: boolean; isStacked: boolean })[] = [];
@@ -328,7 +344,7 @@ export default function GameClient() {
 
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
       pawns[color].forEach(pawn => {
-        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING';
+        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
         let highlight = false;
 
         if (isPlayerTurn) {
@@ -366,7 +382,13 @@ export default function GameClient() {
   
   return (
      <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-        
+        {phase === 'SETUP' && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <GameSetupForm onSetupComplete={handleGameSetup} />
+          </div>
+        )}
+
         <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
             <DialogContent>
                 <DialogHeader>
@@ -397,6 +419,7 @@ export default function GameClient() {
                 onDiceRoll={handleDiceRoll}
                 addSecondarySafePoints={addSecondarySafePoints}
                 onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+                isHumanTurn={players[currentTurn]?.type === 'human'}
             />
         </header>
 
@@ -404,6 +427,7 @@ export default function GameClient() {
             <div className="w-full max-w-2xl relative">
                 <GameBoard showSecondarySafes={addSecondarySafePoints}>
                    {renderPawns()}
+                   {gameSetup && <PlayerNames players={gameSetup.players.reduce((acc, p) => ({...acc, [p.color]: p.name}), {})} />}
                 </GameBoard>
             </div>
         </main>

@@ -11,19 +11,19 @@ import { Switch } from '@/components/ui/switch';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
-  phase: 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
+  phase: 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
   addSecondarySafePoints: boolean;
   onToggleSecondarySafePoints: () => void;
+  isHumanTurn: boolean;
 };
 
-export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, addSecondarySafePoints, onToggleSecondarySafePoints }: GameControlsProps) {
+export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, addSecondarySafePoints, onToggleSecondarySafePoints, isHumanTurn }: GameControlsProps) {
   const isRolling = phase !== 'ROLLING';
-  const isPlayerTurn = currentTurn === 'red';
 
   const handleRoll = () => {
-    if(isRolling || !isPlayerTurn) return;
+    if(isRolling || !isHumanTurn) return;
     const finalValue = Math.floor(Math.random() * 6) + 1;
     onDiceRoll(finalValue);
   }
@@ -40,10 +40,11 @@ export function GameControls({ currentTurn, phase, diceValue, onDiceRoll, addSec
         <div className="flex items-center gap-4">
             <Button
                 onClick={handleRoll}
-                disabled={isRolling || !isPlayerTurn}
+                disabled={isRolling || !isHumanTurn}
                 className={cn(
-                    "gradient-button text-lg font-bold py-3 px-6 rounded-lg animate-pulse",
-                    (isRolling || !isPlayerTurn) && "opacity-50 cursor-not-allowed",
+                    "gradient-button text-lg font-bold py-3 px-6 rounded-lg",
+                    isHumanTurn && "animate-pulse",
+                    (isRolling || !isHumanTurn) && "opacity-50 cursor-not-allowed",
                     turnColorClasses[currentTurn]
                 )}
             >

@@ -56,10 +56,10 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
             if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")} />;
             
             // User requested colors
-            if(x===6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")}></div>; 
-            if(x===8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")}></div>; 
-            if(x===7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")}></div>; 
-            if(x===7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")}></div>;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-red-500")}></div>; 
+            if (x === 9-1 && y === 8) return <div className={cn(borderClasses, "bg-yellow-400")}></div>; 
+            if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-green-500")}></div>; 
+            if (x === 8 && y === 9) return <div className={cn(borderClasses, "bg-green-500")}></div>;
 
             // Unused center cells
             if(x===7 && y === 7-1) return <div className={cn(borderClasses, "bg-green-500")}></div>;
@@ -94,6 +94,11 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
             }
 
             return <div className={cn(borderClasses, bgColor, "relative h-full w-full")}>
+              <div className="absolute inset-0.5">
+                <div className="relative w-full h-full">
+                  <div className="absolute top-1/2 left-1/2 w-4 h-4 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/10 backdrop-blur-sm" />
+                </div>
+              </div>
               {safeZoneColor && <StarIcon color={safeZoneColor} />}
               {showSecondarySafes && p(x,y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
               {showSecondarySafes && p(x,y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
@@ -234,5 +239,34 @@ export function Pawn({ id, color, position, isHome, onPawnClick, highlight, isSt
   );
 }
 
-    
-    
+export function PlayerNames({ players }: { players: Record<PlayerColor, string> }) {
+  const namePositions: Record<PlayerColor, string> = {
+    red: 'top-2 left-2',
+    green: 'top-2 right-2',
+    blue: 'bottom-2 left-2',
+    yellow: 'bottom-2 right-2',
+  };
+  const textColors: Record<PlayerColor, string> = {
+      red: 'text-red-600',
+      green: 'text-green-600',
+      blue: 'text-blue-600',
+      yellow: 'text-yellow-500',
+  }
+
+  return (
+    <>
+      {(Object.keys(players) as PlayerColor[]).map(color => (
+        <div
+          key={color}
+          className={cn(
+            'absolute p-2 rounded-md font-bold text-lg bg-white/70 backdrop-blur-sm shadow-md',
+            namePositions[color],
+            textColors[color]
+          )}
+        >
+          {players[color]}
+        </div>
+      ))}
+    </>
+  );
+}
