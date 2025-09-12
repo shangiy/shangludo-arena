@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Dice3D } from '@/components/ludo/Dice3D';
 import { PlayerColor } from '@/lib/ludo-constants';
@@ -19,6 +19,7 @@ type GameControlsProps = {
   phase: 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
   onDiceRoll: (value: number) => void;
+  onRollStart: () => void;
   addSecondarySafePoints: boolean;
   onToggleSecondarySafePoints: () => void;
   isHumanTurn: boolean;
@@ -38,6 +39,7 @@ export function GameControls({
   phase,
   diceValue,
   onDiceRoll,
+  onRollStart,
   addSecondarySafePoints,
   onToggleSecondarySafePoints,
   isHumanTurn,
@@ -51,14 +53,7 @@ export function GameControls({
   gameSetup,
   onPlayerNameChange
 }: GameControlsProps) {
-  const isRollingDisabled = phase !== 'ROLLING' || !isHumanTurn;
 
-  const handleRoll = () => {
-    if (isRollingDisabled) return;
-    // The new Dice3D component handles the roll internally
-    // onDiceRoll will be called by the Dice3D component on settlement
-  };
-  
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
 
   return (
@@ -152,7 +147,7 @@ export function GameControls({
           </PopoverContent>
         </Popover>
       <Dice3D 
-        onClick={handleRoll} 
+        onClick={onRollStart} 
         rolling={phase === 'MOVING' || phase === 'AI_THINKING'}
         value={diceValue}
         color={currentTurn}
@@ -163,3 +158,4 @@ export function GameControls({
     </div>
   );
 }
+    

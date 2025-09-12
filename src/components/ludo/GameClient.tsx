@@ -195,35 +195,35 @@ export default function GameClient() {
         diceRollAudioRef.current.play();
     }
     setDiceValue(value);
-    setPhase('MOVING');
 
-    setTimeout(() => {
-        setPhase('MOVING'); // End animation, show result
-        const possibleMoves = getPossibleMoves(currentTurn, value);
-    
-        if (possibleMoves.length === 0) {
-          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-          setTimeout(() => {
+    const possibleMoves = getPossibleMoves(currentTurn, value);
+
+    if (possibleMoves.length === 0) {
+        addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+        setTimeout(() => {
             if (value !== 6) {
-              nextTurn();
+                nextTurn();
             } else {
-              setPhase('ROLLING'); // Roll again
-              setDiceValue(null);
-              addMessage('System', `${players[currentTurn].name} gets to roll again.`);
+                setPhase('ROLLING'); // Roll again
+                setDiceValue(null);
+                addMessage('System', `${players[currentTurn].name} gets to roll again.`);
             }
-          }, 1000);
+        }, 1000);
+    } else {
+        if (players[currentTurn].type === 'ai') {
+            setTimeout(() => handleAiMove(value, possibleMoves), 500);
         } else {
-            if (players[currentTurn].type === 'ai') {
-                setTimeout(() => handleAiMove(value, possibleMoves), 500);
-            } else {
-                // If only one move, auto-move
-                if (possibleMoves.length === 1) {
-                    setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
-                }
+            // If only one move, auto-move
+            if (possibleMoves.length === 1) {
+                setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
             }
         }
-    }, diceRollDuration);
+    }
   };
+
+  const startRoll = () => {
+    setPhase('MOVING'); // This will trigger the rolling animation in Dice3D
+  }
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
       // Priority: Move pawn out of yard on a 6
@@ -344,10 +344,33 @@ export default function GameClient() {
       
       setTimeout(() => {
         const aiRoll = Math.floor(Math.random() * 6) + 1;
-        handleDiceRoll(aiRoll);
+        setDiceValue(aiRoll);
+        setPhase('MOVING'); // Trigger AI roll animation
       }, 1000);
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
+
+  useEffect(() => {
+    // This effect handles the AI move after the dice animation completes
+    const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
+    if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
+      const possibleMoves = getPossibleMoves(currentTurn, diceValue);
+      setTimeout(() => {
+        if (possibleMoves.length === 0) {
+          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+          if (diceValue !== 6) {
+            nextTurn();
+          } else {
+            setPhase('ROLLING');
+            setDiceValue(null);
+          }
+        } else {
+          handleAiMove(diceValue, possibleMoves);
+        }
+      }, diceRollDuration);
+    }
+  }, [phase, diceValue, currentTurn, isMounted]);
+
 
   const possibleMovesForHighlight = useMemo(() => {
     if (phase === 'MOVING' && diceValue && players[currentTurn]?.type === 'human') {
@@ -459,6 +482,7 @@ export default function GameClient() {
                 phase={phase}
                 diceValue={diceValue}
                 onDiceRoll={handleDiceRoll}
+                onRollStart={startRoll}
                 addSecondarySafePoints={addSecondarySafePoints}
                 onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
                 isHumanTurn={players[currentTurn]?.type === 'human'}
@@ -485,3 +509,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
