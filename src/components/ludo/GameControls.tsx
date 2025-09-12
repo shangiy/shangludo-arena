@@ -91,7 +91,6 @@ export function GameControls({
                     id="secondary-safepoints"
                     checked={addSecondarySafePoints}
                     onCheckedChange={onToggleSecondarySafePoints}
-                    disabled={phase !== 'SETUP'}
                   />
                 </div>
                 <div className="flex items-center justify-between">
