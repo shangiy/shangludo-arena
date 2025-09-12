@@ -177,7 +177,7 @@ export function GameSetupForm({ onSetupComplete }: { onSetupComplete: (setup: Ga
                         render={({ field: nameField }) => (
                             <FormItem>
                                <div className="flex items-center gap-2">
-                                <div className={`w-4 h-4 rounded-full ${COLOR_CLASSES[field.color]}`}/>
+                                <div className={`w-4 h-4 rounded-full ${COLOR_CLASSES[field.color}`}/>
                                 <FormControl>
                                     <Input {...nameField} placeholder={`${field.color} player name`} />
                                 </FormControl>
