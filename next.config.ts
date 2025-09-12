@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-   transpilePackages: ['three'],
+   transpilePackages: ['three', '@react-three/fiber', '@react-three/drei', '@react-three/cannon'],
 };
 
 export default nextConfig;
