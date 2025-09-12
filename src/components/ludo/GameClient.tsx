@@ -396,6 +396,18 @@ export default function GameClient() {
         <PawnComponent key={`${pawn.color}-${pawn.id}`} {...pawn} onPawnClick={handlePawnMove} />
     ));
   };
+  
+  const handlePlayerNameChange = (color: PlayerColor, newName: string) => {
+    if (!gameSetup) return;
+
+    setGameSetup(prev => {
+        if (!prev) return null;
+        const newPlayers = prev.players.map(p => 
+            p.color === color ? { ...p, name: newName } : p
+        );
+        return { ...prev, players: newPlayers };
+    });
+  };
 
   if (!isMounted) {
     return (
@@ -453,6 +465,9 @@ export default function GameClient() {
                 onToggleMuteSound={() => setMuteSound(prev => !prev)}
                 diceRollDuration={diceRollDuration}
                 onDiceRollDurationChange={setDiceRollDuration}
+                gameMode={gameMode}
+                gameSetup={gameSetup}
+                onPlayerNameChange={handlePlayerNameChange}
             />
         </header>
 

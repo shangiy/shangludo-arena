@@ -11,6 +11,8 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import type { GameSetup } from './GameSetupForm';
+import { Input } from '../ui/input';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
@@ -26,6 +28,9 @@ type GameControlsProps = {
   onToggleMuteSound: () => void;
   diceRollDuration: number;
   onDiceRollDurationChange: (duration: number) => void;
+  gameMode: string;
+  gameSetup: GameSetup | null;
+  onPlayerNameChange: (color: PlayerColor, newName: string) => void;
 };
 
 export function GameControls({
@@ -42,6 +47,9 @@ export function GameControls({
   onToggleMuteSound,
   diceRollDuration,
   onDiceRollDurationChange,
+  gameMode,
+  gameSetup,
+  onPlayerNameChange
 }: GameControlsProps) {
   const isRollingDisabled = phase !== 'ROLLING' || !isHumanTurn;
 
@@ -57,6 +65,8 @@ export function GameControls({
     yellow: 'turn-yellow',
     blue: 'turn-blue',
   };
+  
+  const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -87,6 +97,20 @@ export function GameControls({
                 <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
               </div>
               <div className="grid gap-2">
+                {gameMode === 'quick' && humanPlayer && (
+                  <>
+                    <div className="flex items-center justify-between">
+                       <Label htmlFor="player-name">Change Your Name</Label>
+                       <Input 
+                         id="player-name"
+                         defaultValue={humanPlayer.name}
+                         className="w-40"
+                         onBlur={(e) => onPlayerNameChange(humanPlayer.color, e.target.value)}
+                       />
+                    </div>
+                    <Separator />
+                  </>
+                )}
                 <div className="flex items-center justify-between">
                   <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
                   <Switch
