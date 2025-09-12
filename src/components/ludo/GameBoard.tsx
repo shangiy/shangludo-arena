@@ -43,17 +43,16 @@ export function GameBoard({ children, showSecondarySafes }: { children: ReactNod
              if (x === 7 && y === 7) {
                 return <div className={cn(borderClasses, "bg-white relative")}>
                     <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <polygon points="0,0 100,0 50,50" className="fill-green-500" />
-                        <polygon points="100,0 100,100 50,50" className="fill-yellow-400" />
-                        <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
-                        <polygon points="0,0 0,100 50,50" className="fill-red-500" />
+                        <polygon points="0,0 100,0 0,100" className="fill-green-500" />
+                        <polygon points="100,0 100,100 0,100" className="fill-red-500" />
+                        <line x1="0" y1="100" x2="100" y2="0" stroke="black" strokeWidth="0" />
                     </svg>
                 </div>;
             }
             if (x === 6 && y === 7) return <div className={cn(borderClasses, "bg-red-500")}></div>;
             if (x === 8 && y === 7) return <div className={cn(borderClasses, "bg-yellow-400")}></div>;
             if (x === 7 && y === 6) return <div className={cn(borderClasses, "bg-green-500")}></div>;
-            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-blue-500")}></div>;
+            if (x === 7 && y === 8) return <div className={cn(borderClasses, "bg-red-500")}></div>;
 
             // Unused center cells
             return <div className={cn("h-full w-full", borderClasses, "bg-transparent")}></div>;
