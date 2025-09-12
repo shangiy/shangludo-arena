@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Physics, useBox, usePlane } from '@react-three/cannon';
+import { Canvas } from '@react-three/fiber';
+import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
@@ -24,14 +24,10 @@ const turnColorClasses: Record<PlayerColor, string> = {
 };
 
 
-function Dice({ onSettled, color, isRolling }: { onSettled: (val: number) => void, color: PlayerColor, isRolling: boolean }) {
-    const [ref, api] = useBox(() => ({
-        mass: 1,
-        position: [0, 2, 0],
-        angularDamping: 0.2,
-        linearDamping: 0.2,
-    }));
-    
+function Dice({ onSettled, isRolling }: { onSettled: (val: number) => void, isRolling: boolean }) {
+    const ref = useRef<any>();
+    const [settled, setSettled] = useState(false);
+
     const textureLoader = useMemo(() => new THREE.TextureLoader(), []);
     const materials = useMemo(() => {
         const faceTextures = [
@@ -44,97 +40,78 @@ function Dice({ onSettled, color, isRolling }: { onSettled: (val: number) => voi
              map: textureLoader.load(`/textures/${face}`),
         }));
     }, [textureLoader]);
-
+    
     useEffect(() => {
-      if (isRolling) {
-        // Reset dice
-        api.position.set(Math.random() * 2 - 1, 2, Math.random() * 2 - 1);
-        api.velocity.set(0, 0, 0);
-        api.angularVelocity.set(0, 0, 0);
-
-        // Give random force and torque
-        api.applyImpulse([(Math.random() * 2 - 1) * 3, 2, (Math.random() * 2-1) * 3], [0, 0, 0]);
-        api.applyTorque([Math.random() * 10, Math.random() * 10, Math.random() * 10]);
+      if (isRolling && ref.current) {
+        setSettled(false);
+        const impulse = { 
+            x: (Math.random() - 0.5) * 8, 
+            y: Math.random() * 5 + 5, 
+            z: (Math.random() - 0.5) * 8 
+        };
+        const torque = { 
+            x: (Math.random() - 0.5) * 20, 
+            y: (Math.random() - 0.5) * 20, 
+            z: (Math.random() - 0.5) * 20 
+        };
+        ref.current.applyImpulse(impulse, true);
+        ref.current.applyTorqueImpulse(torque, true);
       }
-    }, [isRolling, api]);
+    }, [isRolling]);
 
-    const lastVel = useRef(new THREE.Vector3());
-    const timeoutRef = useRef<NodeJS.Timeout>();
-    const settled = useRef(false);
 
-    useFrame(() => {
-        if (!ref.current || !isRolling) return;
+    const getDiceValue = () => {
+        if (!ref.current) return;
         
-        const checkSettled = () => {
-             const up = new THREE.Vector3(0, 1, 0);
-             const quat = new THREE.Quaternion(...ref.current.quaternion.toArray());
-             up.applyQuaternion(quat);
+        const quat = ref.current.rotation();
+        const worldUp = new THREE.Vector3(0, 1, 0);
 
-             const faces = [
-                { value: 1, normal: [0, 0, 1] },   // Front face
-                { value: 6, normal: [0, 0, -1] }, // Back face
-                { value: 5, normal: [0, 1, 0] },   // Top face
-                { value: 2, normal: [0, -1, 0] },// Bottom face
-                { value: 4, normal: [1, 0, 0] },   // Right face
-                { value: 3, normal: [-1, 0, 0] }, // Left face
-             ];
+        const faces = [
+            { value: 1, normal: new THREE.Vector3(0, 0, 1) },   // Front face
+            { value: 6, normal: new THREE.Vector3(0, 0, -1) },  // Back face
+            { value: 2, normal: new THREE-Vector3(0, -1, 0) }, // Bottom face
+            { value: 5, normal: new THREE.Vector3(0, 1, 0) },   // Top face
+            { value: 3, normal: new THREE.Vector3(-1, 0, 0) },  // Left face
+            { value: 4, normal: new THREE.Vector3(1, 0, 0) },   // Right face
+        ];
 
-            let maxDot = -Infinity;
-            let result = 0;
-            
-            for (const f of faces) {
-              const normal = new THREE.Vector3(...f.normal);
-              const dot = up.dot(normal);
-              if (dot > maxDot) {
-                maxDot = dot;
-                result = f.value;
-              }
-            }
-           onSettled(result);
-           settled.current = true;
+        let maxDot = -Infinity;
+        let result = 0;
+        
+        for (const f of faces) {
+          const localNormal = f.normal.clone();
+          const worldNormal = localNormal.applyQuaternion(quat);
+          const dot = worldUp.dot(worldNormal);
+
+          if (dot > maxDot) {
+            maxDot = dot;
+            result = f.value;
+          }
         }
+       onSettled(result);
+       setSettled(true);
+    }
+    
+    useEffect(() => {
+        if (!isRolling) return;
 
-        api.velocity.subscribe((v) => {
-            const vel = new THREE.Vector3(...v);
-            const isMoving = vel.length() > 0.05 || lastVel.current.length() > 0.05;
-
-            if (!isMoving && !settled.current && isRolling) {
-                if (!timeoutRef.current) {
-                    timeoutRef.current = setTimeout(checkSettled, 100);
-                }
-            } else {
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                    timeoutRef.current = undefined;
-                }
+        const sleepSub = setInterval(() => {
+            if (ref.current && ref.current.isSleeping()) {
+                getDiceValue();
             }
-            lastVel.current.copy(vel);
-        });
+        }, 100);
 
-        if (isRolling) {
-            settled.current = false;
-        }
-    });
+        return () => clearInterval(sleepSub);
+    }, [isRolling]);
 
     return (
-        // @ts-ignore
-        <mesh ref={ref} castShadow material={materials}>
-            <boxGeometry args={[1, 1, 1]} />
-        </mesh>
+        <RigidBody ref={ref} colliders="cuboid" position={[0, 2, 0]} angularDamping={0.8} linearDamping={0.8}>
+            <mesh castShadow material={materials}>
+                <boxGeometry args={[1, 1, 1]} />
+            </mesh>
+        </RigidBody>
     );
 }
-
-function Plane(props: any) {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }))
-  return (
-    // @ts-ignore
-    <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color="#f0f2fa" />
-    </mesh>
-  )
-}
-
 
 interface Dice3DProps {
   value: number | null;
@@ -148,27 +125,35 @@ interface Dice3DProps {
 
 export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, onDiceRoll }: Dice3DProps) {
   const [isRolling, setIsRolling] = useState(false);
-  const [rolledValue, setRolledValue] = useState<number | null>(null);
-
+  
   const handleRollClick = () => {
     if (isHumanTurn && !isRolling) {
         setIsRolling(true);
-        setRolledValue(null);
         onClick();
+        setTimeout(() => {
+            // Force settlement if physics doesn't sleep in time
+            if (!isRollingRef.current) {
+                // This part needs a way to get the final value if it hasn't settled.
+                // For now, we rely on the Rapier `isSleeping` check.
+            }
+        }, duration);
     }
   }
 
+  const isRollingRef = useRef(isRolling);
+  isRollingRef.current = isRolling;
+
   const onSettled = (val: number) => {
-    setIsRolling(false);
-    setRolledValue(val);
-    onDiceRoll(val);
+    if(isRollingRef.current) {
+        setIsRolling(false);
+        onDiceRoll(val);
+    }
   }
   
   useEffect(() => {
     // For AI turns
     if (rolling && !isHumanTurn && !isRolling) {
         setIsRolling(true);
-        setRolledValue(null);
     }
   }, [rolling, isHumanTurn, isRolling])
   
@@ -190,17 +175,17 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
         )}
 
       <div className="h-48 w-full relative">
-        <Canvas shadows camera={{ position: [0, 2, 4], fov: 50 }}>
-          <ambientLight intensity={0.5} />
+        <Canvas shadows camera={{ position: [0, 5, 5], fov: 50 }}>
+          <ambientLight intensity={1.5} />
           <directionalLight
             position={[5, 5, 5]}
             castShadow
             shadow-mapSize-width={2048}
             shadow-mapSize-height={2048}
           />
-          <Physics gravity={[0, -20, 0]}>
-            <Dice onSettled={onSettled} color={color} isRolling={isRolling || rolling} />
-            <Plane />
+          <Physics gravity={[0, -25, 0]}>
+            <Dice onSettled={onSettled} isRolling={isRolling || rolling} />
+            <CuboidCollider position={[0, -1, 0]} args={[20, 1, 20]} />
           </Physics>
         </Canvas>
       </div>
