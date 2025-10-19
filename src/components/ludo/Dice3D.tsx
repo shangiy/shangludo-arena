@@ -79,13 +79,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         blue: 'text-blue-500',
     };
 
-    const turnBgColor: Record<PlayerColor, string> = {
-        red: 'bg-red-500/20',
-        green: 'bg-green-500/20',
-        yellow: 'bg-yellow-400/20',
-        blue: 'bg-blue-500/20',
-    };
-
     return (
         <div className="flex flex-col items-center justify-center gap-4">
             <div className="w-24 h-24 perspective-500">
@@ -100,12 +93,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                         <div
                             key={face}
                             className={cn(
-                                "absolute w-24 h-24 border border-black/50 flex items-center justify-center",
-                                turnBgColor[color]
+                                "absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white"
                             )}
                             style={{ transform: `${DICE_FACE_TRANSFORMS[Number(face)]} translateZ(3rem)` }}
                         >
-                            <span className={cn("text-4xl font-bold", turnTextColor[color])}>{face}</span>
+                            <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>{face}</span>
                         </div>
                     ))}
                 </motion.div>
