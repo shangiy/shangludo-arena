@@ -80,7 +80,7 @@ export default function GameClient() {
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [phase, setPhase] = useState<GamePhase>('SETUP');
-  const [winner, setWinner] = useState<PlayerColor | null>(null);
+  const [winner, setWinner]_useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
@@ -445,11 +445,13 @@ export default function GameClient() {
   
   return (
      <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-        {phase === 'SETUP' && gameMode === 'classic' && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-            <GameSetupForm onSetupComplete={handleGameSetup} />
-          </div>
-        )}
+        <Suspense fallback={<div>Loading...</div>}>
+          {phase === 'SETUP' && gameMode === 'classic' && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+              <GameSetupForm onSetupComplete={handleGameSetup} />
+            </div>
+          )}
+        </Suspense>
 
         <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
             <DialogContent>
