@@ -1,6 +1,5 @@
 "use client";
 
-import { Dice3D } from '@/components/ludo/Dice3D';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
 import { Settings, HelpCircle } from 'lucide-react';
@@ -58,182 +57,95 @@ export function GameControls({
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
-  if (gameMode === 'quick') {
-    return (
-      <div className="w-full flex justify-center">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="absolute top-4 right-4">
-              <Settings />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Game Settings</h4>
-                <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
-              </div>
-              <div className="grid gap-2">
-                {gameMode === 'quick' && humanPlayer && (
-                  <>
-                    <div className="flex items-center justify-between">
-                       <Label htmlFor="player-name">Change Your Name</Label>
-                       <Input 
-                         id="player-name"
-                         defaultValue={humanPlayer.name}
-                         className="w-40"
-                         onBlur={(e) => onPlayerNameChange(humanPlayer.color, e.target.value)}
-                       />
-                    </div>
-                    <Separator />
-                  </>
-                )}
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
-                  <Switch
-                    id="secondary-safepoints"
-                    checked={addSecondarySafePoints}
-                    onCheckedChange={onToggleSecondarySafePoints}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-notifications">Show Notifications</Label>
-                  <Switch
-                    id="show-notifications"
-                    checked={showNotifications}
-                    onCheckedChange={onToggleShowNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="mute-sound">Mute Sound</Label>
-                  <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
-                </div>
-                <Separator />
-              </div>
-              <Separator />
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="how-to-play">
-                    <AccordionTrigger>
-                        <h4 className="font-medium leading-none flex items-center gap-2">
-                            <HelpCircle className="h-4 w-4" />
-                            How to Play
-                        </h4>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="text-xs text-muted-foreground space-y-1 pr-6">
-                            <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
-                            <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
-                            <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
-                            <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
-                            <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="absolute top-4 right-4">
-              <Settings />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Game Settings</h4>
-                <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
+    <div className="w-full flex justify-center">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="icon" className="absolute top-4 right-4">
+            <Settings />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Game Settings</h4>
+              <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
+            </div>
+            <div className="grid gap-2">
+              {gameSetup && humanPlayer && (
+                <>
+                  <div className="flex items-center justify-between">
+                     <Label htmlFor="player-name">Change Your Name</Label>
+                     <Input 
+                       id="player-name"
+                       defaultValue={humanPlayer.name}
+                       className="w-40"
+                       onBlur={(e) => onPlayerNameChange(humanPlayer.color, e.target.value)}
+                     />
+                  </div>
+                  <Separator />
+                </>
+              )}
+              <div className="flex items-center justify-between">
+                <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
+                <Switch
+                  id="secondary-safepoints"
+                  checked={addSecondarySafePoints}
+                  onCheckedChange={onToggleSecondarySafePoints}
+                />
               </div>
-              <div className="grid gap-2">
-                {gameSetup && humanPlayer && (
-                  <>
-                    <div className="flex items-center justify-between">
-                       <Label htmlFor="player-name">Change Your Name</Label>
-                       <Input 
-                         id="player-name"
-                         defaultValue={humanPlayer.name}
-                         className="w-40"
-                         onBlur={(e) => onPlayerNameChange(humanPlayer.color, e.target.value)}
-                       />
-                    </div>
-                    <Separator />
-                  </>
-                )}
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
-                  <Switch
-                    id="secondary-safepoints"
-                    checked={addSecondarySafePoints}
-                    onCheckedChange={onToggleSecondarySafePoints}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-notifications">Show Notifications</Label>
-                  <Switch
-                    id="show-notifications"
-                    checked={showNotifications}
-                    onCheckedChange={onToggleShowNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="mute-sound">Mute Sound</Label>
-                  <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
-                </div>
-                <Separator />
-                 <div className="space-y-2">
-                    <Label>Dice Roll Animation</Label>
-                    <RadioGroup
-                        value={String(diceRollDuration)}
-                        onValueChange={(value) => onDiceRollDurationChange(Number(value))}
-                        className="grid grid-cols-2 gap-2"
-                    >
-                        {[1000, 2000, 3000, 5000].map(duration => (
-                            <div key={duration} className="flex items-center space-x-2">
-                                <RadioGroupItem value={String(duration)} id={`duration-${duration}`} />
-                                <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000}s</Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
-                 </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-notifications">Show Notifications</Label>
+                <Switch
+                  id="show-notifications"
+                  checked={showNotifications}
+                  onCheckedChange={onToggleShowNotifications}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="mute-sound">Mute Sound</Label>
+                <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
               </div>
               <Separator />
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="how-to-play">
-                    <AccordionTrigger>
-                        <h4 className="font-medium leading-none flex items-center gap-2">
-                            <HelpCircle className="h-4 w-4" />
-                            How to Play
-                        </h4>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="text-xs text-muted-foreground space-y-1 pr-6">
-                            <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
-                            <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
-                            <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
-                            <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
-                            <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+               <div className="space-y-2">
+                  <Label>Dice Roll Animation</Label>
+                  <RadioGroup
+                      value={String(diceRollDuration)}
+                      onValueChange={(value) => onDiceRollDurationChange(Number(value))}
+                      className="grid grid-cols-2 gap-2"
+                  >
+                      {[1000, 2000, 3000, 5000].map(duration => (
+                          <div key={duration} className="flex items-center space-x-2">
+                              <RadioGroupItem value={String(duration)} id={`duration-${duration}`} />
+                              <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000}s</Label>
+                          </div>
+                      ))}
+                  </RadioGroup>
+               </div>
             </div>
-          </PopoverContent>
-        </Popover>
-      <Dice3D 
-        onClick={onRollStart} 
-        rolling={isRolling}
-        value={diceValue}
-        color={currentTurn}
-        isHumanTurn={isHumanTurn}
-        duration={diceRollDuration}
-      />
+            <Separator />
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="how-to-play">
+                  <AccordionTrigger>
+                      <h4 className="font-medium leading-none flex items-center gap-2">
+                          <HelpCircle className="h-4 w-4" />
+                          How to Play
+                      </h4>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                      <div className="text-xs text-muted-foreground space-y-1 pr-6">
+                          <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
+                          <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
+                          <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
+                          <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
+                          <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
+                      </div>
+                  </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
