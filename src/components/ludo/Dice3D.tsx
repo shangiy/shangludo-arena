@@ -109,17 +109,17 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
             <button
               onClick={handleRollClick}
               disabled={!isHumanTurn || isRolling}
-              className="disabled:cursor-not-allowed"
+              className={cn("disabled:cursor-not-allowed", `text-${color}-500`)}
             >
               <DiceIcon value={finalValue} color={color}/>
             </button>
         )}
       </div>
       <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
-        <span>
+        <span className="h-6">
           {isHumanTurn && !isRolling && !finalValue && "Your turn!"}
         </span>
-        <span style={{ color: DICE_FACE_COLORS[color] }}>
+        <span style={{ color: DICE_FACE_COLORS[color] }} className="h-6">
           {isRolling ? 'Rolling...' : (finalValue ? `${color} rolled a: ${finalValue}` : '')}
         </span>
       </div>
