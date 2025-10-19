@@ -49,13 +49,13 @@ interface Dice3DProps {
 
 export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, onDiceRoll }: Dice3DProps) {
   const [isRolling, setIsRolling] = useState(false);
-  const [finalValue, setFinalValue] = useState<number | null>(value);
+  const [finalValue, setFinalValue] = useState<number | null>(null);
 
   const handleRollClick = () => {
     if (isHumanTurn && !isRolling) {
         setIsRolling(true);
         setFinalValue(null);
-        onClick(); // This should set phase to 'MOVING'
+        onClick();
         
         const rollTimeout = setTimeout(() => {
             const finalRoll = Math.floor(Math.random() * 6) + 1;
@@ -77,6 +77,8 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
         setFinalValue(value);
     }
   }, [rolling, value]);
+  
+  const showYourTurnMessage = isHumanTurn && !isRolling && !finalValue;
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -117,7 +119,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
       </div>
       <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
         <span className="h-6">
-          {isHumanTurn && !isRolling && !finalValue && "Your turn!"}
+          {showYourTurnMessage && "Your turn!"}
         </span>
         <span style={{ color: DICE_FACE_COLORS[color] }} className="h-6">
           {isRolling ? 'Rolling...' : (finalValue ? `${color} rolled a: ${finalValue}` : '')}
