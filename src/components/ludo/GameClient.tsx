@@ -475,7 +475,12 @@ export default function GameClient() {
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   if (!isMounted) {
-    return null; // The loading is handled by the dynamic import in page.tsx
+     return (
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-lg">Preparing the Arena...</p>
+      </div>
+    );
   }
 
   return (
@@ -564,7 +569,7 @@ export default function GameClient() {
             <Suspense
               fallback={
                 <div className="h-48 w-full flex items-center justify-center">
-                  Loading 3D Dice...
+                  <Loader2 className="h-8 w-8 animate-spin" />
                 </div>
               }
             >
