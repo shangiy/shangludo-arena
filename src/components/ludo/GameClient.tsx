@@ -210,10 +210,8 @@ export default function GameClient() {
             }
         }, 1000);
     } else {
-        if (players[currentTurn].type === 'ai') {
-            setTimeout(() => handleAiMove(value, possibleMoves), 500);
-        } else {
-            // If only one move, auto-move
+        if (players[currentTurn].type === 'human') {
+             // If only one move, auto-move
             if (possibleMoves.length === 1) {
                 setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
             }
@@ -344,8 +342,8 @@ export default function GameClient() {
       
       setTimeout(() => {
         const aiRoll = Math.floor(Math.random() * 6) + 1;
-        setDiceValue(aiRoll);
         setPhase('MOVING'); // Trigger AI roll animation
+        setDiceValue(aiRoll);
       }, 1000);
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
@@ -354,20 +352,20 @@ export default function GameClient() {
     // This effect handles the AI move after the dice animation completes
     const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
-      const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-      setTimeout(() => {
-        if (possibleMoves.length === 0) {
-          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-          if (diceValue !== 6) {
-            nextTurn();
-          } else {
-            setPhase('ROLLING');
-            setDiceValue(null);
-          }
-        } else {
-          handleAiMove(diceValue, possibleMoves);
-        }
-      }, diceRollDuration);
+        setTimeout(() => {
+            const possibleMoves = getPossibleMoves(currentTurn, diceValue);
+            if (possibleMoves.length === 0) {
+              addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+              if (diceValue !== 6) {
+                nextTurn();
+              } else {
+                setPhase('ROLLING');
+                setDiceValue(null);
+              }
+            } else {
+              handleAiMove(diceValue, possibleMoves);
+            }
+        }, diceRollDuration);
     }
   }, [phase, diceValue, currentTurn, isMounted]);
 
@@ -509,5 +507,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
