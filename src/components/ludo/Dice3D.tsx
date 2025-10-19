@@ -114,7 +114,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 {isHumanTurn && !rolling && diceValue === null && (
                      <button
                         onClick={handleRoll}
-                        className="font-bold text-lg text-primary animate-pulse"
+                        className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
                      >
                          Roll Dice
                      </button>
