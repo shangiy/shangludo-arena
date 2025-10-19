@@ -60,7 +60,7 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: "3000",
+  diceRollDuration: "1000",
 };
 
 
@@ -80,7 +80,7 @@ export default function GameClient() {
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
-  const [diceRollDuration, setDiceRollDuration] = useState(3000);
+  const [diceRollDuration, setDiceRollDuration] = useState(1000);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -108,6 +108,11 @@ export default function GameClient() {
   }, [gameSetup])
 
   const playerOrder: PlayerColor[] = useMemo(() => gameSetup?.turnOrder || ['red', 'green', 'yellow', 'blue'], [gameSetup]);
+
+  const nextPlayerColor = useMemo(() => {
+    const currentIndex = playerOrder.indexOf(currentTurn);
+    return playerOrder[(currentIndex + 1) % playerOrder.length];
+  }, [currentTurn, playerOrder]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -142,9 +147,7 @@ export default function GameClient() {
   }, [winner, players, showNotifications]);
 
   const nextTurn = () => {
-    const currentIndex = playerOrder.indexOf(currentTurn);
-    const nextPlayer = playerOrder[(currentIndex + 1) % playerOrder.length];
-    setCurrentTurn(nextPlayer);
+    setCurrentTurn(nextPlayerColor);
     setPhase('ROLLING');
     setDiceValue(null);
   };
@@ -210,12 +213,11 @@ export default function GameClient() {
             }
         }, 1000);
     } else {
-        if (players[currentTurn].type === 'human') {
-             // If only one move, auto-move
-            if (possibleMoves.length === 1) {
-                setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
-            }
+      if (players[currentTurn].type === 'human') {
+        if (possibleMoves.length === 1) {
+            setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
+      }
     }
   };
 
@@ -224,7 +226,6 @@ export default function GameClient() {
   }
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-      // Priority: Move pawn out of yard on a 6
       if (roll === 6) {
           const moveOutOfYard = possibleMoves.find(m => m.pawn.position === -1);
           if (moveOutOfYard) {
@@ -233,7 +234,6 @@ export default function GameClient() {
           }
       }
       
-      // Basic AI: just take the first possible move
       if (possibleMoves.length > 0) {
         performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
       }
@@ -245,7 +245,6 @@ export default function GameClient() {
       return;
     }
   
-    // Special case for moving out of the yard
     if (pawnToMove.position === -1 && diceValue === 6) {
       const startPos = START_POSITIONS[currentTurn];
       performMove(pawnToMove, startPos);
@@ -283,7 +282,6 @@ export default function GameClient() {
   
       pawnsOfPlayer[pawnIndex].position = newPosition;
 
-      // Capture logic
       if (!SAFE_ZONES.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
           if (color !== currentTurn) {
@@ -302,9 +300,8 @@ export default function GameClient() {
         });
       }
   
-      // Home logic
       const currentPath = PATHS[currentTurn];
-      if (currentPath.indexOf(newPosition) >= 51) { // 51 is the length of the main path
+      if (currentPath.indexOf(newPosition) >= 51) { 
          pawnsOfPlayer[pawnIndex].isHome = true;
          addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
          pawnReachedHome = true;
@@ -312,7 +309,6 @@ export default function GameClient() {
   
       newPawns[currentTurn] = pawnsOfPlayer;
   
-      // Win condition
       const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
       if (allHome) {
         setWinner(currentTurn);
@@ -334,22 +330,17 @@ export default function GameClient() {
     }
   };
   
-  // AI Logic
   useEffect(() => {
     const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setPhase('AI_THINKING');
-      
       setTimeout(() => {
-        const aiRoll = Math.floor(Math.random() * 6) + 1;
         setPhase('MOVING'); // Trigger AI roll animation
-        setDiceValue(aiRoll);
       }, 1000);
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
 
   useEffect(() => {
-    // This effect handles the AI move after the dice animation completes
     const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
         setTimeout(() => {
@@ -493,6 +484,7 @@ export default function GameClient() {
                 gameMode={gameMode}
                 gameSetup={gameSetup}
                 onPlayerNameChange={handlePlayerNameChange}
+                nextPlayerColor={nextPlayerColor}
             />
         </header>
 

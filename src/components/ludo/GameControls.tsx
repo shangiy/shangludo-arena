@@ -32,6 +32,7 @@ type GameControlsProps = {
   gameMode: string;
   gameSetup: GameSetup | null;
   onPlayerNameChange: (color: PlayerColor, newName: string) => void;
+  nextPlayerColor: PlayerColor;
 };
 
 export function GameControls({
@@ -51,10 +52,12 @@ export function GameControls({
   onDiceRollDurationChange,
   gameMode,
   gameSetup,
-  onPlayerNameChange
+  onPlayerNameChange,
+  nextPlayerColor
 }: GameControlsProps) {
 
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
+  const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -113,10 +116,10 @@ export function GameControls({
                         onValueChange={(value) => onDiceRollDurationChange(Number(value))}
                         className="grid grid-cols-2 gap-2"
                     >
-                        {[3000, 7000, 10000, 15000].map(duration => (
+                        {[1000, 2000, 3000, 5000].map(duration => (
                             <div key={duration} className="flex items-center space-x-2">
                                 <RadioGroupItem value={String(duration)} id={`duration-${duration}`} />
-                                <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000} seconds</Label>
+                                <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000}s</Label>
                             </div>
                         ))}
                     </RadioGroup>
@@ -147,14 +150,13 @@ export function GameControls({
         </Popover>
       <Dice3D 
         onClick={onRollStart} 
-        rolling={phase === 'MOVING' || phase === 'AI_THINKING'}
+        rolling={isRolling}
         value={diceValue}
         color={currentTurn}
         isHumanTurn={isHumanTurn}
-        duration={diceRollDuration}
         onDiceRoll={onDiceRoll}
+        nextPlayerColor={nextPlayerColor}
       />
     </div>
   );
 }
-    
