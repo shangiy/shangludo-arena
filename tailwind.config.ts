@@ -83,24 +83,30 @@ export default {
             height: '0',
           },
         },
-        pulse: {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(243, 156, 18, 0.5)' },
-          '50%': { boxShadow: '0 0 20px rgba(231, 76, 60, 0.9)' },
-        },
-        shake: {
-            '0%, 100%': { transform: 'translateX(0)' },
-            '25%': { transform: 'translateX(-4px)' },
-            '50%': { transform: 'translateX(4px)' },
-            '75%': { transform: 'translateX(-4px)' },
-        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'pulse': 'pulse 2s infinite',
-        'shake': 'shake 0.4s',
+      },
+      perspective: {
+        '500': '500px',
+      },
+      transformStyle: {
+        '3d': 'preserve-3d',
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+      require('tailwindcss-animate'),
+      function ({ addUtilities }: { addUtilities: any}) {
+        addUtilities({
+            '.perspective-500': {
+                perspective: '500px',
+            },
+            '.preserve-3d': {
+                transformStyle: 'preserve-3d',
+            },
+        })
+      }
+    ],
 } satisfies Config;

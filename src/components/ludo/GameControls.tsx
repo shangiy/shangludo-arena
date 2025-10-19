@@ -61,7 +61,7 @@ export function GameControls({
   return (
     <div className="w-full flex justify-between items-center px-4">
        <div className="w-48 h-48 relative flex items-center justify-center">
-            {gameMode === 'classic' && (
+            {(gameMode === 'classic' || gameMode === 'quick') && (
                 <Dice3D
                     rolling={isRolling}
                     onRollStart={onRollStart}

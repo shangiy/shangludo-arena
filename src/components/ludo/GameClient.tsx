@@ -36,7 +36,6 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
-import { DiceCanvas } from './DiceCanvas';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -471,8 +470,6 @@ export default function GameClient() {
       return { ...prev, players: newPlayers };
     });
   };
-
-  const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   if (!isMounted) {
      return (
