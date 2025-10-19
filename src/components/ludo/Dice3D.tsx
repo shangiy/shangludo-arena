@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -55,6 +54,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
   const handleRollClick = () => {
     if (isHumanTurn && !isRolling) {
         setIsRolling(true);
+        setFinalValue(null);
         onClick(); // This should set phase to 'MOVING'
         
         const rollTimeout = setTimeout(() => {
@@ -69,25 +69,14 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
   }
 
   useEffect(() => {
-    // Sync external `rolling` prop with internal `isRolling` state
-    // This is primarily for AI turns
-    if (rolling && !isRolling) {
+    if (rolling) {
         setIsRolling(true);
         setFinalValue(null);
-    }
-    if (!rolling && isRolling) {
+    } else {
         setIsRolling(false);
         setFinalValue(value);
     }
-  }, [rolling, isRolling, value]);
-
-   useEffect(() => {
-    // When the external value is set (from AI roll or after player roll), update finalValue
-    if (value !== null) {
-        setFinalValue(value);
-    }
-  }, [value]);
-
+  }, [rolling, value]);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
