@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import type { GameSetup } from './GameSetupForm';
 import { Input } from '../ui/input';
+import { Dice3D } from './Dice3D';
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
@@ -29,6 +30,8 @@ type GameControlsProps = {
   gameSetup: GameSetup | null;
   onPlayerNameChange: (color: PlayerColor, newName: string) => void;
   nextPlayerColor: PlayerColor;
+  onRollStart: () => void;
+  onDiceRoll: (value: number) => void;
 };
 
 export function GameControls({
@@ -47,14 +50,30 @@ export function GameControls({
   gameMode,
   gameSetup,
   onPlayerNameChange,
-  nextPlayerColor
+  nextPlayerColor,
+  onRollStart,
+  onDiceRoll
 }: GameControlsProps) {
 
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-between items-center px-4">
+       <div className="w-48 h-48 relative flex items-center justify-center">
+            {gameMode === 'classic' && (
+                <Dice3D
+                    rolling={isRolling}
+                    onRollStart={onRollStart}
+                    onRollEnd={onDiceRoll}
+                    color={currentTurn}
+                    duration={diceRollDuration}
+                    isHumanTurn={isHumanTurn && phase === 'ROLLING'}
+                    diceValue={diceValue}
+                />
+            )}
+        </div>
+
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" size="icon" className="absolute top-4 right-4">

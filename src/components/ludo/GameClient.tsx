@@ -547,6 +547,8 @@ export default function GameClient() {
           gameSetup={gameSetup}
           onPlayerNameChange={handlePlayerNameChange}
           nextPlayerColor={nextPlayerColor}
+          onRollStart={startRoll}
+          onDiceRoll={handleDiceRoll}
         />
       </header>
 
@@ -564,26 +566,6 @@ export default function GameClient() {
             )}
           </GameBoard>
         </div>
-        {gameMode === 'quick' && (
-          <div className="h-48 w-full lg:w-48 relative flex items-center justify-center">
-            <Suspense
-              fallback={
-                <div className="h-48 w-full flex items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
-              }
-            >
-              <DiceCanvas
-                currentTurn={currentTurn}
-                nextPlayerColor={nextPlayerColor}
-                isHumanTurn={players[currentTurn]?.type === 'human'}
-                rolling={isRolling}
-                onRollStart={startRoll}
-                onDiceRoll={handleDiceRoll}
-              />
-            </Suspense>
-          </div>
-        )}
       </main>
     </div>
   );
