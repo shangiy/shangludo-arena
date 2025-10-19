@@ -1,10 +1,14 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import { GameBoard, Pawn as PawnComponent, PlayerNames } from '@/components/ludo/GameBoard';
+import {
+  GameBoard,
+  Pawn as PawnComponent,
+  PlayerNames,
+} from '@/components/ludo/GameBoard';
 import { GameControls } from '@/components/ludo/GameControls';
 import {
   PLAYER_COLORS,
@@ -18,7 +22,7 @@ import {
   SECONDARY_RED_SAFE_ZONE,
   SECONDARY_GREEN_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
-  SECONDARY_YELLOW_SAFE_ZONE
+  SECONDARY_YELLOW_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -34,11 +38,17 @@ import {
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 
-const DiceCanvas = dynamic(() => import('./DiceCanvas').then(mod => mod.DiceCanvas), {
-  ssr: false,
-  loading: () => <div className="h-48 w-full flex items-center justify-center">Loading 3D Dice...</div>
-});
-
+const DiceCanvas = dynamic(
+  () => import('./DiceCanvas').then((mod) => mod.DiceCanvas),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-48 w-full flex items-center justify-center">
+        Loading 3D Dice...
+      </div>
+    ),
+  }
+);
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -67,9 +77,8 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: "1000",
+  diceRollDuration: '1000',
 };
-
 
 export default function GameClient() {
   const searchParams = useSearchParams();
@@ -80,7 +89,7 @@ export default function GameClient() {
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [phase, setPhase] = useState<GamePhase>('SETUP');
-  const [winner, setWinner]_useState<PlayerColor | null>(null);
+  const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
@@ -93,28 +102,37 @@ export default function GameClient() {
 
   const SAFE_ZONES = useMemo(() => {
     if (addSecondarySafePoints) {
-      return [...PRIMARY_SAFE_ZONES, SECONDARY_RED_SAFE_ZONE, SECONDARY_GREEN_SAFE_ZONE, SECONDARY_BLUE_SAFE_ZONE, SECONDARY_YELLOW_SAFE_ZONE];
+      return [
+        ...PRIMARY_SAFE_ZONES,
+        SECONDARY_RED_SAFE_ZONE,
+        SECONDARY_GREEN_SAFE_ZONE,
+        SECONDARY_BLUE_SAFE_ZONE,
+        SECONDARY_YELLOW_SAFE_ZONE,
+      ];
     }
     return PRIMARY_SAFE_ZONES;
   }, [addSecondarySafePoints]);
 
   const players = useMemo(() => {
     if (!gameSetup) {
-        return {
-            blue: { name: 'Computer', color: 'blue', type: 'ai' },
-            yellow: { name: 'Computer', color: 'yellow', type: 'ai' },
-            red: { name: 'Player', color: 'red', type: 'human' },
-            green: { name: 'Computer', color: 'green', type: 'ai' },
-        };
+      return {
+        blue: { name: 'Computer', color: 'blue', type: 'ai' },
+        yellow: { name: 'Computer', color: 'yellow', type: 'ai' },
+        red: { name: 'Player', color: 'red', type: 'human' },
+        green: { name: 'Computer', color: 'green', type: 'ai' },
+      };
     }
     const playerConfig: any = {};
-    gameSetup.players.forEach(p => {
-        playerConfig[p.color] = { name: p.name, color: p.color, type: p.type };
+    gameSetup.players.forEach((p) => {
+      playerConfig[p.color] = { name: p.name, color: p.color, type: p.type };
     });
     return playerConfig;
-  }, [gameSetup])
+  }, [gameSetup]);
 
-  const playerOrder: PlayerColor[] = useMemo(() => gameSetup?.turnOrder || ['red', 'green', 'yellow', 'blue'], [gameSetup]);
+  const playerOrder: PlayerColor[] = useMemo(
+    () => gameSetup?.turnOrder || ['red', 'green', 'yellow', 'blue'],
+    [gameSetup]
+  );
 
   const nextPlayerColor = useMemo(() => {
     const currentIndex = playerOrder.indexOf(currentTurn);
@@ -127,25 +145,25 @@ export default function GameClient() {
       handleGameSetup(quickPlaySetup);
     }
   }, [gameMode]);
-  
+
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     // For this design, we don't show messages in the UI.
     console.log(`Message: [${sender}] ${text}`);
   };
-  
+
   const handleGameSetup = (setup: GameSetup) => {
     setGameSetup(setup);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
     setPhase('ROLLING');
-  }
+  };
 
   useEffect(() => {
     if (winner) {
       addMessage('System', `${players[winner]?.name} has won the game!`);
       if (showNotifications) {
         toast({
-          title: "Game Over!",
+          title: 'Game Over!',
           description: `${players[winner]?.name} has won the game!`,
           duration: 5000,
         });
@@ -162,17 +180,21 @@ export default function GameClient() {
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
-  
+
     // Move from yard
     if (roll === 6) {
-      const pawnsInYard = playerPawns.filter(p => p.position === -1);
+      const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
-        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+        const ownPawnsAtStart = playerPawns.filter(
+          (p) => p.position === startPos
+        ).length;
         if (!SAFE_ZONES.includes(startPos) && ownPawnsAtStart >= 2) {
-            // Cannot move to start if it's not a safe zone and is blockaded
+          // Cannot move to start if it's not a safe zone and is blockaded
         } else {
-            pawnsInYard.forEach(pawn => moves.push({ pawn, newPosition: startPos }));
+          pawnsInYard.forEach((pawn) =>
+            moves.push({ pawn, newPosition: startPos })
+          );
         }
       }
     }
@@ -183,46 +205,50 @@ export default function GameClient() {
 
       const currentPath = PATHS[player];
       const currentPathIndex = currentPath.indexOf(pawn.position);
-      
+
       if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
-        
-        const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-        if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+        const ownPawnsAtDestination = playerPawns.filter(
+          (p) => p.position === newPosition
+        ).length;
+
+        if (
+          !SAFE_ZONES.includes(newPosition) &&
+          ownPawnsAtDestination >= 2
+        ) {
           // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
         } else {
-            moves.push({ pawn, newPosition });
+          moves.push({ pawn, newPosition });
         }
       }
     });
     return moves;
   };
-  
 
   const handleDiceRoll = (value: number) => {
     if (!muteSound && diceRollAudioRef.current) {
-        diceRollAudioRef.current.play();
+      diceRollAudioRef.current.play();
     }
     setDiceValue(value);
 
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
     if (possibleMoves.length === 0) {
-        addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-        setTimeout(() => {
-            if (value !== 6) {
-                nextTurn();
-            } else {
-                setPhase('ROLLING'); // Roll again
-                setDiceValue(null);
-                addMessage('System', `${players[currentTurn].name} gets to roll again.`);
-            }
-        }, 1000);
+      addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+      setTimeout(() => {
+        if (value !== 6) {
+          nextTurn();
+        } else {
+          setPhase('ROLLING'); // Roll again
+          setDiceValue(null);
+          addMessage('System', `${players[currentTurn].name} gets to roll again.`);
+        }
+      }, 1000);
     } else {
       if (players[currentTurn].type === 'human') {
         if (possibleMoves.length === 1) {
-            setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+          setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
       }
     }
@@ -230,71 +256,82 @@ export default function GameClient() {
 
   const startRoll = () => {
     setPhase('MOVING');
-  }
+  };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-      if (roll === 6) {
-          const moveOutOfYard = possibleMoves.find(m => m.pawn.position === -1);
-          if (moveOutOfYard) {
-              performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
-              return;
-          }
+    if (roll === 6) {
+      const moveOutOfYard = possibleMoves.find((m) => m.pawn.position === -1);
+      if (moveOutOfYard) {
+        performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
+        return;
       }
-      
-      if (possibleMoves.length > 0) {
-        performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
-      }
-  }
-  
-  
+    }
+
+    if (possibleMoves.length > 0) {
+      performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
+    }
+  };
+
   const handlePawnMove = (pawnToMove: Pawn) => {
     if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING') {
       return;
     }
-  
+
     if (pawnToMove.position === -1 && diceValue === 6) {
       const startPos = START_POSITIONS[currentTurn];
       performMove(pawnToMove, startPos);
       return;
     }
-  
+
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-    const selectedMove = possibleMoves.find(m => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color);
-    
+    const selectedMove = possibleMoves.find(
+      (m) => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color
+    );
+
     if (!selectedMove) {
       if (players[currentTurn].type === 'human' && showNotifications) {
         toast({
-          variant: "destructive",
-          title: "Invalid Move",
-          description: "This pawn cannot make that move.",
+          variant: 'destructive',
+          title: 'Invalid Move',
+          description: 'This pawn cannot make that move.',
         });
       }
       return;
     }
-  
+
     performMove(pawnToMove, selectedMove.newPosition);
   };
-  
+
   const performMove = (pawnToMove: Pawn, newPosition: number) => {
     if (!diceValue) return;
-  
+
     const rolledSix = diceValue === 6;
     let capturedPawn = false;
     let pawnReachedHome = false;
-  
-    setPawns(prev => {
+
+    setPawns((prev) => {
       const newPawns = JSON.parse(JSON.stringify(prev));
       const pawnsOfPlayer = newPawns[currentTurn];
-      const pawnIndex = pawnsOfPlayer.findIndex((p: Pawn) => p.id === pawnToMove.id);
-  
+      const pawnIndex = pawnsOfPlayer.findIndex(
+        (p: Pawn) => p.id === pawnToMove.id
+      );
+
       pawnsOfPlayer[pawnIndex].position = newPosition;
 
       if (!SAFE_ZONES.includes(newPosition)) {
-        (Object.keys(newPawns) as PlayerColor[]).forEach(color => {
+        (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
           if (color !== currentTurn) {
-            let opponentPawnsAtPos = newPawns[color].filter((p: Pawn) => p.position === newPosition);
-            if (opponentPawnsAtPos.length === 1 && !START_POSITIONS[color as PlayerColor]) {
-              addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
+            let opponentPawnsAtPos = newPawns[color].filter(
+              (p: Pawn) => p.position === newPosition
+            );
+            if (
+              opponentPawnsAtPos.length === 1 &&
+              !START_POSITIONS[color as PlayerColor]
+            ) {
+              addMessage(
+                'System',
+                `${players[currentTurn].name} captured a pawn from ${players[color].name}!`
+              );
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
                   capturedPawn = true;
@@ -306,26 +343,26 @@ export default function GameClient() {
           }
         });
       }
-  
+
       const currentPath = PATHS[currentTurn];
-      if (currentPath.indexOf(newPosition) >= 51) { 
-         pawnsOfPlayer[pawnIndex].isHome = true;
-         addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
-         pawnReachedHome = true;
+      if (currentPath.indexOf(newPosition) >= 51) {
+        pawnsOfPlayer[pawnIndex].isHome = true;
+        addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
+        pawnReachedHome = true;
       }
-  
+
       newPawns[currentTurn] = pawnsOfPlayer;
-  
+
       const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
       if (allHome) {
         setWinner(currentTurn);
       }
-  
+
       return newPawns;
     });
 
     const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
-    
+
     if (getsAnotherTurn && !winner) {
       addMessage('System', `${players[currentTurn].name} gets another turn.`);
       setPhase('ROLLING');
@@ -336,9 +373,10 @@ export default function GameClient() {
       setPhase('GAME_OVER');
     }
   };
-  
+
   useEffect(() => {
-    const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
+    const isAiTurn =
+      playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setPhase('AI_THINKING');
       setTimeout(() => {
@@ -348,25 +386,25 @@ export default function GameClient() {
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
 
   useEffect(() => {
-    const isAiTurn = playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
+    const isAiTurn =
+      playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
-        setTimeout(() => {
-            const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-            if (possibleMoves.length === 0) {
-              addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-              if (diceValue !== 6) {
-                nextTurn();
-              } else {
-                setPhase('ROLLING');
-                setDiceValue(null);
-              }
-            } else {
-              handleAiMove(diceValue, possibleMoves);
-            }
-        }, diceRollDuration);
+      setTimeout(() => {
+        const possibleMoves = getPossibleMoves(currentTurn, diceValue);
+        if (possibleMoves.length === 0) {
+          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
+          if (diceValue !== 6) {
+            nextTurn();
+          } else {
+            setPhase('ROLLING');
+            setDiceValue(null);
+          }
+        } else {
+          handleAiMove(diceValue, possibleMoves);
+        }
+      }, diceRollDuration);
     }
   }, [phase, diceValue, currentTurn, isMounted]);
-
 
   const possibleMovesForHighlight = useMemo(() => {
     if (phase === 'MOVING' && diceValue && players[currentTurn]?.type === 'human') {
@@ -379,60 +417,74 @@ export default function GameClient() {
     const allPawns: (Pawn & { highlight: boolean; isStacked: boolean })[] = [];
     const positions: { [key: number]: Pawn[] } = {};
 
-    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-        pawns[color].forEach(pawn => {
-            if (pawn.position !== -1 && !pawn.isHome) {
-                if (!positions[pawn.position]) {
-                    positions[pawn.position] = [];
-                }
-                positions[pawn.position].push(pawn);
-            }
-        });
+    (Object.keys(pawns) as PlayerColor[]).forEach((color) => {
+      pawns[color].forEach((pawn) => {
+        if (pawn.position !== -1 && !pawn.isHome) {
+          if (!positions[pawn.position]) {
+            positions[pawn.position] = [];
+          }
+          positions[pawn.position].push(pawn);
+        }
+      });
     });
 
-    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-      pawns[color].forEach(pawn => {
-        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
+    (Object.keys(pawns) as PlayerColor[]).forEach((color) => {
+      pawns[color].forEach((pawn) => {
+        const isPlayerTurn =
+          pawn.color === currentTurn &&
+          phase === 'MOVING' &&
+          players[currentTurn]?.type === 'human';
         let highlight = false;
 
         if (isPlayerTurn) {
           if (pawn.position === -1) {
-            if (diceValue === 6 && possibleMovesForHighlight.some(move => move.pawn.id === pawn.id)) {
+            if (
+              diceValue === 6 &&
+              possibleMovesForHighlight.some((move) => move.pawn.id === pawn.id)
+            ) {
               highlight = true;
             }
           } else {
-            const canMove = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
+            const canMove = possibleMovesForHighlight.some(
+              (move) =>
+                move.pawn.id === pawn.id && move.pawn.color === pawn.color
+            );
             if (canMove) {
-                highlight = true;
+              highlight = true;
             }
           }
         }
 
-        const isStacked = pawn.position !== -1 && positions[pawn.position] && positions[pawn.position].length > 1;
+        const isStacked =
+          pawn.position !== -1 &&
+          positions[pawn.position] &&
+          positions[pawn.position].length > 1;
         allPawns.push({ ...pawn, highlight, isStacked });
       });
     });
 
-
-    return allPawns.map(pawn => (
-        <PawnComponent key={`${pawn.color}-${pawn.id}`} {...pawn} onPawnClick={handlePawnMove} />
+    return allPawns.map((pawn) => (
+      <PawnComponent
+        key={`${pawn.color}-${pawn.id}`}
+        {...pawn}
+        onPawnClick={handlePawnMove}
+      />
     ));
   };
-  
+
   const handlePlayerNameChange = (color: PlayerColor, newName: string) => {
     if (!gameSetup) return;
 
-    setGameSetup(prev => {
-        if (!prev) return null;
-        const newPlayers = prev.players.map(p => 
-            p.color === color ? { ...p, name: newName } : p
-        );
-        return { ...prev, players: newPlayers };
+    setGameSetup((prev) => {
+      if (!prev) return null;
+      const newPlayers = prev.players.map((p) =>
+        p.color === color ? { ...p, name: newName } : p
+      );
+      return { ...prev, players: newPlayers };
     });
   };
 
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
-
 
   if (!isMounted) {
     return (
@@ -442,84 +494,111 @@ export default function GameClient() {
       </div>
     );
   }
-  
+
   return (
-     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-        <Suspense fallback={<div>Loading...</div>}>
-          {phase === 'SETUP' && gameMode === 'classic' && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-              <GameSetupForm onSetupComplete={handleGameSetup} />
-            </div>
-          )}
-        </Suspense>
+    <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
+      <Suspense fallback={<div>Loading...</div>}>
+        {phase === 'SETUP' && gameMode === 'classic' && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <GameSetupForm onSetupComplete={handleGameSetup} />
+          </div>
+        )}
+      </Suspense>
 
-        <Dialog open={!!winner} onOpenChange={(open) => !open && window.location.reload()}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">Game Over!</DialogTitle>
-                     {winner && (
-                        <DialogDescription className="text-center">
-                            <span className={`font-semibold capitalize text-${winner}`}>{players[winner].name}</span> has won the game!
-                        </DialogDescription>
-                    )}
-                </DialogHeader>
-                <div className="flex justify-center items-center p-4">
-                    <Logo className="h-24 w-24" />
+      <Dialog
+        open={!!winner}
+        onOpenChange={(open) => !open && window.location.reload()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Game Over!
+            </DialogTitle>
+            {winner && (
+              <DialogDescription className="text-center">
+                <span className={`font-semibold capitalize text-${winner}`}>
+                  {players[winner].name}
+                </span>{' '}
+                has won the game!
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="flex justify-center items-center p-4">
+            <Logo className="h-24 w-24" />
+          </div>
+          <DialogFooter className="sm:justify-center">
+            <Button onClick={() => window.location.reload()}>Play Again</Button>
+            <Button variant="secondary" asChild>
+              <Link href="/">Back to Lobby</Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
+
+      <header className="w-full flex justify-center items-center py-4">
+        <GameControls
+          currentTurn={currentTurn}
+          phase={phase}
+          diceValue={diceValue}
+          onDiceRoll={handleDiceRoll}
+          onRollStart={startRoll}
+          addSecondarySafePoints={addSecondarySafePoints}
+          onToggleSecondarySafePoints={() =>
+            setAddSecondarySafePoints((prev) => !prev)
+          }
+          isHumanTurn={players[currentTurn]?.type === 'human'}
+          showNotifications={showNotifications}
+          onToggleShowNotifications={() =>
+            setShowNotifications((prev) => !prev)
+          }
+          muteSound={muteSound}
+          onToggleMuteSound={() => setMuteSound((prev) => !prev)}
+          diceRollDuration={diceRollDuration}
+          onDiceRollDurationChange={setDiceRollDuration}
+          gameMode={gameMode}
+          gameSetup={gameSetup}
+          onPlayerNameChange={handlePlayerNameChange}
+          nextPlayerColor={nextPlayerColor}
+        />
+      </header>
+
+      <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
+        <div className="w-full max-w-2xl relative">
+          <GameBoard showSecondarySafes={addSecondarySafePoints}>
+            {renderPawns()}
+            {gameSetup && (
+              <PlayerNames
+                players={gameSetup.players.reduce(
+                  (acc, p) => ({ ...acc, [p.color]: p.name }),
+                  {}
+                )}
+              />
+            )}
+          </GameBoard>
+        </div>
+        {gameMode === 'quick' && (
+          <div className="h-48 w-full lg:w-48 relative flex items-center justify-center">
+            <Suspense
+              fallback={
+                <div className="h-48 w-full flex items-center justify-center">
+                  Loading 3D Dice...
                 </div>
-                <DialogFooter className="sm:justify-center">
-                    <Button onClick={() => window.location.reload()}>Play Again</Button>
-                    <Button variant="secondary" asChild>
-                        <Link href="/">Back to Lobby</Link>
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-        
-        <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
-
-        <header className="w-full flex justify-center items-center py-4">
-             <GameControls
+              }
+            >
+              <DiceCanvas
                 currentTurn={currentTurn}
-                phase={phase}
-                diceValue={diceValue}
-                onDiceRoll={handleDiceRoll}
-                onRollStart={startRoll}
-                addSecondarySafePoints={addSecondarySafePoints}
-                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-                isHumanTurn={players[currentTurn]?.type === 'human'}
-                showNotifications={showNotifications}
-                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-                muteSound={muteSound}
-                onToggleMuteSound={() => setMuteSound(prev => !prev)}
-                diceRollDuration={diceRollDuration}
-                onDiceRollDurationChange={setDiceRollDuration}
-                gameMode={gameMode}
-                gameSetup={gameSetup}
-                onPlayerNameChange={handlePlayerNameChange}
                 nextPlayerColor={nextPlayerColor}
-            />
-        </header>
-
-        <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
-            <div className="w-full max-w-2xl relative">
-                <GameBoard showSecondarySafes={addSecondarySafePoints}>
-                   {renderPawns()}
-                   {gameSetup && <PlayerNames players={gameSetup.players.reduce((acc, p) => ({...acc, [p.color]: p.name}), {})} />}
-                </GameBoard>
-            </div>
-            {gameMode === 'quick' && 
-              <div className="h-48 w-full lg:w-48 relative flex items-center justify-center">
-                <DiceCanvas
-                  currentTurn={currentTurn}
-                  nextPlayerColor={nextPlayerColor}
-                  isHumanTurn={players[currentTurn]?.type === 'human'}
-                  rolling={isRolling}
-                  onRollStart={startRoll}
-                  onDiceRoll={handleDiceRoll}
-                />
-              </div>
-            }
-        </main>
+                isHumanTurn={players[currentTurn]?.type === 'human'}
+                rolling={isRolling}
+                onRollStart={startRoll}
+                onDiceRoll={handleDiceRoll}
+              />
+            </Suspense>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
