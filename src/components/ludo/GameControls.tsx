@@ -59,7 +59,7 @@ export function GameControls({
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   return (
-    <div className="w-full flex justify-between items-center px-4">
+    <div className="w-full flex justify-center items-center px-4 relative">
        <div className="w-48 h-48 relative flex items-center justify-center">
             {(gameMode === 'classic' || gameMode === 'quick') && (
                 <Dice3D
@@ -76,7 +76,7 @@ export function GameControls({
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="icon" className="absolute top-4 right-4">
+          <Button variant="outline" size="icon" className="absolute top-0 right-4">
             <Settings />
           </Button>
         </PopoverTrigger>
