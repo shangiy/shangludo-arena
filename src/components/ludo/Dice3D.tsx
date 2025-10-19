@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -78,7 +79,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
         setIsRolling(false);
         setFinalValue(value);
     }
-  }, [rolling]);
+  }, [rolling, isRolling, value]);
 
    useEffect(() => {
     // When the external value is set (from AI roll or after player roll), update finalValue
@@ -130,7 +131,7 @@ export function Dice3D({ value, rolling, duration, color, onClick, isHumanTurn, 
           {isHumanTurn && !isRolling && !finalValue && "Your turn!"}
         </span>
         <span style={{ color: DICE_FACE_COLORS[color] }}>
-          {!isRolling && finalValue ? `${color} rolled a: ${finalValue}` : (isRolling ? 'Rolling...' : '')}
+          {isRolling ? 'Rolling...' : (finalValue ? `${color} rolled a: ${finalValue}` : '')}
         </span>
       </div>
     </div>
