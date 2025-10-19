@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Physics } from '@react-three/rapier';
+import React, { useState, useEffect } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
-import { Dices } from 'lucide-react';
+import { Dices, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Dice } from './Dice';
 
-const DICE_FACE_COLORS: Record<PlayerColor, string> = {
+export const DICE_FACE_COLORS: Record<PlayerColor, string> = {
     red: '#ef4444',
     green: '#22c55e',
     yellow: '#f59e0b',
@@ -29,11 +26,10 @@ interface Dice3DProps {
   color: PlayerColor;
   onClick: () => void;
   isHumanTurn: boolean;
-  onDiceRoll: (value: number) => void;
-  nextPlayerColor: PlayerColor;
+  duration: number;
 }
 
-export function Dice3D({ value, rolling, color, onClick, isHumanTurn, onDiceRoll, nextPlayerColor }: Dice3DProps) {
+export function Dice3D({ value, rolling, color, onClick, isHumanTurn, duration }: Dice3DProps) {
   const [finalValue, setFinalValue] = useState<number | null>(null);
 
   useEffect(() => {
@@ -46,12 +42,8 @@ export function Dice3D({ value, rolling, color, onClick, isHumanTurn, onDiceRoll
   
   const showYourTurnMessage = isHumanTurn && !rolling && !finalValue;
 
-  const diceColor = useMemo(() => {
-    if (rolling) {
-      return DICE_FACE_COLORS[color];
-    }
-    return DICE_FACE_COLORS[nextPlayerColor];
-  }, [rolling, color, nextPlayerColor]);
+  const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
+  const FinalIcon = finalValue ? diceIcons[finalValue - 1] : null;
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
@@ -71,21 +63,32 @@ export function Dice3D({ value, rolling, color, onClick, isHumanTurn, onDiceRoll
         )}
 
       <div className="h-48 w-full relative flex items-center justify-center">
-        <Canvas shadows camera={{ position: [0, 6, 10], fov: 25 }}>
-            <ambientLight intensity={1.5} />
-            <directionalLight position={[10, 10, 5]} intensity={3} castShadow />
-            <Suspense fallback={null}>
-                <Physics gravity={[0, -30, 0]}>
-                    <Dice 
-                        color={diceColor}
-                        isHumanTurn={isHumanTurn} 
-                        rolling={rolling}
-                        onRollStart={onClick}
-                        onDiceRoll={onDiceRoll}
-                    />
-                </Physics>
-            </Suspense>
-        </Canvas>
+        {rolling ? (
+          <div className="relative w-24 h-24" style={{ perspective: '1000px', perspectiveOrigin: '50% 100%' }}>
+            <div className="w-full h-full relative" style={{ transformStyle: 'preserve-3d', animation: `roll ${duration}ms steps(24, end) infinite` }}>
+              {diceIcons.map((Icon, i) => (
+                <div key={i} className={`absolute w-24 h-24 flex items-center justify-center border border-black/20 ${i === 0 ? 'bg-red-500' : (i === 5 ? 'bg-red-300' : `bg-red-400`)}`} 
+                    style={{ 
+                        transform: 
+                            i === 0 ? 'rotateY(0deg) translateZ(3rem)' : 
+                            i === 1 ? 'rotateY(90deg) translateZ(3rem)' :
+                            i === 2 ? 'rotateY(180deg) translateZ(3rem)' :
+                            i === 3 ? 'rotateY(-90deg) translateZ(3rem)' :
+                            i === 4 ? 'rotateX(90deg) translateZ(3rem)' :
+                            'rotateX(-90deg) translateZ(3rem)'
+                    }}>
+                    <Icon className="h-12 w-12 text-white" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : FinalIcon ? (
+           <FinalIcon className="h-24 w-24" style={{ color: DICE_FACE_COLORS[color] }} />
+        ) : (
+            <button onClick={isHumanTurn ? onClick : undefined} disabled={!isHumanTurn} className="cursor-pointer">
+                <Dices className={cn("h-24 w-24", isHumanTurn && 'animate-pulse')} style={{color: DICE_FACE_COLORS[color]}} />
+            </button>
+        )}
       </div>
       <div id="rolled-value" className="text-md font-bold h-12 capitalize flex flex-col text-center">
         <span className="h-6">

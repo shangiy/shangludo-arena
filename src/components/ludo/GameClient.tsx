@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { GameBoard, Pawn as PawnComponent, PlayerNames } from '@/components/ludo/GameBoard';
@@ -32,6 +32,10 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
+import { Canvas } from '@react-three/fiber';
+import { Physics } from '@react-three/rapier';
+import { Dice } from './Dice';
+import { DICE_FACE_COLORS } from './Dice3D';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -113,6 +117,14 @@ export default function GameClient() {
     const currentIndex = playerOrder.indexOf(currentTurn);
     return playerOrder[(currentIndex + 1) % playerOrder.length];
   }, [currentTurn, playerOrder]);
+
+  const diceColor = useMemo(() => {
+    const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
+    if (isRolling) {
+      return DICE_FACE_COLORS[currentTurn];
+    }
+    return DICE_FACE_COLORS[nextPlayerColor];
+  }, [phase, currentTurn, nextPlayerColor]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -424,6 +436,9 @@ export default function GameClient() {
     });
   };
 
+  const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
+
+
   if (!isMounted) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
@@ -488,13 +503,32 @@ export default function GameClient() {
             />
         </header>
 
-        <main className="w-full max-w-7xl mx-auto flex flex-col items-center justify-center flex-1">
+        <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
             <div className="w-full max-w-2xl relative">
                 <GameBoard showSecondarySafes={addSecondarySafePoints}>
                    {renderPawns()}
                    {gameSetup && <PlayerNames players={gameSetup.players.reduce((acc, p) => ({...acc, [p.color]: p.name}), {})} />}
                 </GameBoard>
             </div>
+            {gameMode === 'quick' && 
+              <div className="h-48 w-full lg:w-48 relative flex items-center justify-center">
+                <Canvas shadows camera={{ position: [0, 6, 10], fov: 25 }}>
+                    <ambientLight intensity={1.5} />
+                    <directionalLight position={[10, 10, 5]} intensity={3} castShadow />
+                    <Suspense fallback={null}>
+                        <Physics gravity={[0, -30, 0]}>
+                            <Dice 
+                                color={diceColor}
+                                isHumanTurn={players[currentTurn]?.type === 'human'}
+                                rolling={isRolling}
+                                onRollStart={startRoll}
+                                onDiceRoll={handleDiceRoll}
+                            />
+                        </Physics>
+                    </Suspense>
+                </Canvas>
+              </div>
+            }
         </main>
     </div>
   );
