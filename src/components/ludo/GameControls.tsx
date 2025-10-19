@@ -152,7 +152,7 @@ export function GameControls({
                 <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
               </div>
               <div className="grid gap-2">
-                {gameMode === 'quick' && humanPlayer && (
+                {gameSetup && humanPlayer && (
                   <>
                     <div className="flex items-center justify-between">
                        <Label htmlFor="player-name">Change Your Name</Label>
