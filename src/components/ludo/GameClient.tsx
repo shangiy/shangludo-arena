@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 import {
   GameBoard,
@@ -37,18 +36,7 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
-
-const DiceCanvas = dynamic(
-  () => import('./DiceCanvas').then((mod) => mod.DiceCanvas),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-48 w-full flex items-center justify-center">
-        Loading 3D Dice...
-      </div>
-    ),
-  }
-);
+import { DiceCanvas } from './DiceCanvas';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -487,12 +475,7 @@ export default function GameClient() {
   const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
 
   if (!isMounted) {
-    return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-lg">Preparing the Arena...</p>
-      </div>
-    );
+    return null; // The loading is handled by the dynamic import in page.tsx
   }
 
   return (
@@ -542,8 +525,6 @@ export default function GameClient() {
           currentTurn={currentTurn}
           phase={phase}
           diceValue={diceValue}
-          onDiceRoll={handleDiceRoll}
-          onRollStart={startRoll}
           addSecondarySafePoints={addSecondarySafePoints}
           onToggleSecondarySafePoints={() =>
             setAddSecondarySafePoints((prev) => !prev)
