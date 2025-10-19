@@ -16,8 +16,6 @@ type GameControlsProps = {
   currentTurn: PlayerColor;
   phase: 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
   diceValue: number | null;
-  onDiceRoll: (value: number) => void;
-  onRollStart: () => void;
   addSecondarySafePoints: boolean;
   onToggleSecondarySafePoints: () => void;
   isHumanTurn: boolean;
@@ -37,8 +35,6 @@ export function GameControls({
   currentTurn,
   phase,
   diceValue,
-  onDiceRoll,
-  onRollStart,
   addSecondarySafePoints,
   onToggleSecondarySafePoints,
   isHumanTurn,
