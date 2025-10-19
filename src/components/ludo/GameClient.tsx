@@ -255,6 +255,7 @@ export default function GameClient() {
     }
 
     if (possibleMoves.length > 0) {
+      // Basic AI: just take the first possible move
       performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
     }
   };
@@ -367,29 +368,33 @@ export default function GameClient() {
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setPhase('AI_THINKING');
       setTimeout(() => {
-        setPhase('MOVING'); // Trigger AI roll animation
-      }, 1000);
+        // AI starts "rolling"
+        startRoll(); 
+        const roll = Math.floor(Math.random() * 6) + 1;
+        
+        // Wait for animation to finish, then handle the result
+        setTimeout(() => {
+          handleDiceRoll(roll);
+        }, diceRollDuration);
+
+      }, 1000); // A small delay to make it feel like the AI is thinking
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
+
 
   useEffect(() => {
     const isAiTurn =
       playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
-      setTimeout(() => {
+        // AI has rolled and now needs to decide on a move
         const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-        if (possibleMoves.length === 0) {
-          addMessage('System', `${players[currentTurn].name} has no possible moves.`);
-          if (diceValue !== 6) {
-            nextTurn();
-          } else {
-            setPhase('ROLLING');
-            setDiceValue(null);
-          }
-        } else {
-          handleAiMove(diceValue, possibleMoves);
+        if (possibleMoves.length > 0) {
+            // A delay to make it seem like AI is deciding
+            setTimeout(() => {
+              handleAiMove(diceValue, possibleMoves);
+            }, 1000); 
         }
-      }, diceRollDuration);
+        // If no possible moves, the handleDiceRoll function already handles it.
     }
   }, [phase, diceValue, currentTurn, isMounted]);
 
