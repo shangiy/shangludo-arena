@@ -15,57 +15,66 @@ type DiceProps = {
   diceValue: number | null;
 };
 
-const DICE_FACES: { [key: number]: number[] } = {
-    1: [5, 2, 4, 3],
-    2: [1, 6, 4, 3],
-    3: [1, 6, 2, 5],
-    4: [1, 6, 5, 2],
-    5: [1, 6, 3, 4],
-    6: [2, 5, 4, 3],
+// Represents the face on top and the faces around it (front, right, back, left)
+const DICE_FACES_GRAPH: { [key: number]: { top: number, front: number, right: number, back: number, left: number } } = {
+    1: { top: 1, front: 2, right: 3, back: 5, left: 4 }, // Top 1 -> front is 2
+    2: { top: 2, front: 6, right: 3, back: 1, left: 4 }, // Top 2 -> front is 6
+    3: { top: 3, front: 2, right: 6, back: 5, left: 1 }, // Top 3 -> front is 2
+    4: { top: 4, front: 2, right: 1, back: 5, left: 6 }, // Top 4 -> front is 2
+    5: { top: 5, front: 1, right: 3, back: 6, left: 4 }, // Top 5 -> front is 1
+    6: { top: 6, front: 5, right: 3, back: 2, left: 4 }, // Top 6 -> front is 5
 };
 
-const DICE_FACE_TRANSFORMS: { [key: number]: string } = {
-    1: 'rotateX(-90deg)', // top
-    2: 'rotateY(90deg)', // right
-    3: 'rotateY(-90deg)', // left
-    4: 'rotateX(90deg)', // bottom
-    5: 'rotateY(180deg)', // back
-    6: 'rotateY(0deg)', // front
+const getTransformFromTopFace = (face: number): string => {
+    switch (face) {
+        case 1: return 'rotateX(0deg) rotateY(0deg)';
+        case 2: return 'rotateX(-90deg)';
+        case 3: return 'rotateY(90deg)';
+        case 4: return 'rotateY(-90deg)';
+        case 5: return 'rotateX(90deg)';
+        case 6: return 'rotateX(180deg)';
+        default: return '';
+    }
 };
-
 
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue }: DiceProps) {
-    const [finalFace, setFinalFace] = useState(1);
+    const [visualFace, setVisualFace] = useState(1);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
+    
+    useEffect(() => {
+        if (rolling) {
+            onRollStart();
+            const roll = Math.floor(Math.random() * 6) + 1;
+            
+            // Random animation spin
+            let faceIndex = 0;
+            const animationInterval = 100;
+            const totalSteps = duration / animationInterval;
+            let currentStep = 0;
 
-    const handleRoll = () => {
+            const interval = setInterval(() => {
+                const randomFace = Math.floor(Math.random() * 6) + 1;
+                setVisualFace(randomFace);
+                currentStep++;
+
+                if (currentStep >= totalSteps) {
+                    clearInterval(interval);
+                    setVisualFace(roll);
+                    setTimeout(() => onRollEnd(roll), 500); 
+                }
+            }, animationInterval);
+
+            return () => clearInterval(interval);
+        }
+    }, [rolling, duration, onRollEnd, onRollStart]);
+    
+    const handleHumanRoll = () => {
         if (rolling || !isHumanTurn) return;
         onRollStart();
-
-        const roll = Math.floor(Math.random() * 6) + 1;
-        
-        // Start animation
-        let faceIndex = 0;
-        const animationInterval = 100;
-        const totalSteps = duration / animationInterval;
-        let currentStep = 0;
-
-        const interval = setInterval(() => {
-            const faces = DICE_FACES[finalFace] || DICE_FACES[1];
-            setFinalFace(faces[faceIndex]);
-            faceIndex = (faceIndex + 1) % faces.length;
-            currentStep++;
-
-            if (currentStep >= totalSteps) {
-                clearInterval(interval);
-                setFinalFace(roll);
-                setTimeout(() => onRollEnd(roll), 500); 
-            }
-        }, animationInterval);
     };
 
     if (!isClient) {
@@ -84,28 +93,41 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             <div className="w-24 h-24 perspective-500">
                 <motion.div
                     className="w-full h-full relative preserve-3d"
-                    animate={{ transform: DICE_FACE_TRANSFORMS[finalFace] }}
+                    animate={{ transform: getTransformFromTopFace(visualFace) }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    onClick={handleRoll}
+                    onClick={handleHumanRoll}
                     style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
-                    {Object.keys(DICE_FACE_TRANSFORMS).map(face => (
-                        <div
-                            key={face}
-                            className={cn(
-                                "absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white"
-                            )}
-                            style={{ transform: `${DICE_FACE_TRANSFORMS[Number(face)]} translateZ(3rem)` }}
-                        >
-                            <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>{face}</span>
-                        </div>
-                    ))}
+                    {/* Face 1 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(1) + ' translateZ(3rem)' }}>
+                        <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>1</span>
+                    </div>
+                    {/* Face 2 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(2) + ' translateZ(3rem)' }}>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>2</span>
+                    </div>
+                    {/* Face 3 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(3) + ' translateZ(3rem)' }}>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>3</span>
+                    </div>
+                    {/* Face 4 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(4) + ' translateZ(3rem)' }}>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>4</span>
+                    </div>
+                    {/* Face 5 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(5) + ' translateZ(3rem)' }}>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>5</span>
+                    </div>
+                    {/* Face 6 */}
+                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: getTransformFromTopFace(6) + ' translateZ(3rem)' }}>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>6</span>
+                    </div>
                 </motion.div>
             </div>
             <div className="text-center h-10">
                 {isHumanTurn && !rolling && diceValue === null && (
                      <button
-                        onClick={handleRoll}
+                        onClick={handleHumanRoll}
                         className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
                      >
                          Roll Dice

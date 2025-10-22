@@ -213,7 +213,7 @@ export default function GameClient() {
     return moves;
   };
 
-  const handleDiceRoll = (value: number) => {
+  const handleDiceRollEnd = (value: number) => {
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.play();
     }
@@ -366,17 +366,9 @@ export default function GameClient() {
     const isAiTurn =
       playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
-      setPhase('AI_THINKING');
       setTimeout(() => {
         // AI starts "rolling"
         startRoll(); 
-        const roll = Math.floor(Math.random() * 6) + 1;
-        
-        // Wait for animation to finish, then handle the result
-        setTimeout(() => {
-          handleDiceRoll(roll);
-        }, diceRollDuration);
-
       }, 1000); // A small delay to make it feel like the AI is thinking
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
@@ -394,7 +386,7 @@ export default function GameClient() {
               handleAiMove(diceValue, possibleMoves);
             }, 1000); 
         }
-        // If no possible moves, the handleDiceRoll function already handles it.
+        // If no possible moves, the handleDiceRollEnd function already handles it.
     }
   }, [phase, diceValue, currentTurn, isMounted]);
 
@@ -550,7 +542,7 @@ export default function GameClient() {
           onPlayerNameChange={handlePlayerNameChange}
           nextPlayerColor={nextPlayerColor}
           onRollStart={startRoll}
-          onDiceRoll={handleDiceRoll}
+          onDiceRoll={handleDiceRollEnd}
         />
       </header>
 
