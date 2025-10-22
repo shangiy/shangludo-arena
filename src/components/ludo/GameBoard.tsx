@@ -54,11 +54,6 @@ export function GameBoard({
 
     const p = (x: number, y: number) => y * 15 + x;
 
-    // Special case for (9,8) to be blue
-    if (x === 9 && y === 8) {
-      return <div className={cn(borderClasses, 'bg-blue-500')} />;
-    }
-
     // 🟡 Surrounding 8 path boxes (center ring)
 if (
   (x === 6 && y === 7) || (x === 8 && y === 7) ||
