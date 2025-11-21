@@ -39,6 +39,8 @@ import { GameSetup, GameSetupForm } from './GameSetupForm';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
+const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
+
 const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
   (Object.keys(PLAYER_COLORS) as PlayerColor[]).forEach((color) => {
@@ -126,12 +128,67 @@ export default function GameClient() {
     return playerOrder[(currentIndex + 1) % playerOrder.length];
   }, [currentTurn, playerOrder]);
 
+  // Load state from localStorage on mount
   useEffect(() => {
     setIsMounted(true);
+    try {
+      const savedStateJSON = localStorage.getItem(LUDO_GAME_STATE_KEY);
+      if (savedStateJSON) {
+        const savedState = JSON.parse(savedStateJSON);
+        if (savedState && savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER') {
+          setPawns(savedState.pawns);
+          setCurrentTurn(savedState.currentTurn);
+          setDiceValue(savedState.diceValue);
+          setPhase(savedState.phase);
+          setWinner(savedState.winner);
+          setGameSetup(savedState.gameSetup);
+          setAddSecondarySafePoints(savedState.addSecondarySafePoints);
+          setShowNotifications(savedState.showNotifications);
+          setMuteSound(savedState.muteSound);
+          setDiceRollDuration(savedState.diceRollDuration);
+          toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Could not load game state from localStorage", error);
+      localStorage.removeItem(LUDO_GAME_STATE_KEY);
+    }
+
     if (gameMode === 'quick') {
       handleGameSetup(quickPlaySetup);
     }
   }, [gameMode]);
+  
+  // Save state to localStorage on change
+  useEffect(() => {
+    if (!isMounted) return;
+    try {
+      const gameState = {
+        pawns,
+        currentTurn,
+        diceValue,
+        phase,
+        winner,
+        gameSetup,
+        addSecondarySafePoints,
+        showNotifications,
+        muteSound,
+        diceRollDuration,
+      };
+      if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
+        localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
+      } else {
+        localStorage.removeItem(LUDO_GAME_STATE_KEY);
+      }
+    } catch (error) {
+      console.error("Could not save game state to localStorage", error);
+    }
+  }, [
+      pawns, currentTurn, diceValue, phase, winner, gameSetup, 
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted
+  ]);
+
 
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     // For this design, we don't show messages in the UI.
@@ -139,15 +196,20 @@ export default function GameClient() {
   };
 
   const handleGameSetup = (setup: GameSetup) => {
+    localStorage.removeItem(LUDO_GAME_STATE_KEY);
     setGameSetup(setup);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
+    setPawns(initialPawns());
+    setWinner(null);
+    setDiceValue(null);
     setPhase('ROLLING');
   };
 
   useEffect(() => {
     if (winner) {
       addMessage('System', `${players[winner]?.name} has won the game!`);
+      localStorage.removeItem(LUDO_GAME_STATE_KEY);
       if (showNotifications) {
         toast({
           title: 'Game Over!',
@@ -156,7 +218,7 @@ export default function GameClient() {
         });
       }
     }
-  }, [winner, players, showNotifications]);
+  }, [winner, players, showNotifications, toast]);
 
   const nextTurn = () => {
     setCurrentTurn(nextPlayerColor);
@@ -468,6 +530,12 @@ export default function GameClient() {
     });
   };
 
+  const handleResetAndGoHome = () => {
+    localStorage.removeItem(LUDO_GAME_STATE_KEY);
+    // This will effectively reload the page state, but without a full refresh if navigation is client-side
+    window.location.href = '/'; 
+  };
+  
   if (!isMounted) {
      return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
@@ -480,7 +548,7 @@ export default function GameClient() {
   return (
     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
       <Suspense fallback={<div>Loading...</div>}>
-        {phase === 'SETUP' && gameMode === 'classic' && (
+        {phase === 'SETUP' && gameMode !== 'quick' && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
             <GameSetupForm onSetupComplete={handleGameSetup} />
           </div>
@@ -489,7 +557,12 @@ export default function GameClient() {
 
       <Dialog
         open={!!winner}
-        onOpenChange={(open) => !open && window.location.reload()}
+        onOpenChange={(open) => {
+            if (!open) {
+              localStorage.removeItem(LUDO_GAME_STATE_KEY);
+              window.location.reload();
+            }
+        }}
       >
         <DialogContent>
           <DialogHeader>
@@ -498,7 +571,7 @@ export default function GameClient() {
             </DialogTitle>
             {winner && (
               <DialogDescription className="text-center">
-                <span className={`font-semibold capitalize text-${winner}`}>
+                <span className={`font-semibold capitalize text-${winner}-500`}>
                   {players[winner].name}
                 </span>{' '}
                 has won the game!
@@ -509,9 +582,12 @@ export default function GameClient() {
             <Logo className="h-24 w-24" />
           </div>
           <DialogFooter className="sm:justify-center">
-            <Button onClick={() => window.location.reload()}>Play Again</Button>
+            <Button onClick={() => {
+              localStorage.removeItem(LUDO_GAME_STATE_KEY);
+              window.location.reload();
+            }}>Play Again</Button>
             <Button variant="secondary" asChild>
-              <Link href="/">Back to Lobby</Link>
+              <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -543,6 +619,7 @@ export default function GameClient() {
           nextPlayerColor={nextPlayerColor}
           onRollStart={startRoll}
           onDiceRoll={handleDiceRollEnd}
+          onResetAndGoHome={handleResetAndGoHome}
         />
       </header>
 
@@ -564,3 +641,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    

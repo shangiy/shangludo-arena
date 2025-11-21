@@ -2,7 +2,7 @@
 
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
-import { Settings, HelpCircle } from 'lucide-react';
+import { Settings, HelpCircle, Home } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -12,6 +12,18 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import type { GameSetup } from './GameSetupForm';
 import { Input } from '../ui/input';
 import { Dice3D } from './Dice3D';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 type GameControlsProps = {
   currentTurn: PlayerColor;
@@ -32,6 +44,7 @@ type GameControlsProps = {
   nextPlayerColor: PlayerColor;
   onRollStart: () => void;
   onDiceRoll: (value: number) => void;
+  onResetAndGoHome: () => void;
 };
 
 export function GameControls({
@@ -52,7 +65,8 @@ export function GameControls({
   onPlayerNameChange,
   nextPlayerColor,
   onRollStart,
-  onDiceRoll
+  onDiceRoll,
+  onResetAndGoHome
 }: GameControlsProps) {
 
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
@@ -60,8 +74,28 @@ export function GameControls({
 
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+              <Button variant="outline" size="icon" className="absolute top-0 left-4">
+                <Home />
+              </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your current game progress will be lost. You will be returned to the main lobby.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
        <div className="w-48 h-48 relative flex items-center justify-center">
-            {(gameMode === 'classic' || gameMode === 'quick') && (
+            {(gameMode === 'classic' || gameMode === 'quick' || gameMode === '5-min' || gameMode === 'local-multiplayer') && (
                 <Dice3D
                     rolling={isRolling}
                     onRollStart={onRollStart}
@@ -164,3 +198,5 @@ export function GameControls({
     </div>
   );
 }
+
+    
