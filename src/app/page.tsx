@@ -21,7 +21,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="container text-center py-16 md:py-24">
           <h1 className="font-headline text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-            The Ultimate Online Ludo
+            The Ultimate Ludo
           </h1>
           <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
             Join the arena, challenge your friends, and become a Ludo champion. Multiple game modes, endless fun.
