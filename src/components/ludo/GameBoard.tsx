@@ -27,10 +27,10 @@ export function GameBoard({
   const cells = Array.from({ length: 15 * 15 });
 
   const YARD_BGS: Record<PlayerColor, string> = {
-    red: 'bg-red-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-400',
-    blue: 'bg-blue-500',
+    red: 'bg-red-500/80',
+    green: 'bg-green-500/80',
+    yellow: 'bg-yellow-400/80',
+    blue: 'bg-blue-500/80',
   };
 
   const HOME_RUN_BGS: Record<PlayerColor, string> = {
@@ -171,10 +171,10 @@ if (
           borderClasses
         )}
       >
-        <div className="rounded-full border-2 border-white/50 bg-transparent" />
-        <div className="rounded-full border-2 border-white/50 bg-transparent" />
-        <div className="rounded-full border-2 border-white/50 bg-transparent" />
-        <div className="rounded-full border-2 border-white/50 bg-transparent" />
+        <div className="rounded-full border-2 border-white/50 bg-white/30" />
+        <div className="rounded-full border-2 border-white/50 bg-white/30" />
+        <div className="rounded-full border-2 border-white/50 bg-white/30" />
+        <div className="rounded-full border-2 border-white/50 bg-white/30" />
       </div>
     );
 
@@ -188,7 +188,7 @@ if (
 
   return (
     <div
-      className="aspect-square w-full max-w-[70vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-gray-800"
+      className="aspect-square w-full max-w-[65vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-gray-800"
       style={{ '--cell-size': 'calc(100% / 15)' } as React.CSSProperties}
     >
       <div className="grid grid-cols-15 grid-rows-15 h-full w-full overflow-hidden">
@@ -303,41 +303,5 @@ export function Pawn({
         )}
       </div>
     </motion.div>
-  );
-}
-
-export function PlayerNames({
-  players,
-}: {
-  players: Record<PlayerColor, string>;
-}) {
-  const namePositions: Record<PlayerColor, string> = {
-    red: 'top-2 left-2',
-    green: 'top-2 right-2',
-    blue: 'bottom-2 left-2',
-    yellow: 'bottom-2 right-2',
-  };
-  const textColors: Record<PlayerColor, string> = {
-    red: 'text-red-600',
-    green: 'text-green-600',
-    blue: 'text-blue-600',
-    yellow: 'text-yellow-500',
-  };
-
-  return (
-    <>
-      {(Object.keys(players) as PlayerColor[]).map((color) => (
-        <div
-          key={color}
-          className={cn(
-            'absolute p-2 rounded-md font-bold text-lg bg-white/70 backdrop-blur-sm shadow-md',
-            namePositions[color],
-            textColors[color]
-          )}
-        >
-          {players[color]}
-        </div>
-      ))}
-    </>
   );
 }

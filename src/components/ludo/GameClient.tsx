@@ -6,9 +6,9 @@ import { Loader2 } from 'lucide-react';
 import {
   GameBoard,
   Pawn as PawnComponent,
-  PlayerNames,
 } from '@/components/ludo/GameBoard';
 import { GameControls } from '@/components/ludo/GameControls';
+import { FiveMinGameLayout } from '@/components/ludo/FiveMinGameLayout';
 import {
   PLAYER_COLORS,
   PATHS,
@@ -40,6 +40,7 @@ import { GameSetup, GameSetupForm } from './GameSetupForm';
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
+const TURN_TIMER_DURATION = 20000; // 20 seconds for 5-min mode
 
 const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -69,6 +70,19 @@ const quickPlaySetup: GameSetup = {
   diceRollDuration: '1000',
 };
 
+const fiveMinSetup: GameSetup = {
+    gameMode: 'vs-computer',
+    players: [
+      { color: 'red', name: 'Red', type: 'human' },
+      { color: 'green', name: 'Green', type: 'ai' },
+      { color: 'yellow', name: 'Yellow', type: 'ai' },
+      { color: 'blue', name: 'Blue', type: 'ai' },
+    ],
+    turnOrder: ['red', 'green', 'yellow', 'blue'],
+    humanPlayerColor: 'red',
+    diceRollDuration: '1000',
+  };
+
 export default function GameClient() {
   const searchParams = useSearchParams();
   const gameMode = searchParams.get('mode') || 'classic';
@@ -86,6 +100,8 @@ export default function GameClient() {
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
   const [diceRollDuration, setDiceRollDuration] = useState(1000);
+  const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -157,6 +173,8 @@ export default function GameClient() {
 
     if (gameMode === 'quick') {
       handleGameSetup(quickPlaySetup);
+    } else if (gameMode === '5-min') {
+      handleGameSetup(fiveMinSetup);
     }
   }, [gameMode]);
   
@@ -224,7 +242,41 @@ export default function GameClient() {
     setCurrentTurn(nextPlayerColor);
     setPhase('ROLLING');
     setDiceValue(null);
+    setTurnTimer(TURN_TIMER_DURATION);
   };
+
+  useEffect(() => {
+      if (gameMode !== '5-min' || phase !== 'ROLLING' || winner) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          return;
+      }
+
+      setTurnTimer(TURN_TIMER_DURATION); // Reset timer for the new turn
+      
+      timerRef.current = setInterval(() => {
+          setTurnTimer(prev => {
+              if (prev <= 1000) {
+                  clearInterval(timerRef.current!);
+                  addMessage("System", `${players[currentTurn].name} ran out of time!`);
+                  if (showNotifications) {
+                      toast({
+                          variant: 'destructive',
+                          title: 'Time\'s Up!',
+                          description: `${players[currentTurn].name}'s turn was skipped.`,
+                      });
+                  }
+                  nextTurn();
+                  return 0;
+              }
+              return prev - 1000;
+          });
+      }, 1000);
+
+      return () => {
+          if (timerRef.current) clearInterval(timerRef.current);
+      };
+
+  }, [currentTurn, phase, winner, gameMode]);
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
@@ -304,6 +356,7 @@ export default function GameClient() {
   };
 
   const startRoll = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
     setPhase('MOVING');
   };
 
@@ -545,17 +598,21 @@ export default function GameClient() {
     );
   }
 
+  if (phase === 'SETUP' && gameMode !== 'quick' && gameMode !== '5-min') {
+      return (
+          <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4">
+               <Suspense fallback={<div>Loading...</div>}>
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                      <GameSetupForm onSetupComplete={handleGameSetup} />
+                  </div>
+               </Suspense>
+          </div>
+      );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
-      <Suspense fallback={<div>Loading...</div>}>
-        {phase === 'SETUP' && gameMode !== 'quick' && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-            <GameSetupForm onSetupComplete={handleGameSetup} />
-          </div>
-        )}
-      </Suspense>
-
-      <Dialog
+       <Dialog
         open={!!winner}
         onOpenChange={(open) => {
             if (!open) {
@@ -595,51 +652,64 @@ export default function GameClient() {
 
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
 
-      <header className="w-full flex justify-center items-center py-4">
-        <GameControls
-          currentTurn={currentTurn}
-          phase={phase}
-          diceValue={diceValue}
-          addSecondarySafePoints={addSecondarySafePoints}
-          onToggleSecondarySafePoints={() =>
-            setAddSecondarySafePoints((prev) => !prev)
-          }
-          isHumanTurn={players[currentTurn]?.type === 'human'}
-          showNotifications={showNotifications}
-          onToggleShowNotifications={() =>
-            setShowNotifications((prev) => !prev)
-          }
-          muteSound={muteSound}
-          onToggleMuteSound={() => setMuteSound((prev) => !prev)}
-          diceRollDuration={diceRollDuration}
-          onDiceRollDurationChange={setDiceRollDuration}
-          gameMode={gameMode}
-          gameSetup={gameSetup}
-          onPlayerNameChange={handlePlayerNameChange}
-          nextPlayerColor={nextPlayerColor}
-          onRollStart={startRoll}
-          onDiceRoll={handleDiceRollEnd}
-          onResetAndGoHome={handleResetAndGoHome}
-        />
-      </header>
+      {gameMode === '5-min' ? (
+        gameSetup && (
+            <FiveMinGameLayout
+              gameSetup={gameSetup}
+              currentTurn={currentTurn}
+              turnTimer={turnTimer}
+              turnTimerDuration={TURN_TIMER_DURATION}
+              isRolling={phase === 'MOVING'}
+              diceRollDuration={diceRollDuration}
+              onRollStart={startRoll}
+              onDiceRoll={handleDiceRollEnd}
+              diceValue={diceValue}
+              onResetAndGoHome={handleResetAndGoHome}
+            >
+                <GameBoard showSecondarySafes={addSecondarySafePoints}>
+                    {renderPawns()}
+                </GameBoard>
+            </FiveMinGameLayout>
+        )
+      ) : (
+        <>
+            <header className="w-full flex justify-center items-center py-4">
+                <GameControls
+                  currentTurn={currentTurn}
+                  phase={phase}
+                  diceValue={diceValue}
+                  addSecondarySafePoints={addSecondarySafePoints}
+                  onToggleSecondarySafePoints={() =>
+                    setAddSecondarySafePoints((prev) => !prev)
+                  }
+                  isHumanTurn={players[currentTurn]?.type === 'human'}
+                  showNotifications={showNotifications}
+                  onToggleShowNotifications={() =>
+                    setShowNotifications((prev) => !prev)
+                  }
+                  muteSound={muteSound}
+                  onToggleMuteSound={() => setMuteSound((prev) => !prev)}
+                  diceRollDuration={diceRollDuration}
+                  onDiceRollDurationChange={setDiceRollDuration}
+                  gameMode={gameMode}
+                  gameSetup={gameSetup}
+                  onPlayerNameChange={handlePlayerNameChange}
+                  nextPlayerColor={nextPlayerColor}
+                  onRollStart={startRoll}
 
-      <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
-        <div className="w-full max-w-2xl relative">
-          <GameBoard showSecondarySafes={addSecondarySafePoints}>
-            {renderPawns()}
-            {gameSetup && (
-              <PlayerNames
-                players={gameSetup.players.reduce(
-                  (acc, p) => ({ ...acc, [p.color]: p.name }),
-                  {}
-                )}
-              />
-            )}
-          </GameBoard>
-        </div>
-      </main>
+                  onDiceRoll={handleDiceRollEnd}
+                  onResetAndGoHome={handleResetAndGoHome}
+                />
+            </header>
+            <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
+                <div className="w-full max-w-2xl relative">
+                  <GameBoard showSecondarySafes={addSecondarySafePoints}>
+                    {renderPawns()}
+                  </GameBoard>
+                </div>
+            </main>
+        </>
+      )}
     </div>
   );
 }
-
-    

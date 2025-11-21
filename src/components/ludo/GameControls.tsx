@@ -95,7 +95,7 @@ export function GameControls({
         </AlertDialog>
 
        <div className="w-48 h-48 relative flex items-center justify-center">
-            {(gameMode === 'classic' || gameMode === 'quick' || gameMode === '5-min' || gameMode === 'local-multiplayer') && (
+            {gameMode !== '5-min' && (
                 <Dice3D
                     rolling={isRolling}
                     onRollStart={onRollStart}
@@ -198,5 +198,3 @@ export function GameControls({
     </div>
   );
 }
-
-    
