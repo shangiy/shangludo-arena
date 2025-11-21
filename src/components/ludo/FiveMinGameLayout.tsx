@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
@@ -188,6 +188,12 @@ export function FiveMinGameLayout({
     const greenPlayer = players.find(p => p.color === 'green')!;
     const bluePlayer = players.find(p => p.color === 'blue')!;
     const yellowPlayer = players.find(p => p.color === 'yellow')!;
+    
+    const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
+
+    const handleApplyTimerChange = () => {
+      onGameTimerDurationChange(newGameTimerDuration * 60000);
+    };
 
 
   return (
@@ -219,7 +225,7 @@ export function FiveMinGameLayout({
               <Settings />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-60">
+          <PopoverContent className="w-80">
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Settings</h4>
@@ -242,20 +248,23 @@ export function FiveMinGameLayout({
                   </Label>
                   <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="game-timer" className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
                     <Timer className="h-4 w-4" />
                     Game Time (min)
                   </Label>
-                  <Input 
-                    id="game-timer"
-                    type="number"
-                    min="1"
-                    max="60"
-                    className="w-20"
-                    defaultValue={gameTimerDuration / 60000}
-                    onBlur={(e) => onGameTimerDurationChange(Number(e.target.value) * 60000)}
-                  />
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="game-timer"
+                      type="number"
+                      min="1"
+                      max="60"
+                      className="w-20"
+                      value={newGameTimerDuration}
+                      onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
+                    />
+                    <Button size="sm" onClick={handleApplyTimerChange}>OK</Button>
+                  </div>
                 </div>
               </div>
             </div>
