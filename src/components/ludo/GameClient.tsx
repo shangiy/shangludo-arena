@@ -44,7 +44,7 @@ const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const TURN_TIMER_DURATION = 20000; // 20 seconds for 5-min mode
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 
-const initialPawns = (): Record<PlayerColor, Pawn[]> => {
+const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
   (Object.keys(PLAYER_COLORS) as PlayerColor[]).forEach((color) => {
     pawns[color] = Array(4)
@@ -52,7 +52,7 @@ const initialPawns = (): Record<PlayerColor, Pawn[]> => {
       .map((_, i) => ({
         id: i,
         color,
-        position: -1, // -1 is in the yard
+        position: isFiveMinMode ? START_POSITIONS[color] : -1, // -1 is in the yard
         isHome: false,
       }));
   });
@@ -90,7 +90,8 @@ export default function GameClient() {
   const gameMode = searchParams.get('mode') || 'classic';
   const { toast } = useToast();
 
-  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(initialPawns);
+  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(() => initialPawns(gameMode === '5-min'));
+  const [scores, setScores] = useState<Record<PlayerColor, number>>({ red: 0, green: 0, yellow: 0, blue: 0 });
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [phase, setPhase] = useState<GamePhase>('SETUP');
@@ -170,6 +171,7 @@ export default function GameClient() {
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
+             if(savedState.scores !== undefined) setScores(savedState.scores);
           }
           toast({ title: "Game Resumed", description: "Your previous game has been restored." });
           return;
@@ -206,6 +208,7 @@ export default function GameClient() {
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
         gameState.gameTimerDuration = gameTimerDuration;
+        gameState.scores = scores;
       }
       if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
         localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
@@ -217,7 +220,7 @@ export default function GameClient() {
     }
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
-      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration, scores
   ]);
 
 
@@ -231,7 +234,8 @@ export default function GameClient() {
     setGameSetup(setup);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
-    setPawns(initialPawns());
+    setPawns(initialPawns(setup.gameMode === '5-min'));
+    setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
@@ -245,14 +249,18 @@ export default function GameClient() {
       addMessage('System', `${players[winner]?.name} has won the game!`);
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
       if (showNotifications) {
+        let description = `${players[winner]?.name} has won the game!`;
+        if (gameMode === '5-min') {
+            description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
+        }
         toast({
           title: 'Game Over!',
-          description: `${players[winner]?.name} has won the game!`,
+          description,
           duration: 5000,
         });
       }
     }
-  }, [winner, players, showNotifications, toast]);
+  }, [winner, players, showNotifications, toast, scores, gameMode]);
 
   const nextTurn = () => {
     setCurrentTurn(nextPlayerColor);
@@ -295,28 +303,18 @@ export default function GameClient() {
   }, [currentTurn, phase, winner, gameMode]);
   
   const calculateWinnerByScore = () => {
-    let bestScore = -1;
-    let winner: PlayerColor | null = null;
+    let bestScore = -Infinity;
+    let currentWinner: PlayerColor | null = null;
     
-    playerOrder.forEach(color => {
-      let score = 0;
-      pawns[color].forEach(pawn => {
-        if (pawn.isHome) {
-          score += 57; // Max score for a pawn
-        } else if (pawn.position !== -1) {
-          const pathIndex = PATHS[color].indexOf(pawn.position);
-          score += pathIndex + 1;
-        }
-      });
-
-      if (score > bestScore) {
-        bestScore = score;
-        winner = color;
+    (playerOrder).forEach(color => {
+      if (scores[color] > bestScore) {
+        bestScore = scores[color];
+        currentWinner = color;
       }
     });
 
-    if (winner) {
-      setWinner(winner);
+    if (currentWinner) {
+      setWinner(currentWinner);
     }
   };
 
@@ -348,8 +346,8 @@ export default function GameClient() {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
 
-    // Move from yard
-    if (roll === 6) {
+    // In 5-min mode, you can't move pawns from the yard with a 6, they start on board.
+    if (roll === 6 && gameMode !== '5-min') {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
@@ -427,7 +425,7 @@ export default function GameClient() {
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-    if (roll === 6) {
+    if (roll === 6 && gameMode !== '5-min') {
       const moveOutOfYard = possibleMoves.find((m) => m.pawn.position === -1);
       if (moveOutOfYard) {
         performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
@@ -446,7 +444,8 @@ export default function GameClient() {
       return;
     }
 
-    if (pawnToMove.position === -1 && diceValue === 6) {
+    // This check is for standard modes, not 5-min mode as pawns start on the board
+    if (pawnToMove.position === -1 && diceValue === 6 && gameMode !== '5-min') {
       const startPos = START_POSITIONS[currentTurn];
       performMove(pawnToMove, startPos);
       return;
@@ -478,13 +477,27 @@ export default function GameClient() {
     let capturedPawn = false;
     let pawnReachedHome = false;
 
+    // For 5-min mode scoring
+    if (gameMode === '5-min') {
+        const path = PATHS[currentTurn];
+        const oldIndex = pawnToMove.position === -1 ? -1 : path.indexOf(pawnToMove.position);
+        const newIndex = path.indexOf(newPosition);
+        if (oldIndex !== -1 && newIndex > oldIndex) {
+            const steps = newIndex - oldIndex;
+            setScores(prev => ({...prev, [currentTurn]: prev[currentTurn] + steps}));
+        } else if (oldIndex === -1 && newIndex !== -1) { // coming out of yard
+            setScores(prev => ({...prev, [currentTurn]: prev[currentTurn] + 1}));
+        }
+    }
+
     setPawns((prev) => {
       const newPawns = JSON.parse(JSON.stringify(prev));
       const pawnsOfPlayer = newPawns[currentTurn];
       const pawnIndex = pawnsOfPlayer.findIndex(
         (p: Pawn) => p.id === pawnToMove.id
       );
-
+      
+      const originalPawnPosition = pawnsOfPlayer[pawnIndex].position;
       pawnsOfPlayer[pawnIndex].position = newPosition;
 
       if (!SAFE_ZONES.includes(newPosition)) {
@@ -495,7 +508,7 @@ export default function GameClient() {
             );
             if (
               opponentPawnsAtPos.length === 1 &&
-              !START_POSITIONS[color as PlayerColor]
+              !SAFE_ZONES.includes(newPosition)
             ) {
               addMessage(
                 'System',
@@ -504,6 +517,15 @@ export default function GameClient() {
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
                   capturedPawn = true;
+                  
+                  if (gameMode === '5-min') {
+                      setScores(prev => ({
+                          ...prev,
+                          [currentTurn]: prev[currentTurn] + 20,
+                          [color]: Math.max(0, prev[color] - 20)
+                      }));
+                  }
+                  
                   return { ...p, position: -1 };
                 }
                 return p;
@@ -518,19 +540,26 @@ export default function GameClient() {
         pawnsOfPlayer[pawnIndex].isHome = true;
         addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
         pawnReachedHome = true;
+
+        if (gameMode === '5-min') {
+            setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
+        }
       }
 
       newPawns[currentTurn] = pawnsOfPlayer;
 
-      const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-      if (allHome) {
-        setWinner(currentTurn);
+      // In 5-min mode, we don't check for winner by all pawns home
+      if (gameMode !== '5-min') {
+        const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
+        if (allHome) {
+          setWinner(currentTurn);
+        }
       }
 
       return newPawns;
     });
 
-    const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
+    const getsAnotherTurn = (rolledSix || capturedPawn || pawnReachedHome) && gameMode !== '5-min';
 
     if (getsAnotherTurn && !winner) {
       addMessage('System', `${players[currentTurn].name} gets another turn.`);
@@ -602,14 +631,15 @@ export default function GameClient() {
         let highlight = false;
 
         if (isPlayerTurn) {
-          if (pawn.position === -1) {
+          // This check is for standard modes, not 5-min mode
+          if (pawn.position === -1 && gameMode !== '5-min') { 
             if (
               diceValue === 6 &&
               possibleMovesForHighlight.some((move) => move.pawn.id === pawn.id)
             ) {
               highlight = true;
             }
-          } else {
+          } else if (pawn.position !== -1) {
             const canMove = possibleMovesForHighlight.some(
               (move) =>
                 move.pawn.id === pawn.id && move.pawn.color === pawn.color
@@ -657,8 +687,9 @@ export default function GameClient() {
   
   const handleGameTimerDurationChange = (newDuration: number) => {
     if (newDuration > 0) {
-      setGameTimerDuration(newDuration);
-      setGameTimer(newDuration); // Reset current timer to new duration
+      const durationMs = newDuration * 60000;
+      setGameTimerDuration(durationMs);
+      setGameTimer(durationMs); // Reset current timer to new duration
     }
   };
   
@@ -710,7 +741,7 @@ export default function GameClient() {
                 <span className={`font-semibold capitalize text-${winner}-500`}>
                   {players[winner].name}
                 </span>{' '}
-                has won the game!
+                {gameMode === '5-min' ? `wins with the highest score: ${scores[winner]}!` : 'has won the game!'}
               </DialogDescription>
             )}
           </DialogHeader>
@@ -753,7 +784,7 @@ export default function GameClient() {
               showNotifications={showNotifications}
               onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
             >
-                <GameBoard showSecondarySafes={addSecondarySafePoints}>
+                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
                     {renderPawns()}
                 </GameBoard>
             </FiveMinGameLayout>
@@ -790,7 +821,7 @@ export default function GameClient() {
             </header>
             <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
                 <div className="w-full max-w-2xl relative">
-                  <GameBoard showSecondarySafes={addSecondarySafePoints}>
+                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
                     {renderPawns()}
                   </GameBoard>
                 </div>

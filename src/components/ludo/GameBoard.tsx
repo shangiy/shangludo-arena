@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -20,9 +21,13 @@ const gridCellStyle =
 export function GameBoard({
   children,
   showSecondarySafes,
+  scores,
+  gameMode,
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
+  scores: Record<PlayerColor, number>;
+  gameMode: string;
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -39,6 +44,14 @@ export function GameBoard({
     yellow: 'bg-yellow-400',
     blue: 'bg-blue-500',
   };
+  
+  const YARD_SCORE_TEXT_COLORS: Record<PlayerColor, string> = {
+    red: 'text-white',
+    green: 'text-white',
+    yellow: 'text-gray-800',
+    blue: 'text-white',
+  };
+
 
   const getCellContent = (index: number) => {
     const x = index % 15;
@@ -66,9 +79,9 @@ if (
   (x === 8 && y === 6) || (x === 8 && y === 8)
 ) {
   // Full color boxes
-  if (x === 6 && y === 7) return <div className={cn(borderClasses, 'bg-green-500')} />;
-  if (x === 8 && y === 7) return <div className={cn(borderClasses, 'bg-blue-500')} />;
-  if (x === 7 && y === 8) return <div className={cn(borderClasses, 'bg-yellow-400')} />;
+  if (x === 6 && y === 7) return <div className={cn(borderClasses, 'bg-red-500')} />;
+  if (x === 8 && y === 7) return <div className={cn(borderClasses, 'bg-yellow-400')} />;
+  if (x === 7 && y === 8) return <div className={cn(borderClasses, 'bg-blue-500')} />;
 
   // Diagonal boxes
   let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
@@ -171,10 +184,20 @@ if (
           borderClasses
         )}
       >
-        <div className="rounded-full border-2 border-white/50 bg-white/30" />
-        <div className="rounded-full border-2 border-white/50 bg-white/30" />
-        <div className="rounded-full border-2 border-white/50 bg-white/30" />
-        <div className="rounded-full border-2 border-white/50 bg-white/30" />
+        {gameMode === '5-min' ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className={cn("text-5xl font-bold opacity-80", YARD_SCORE_TEXT_COLORS[color])}>
+                {scores[color]}
+            </span>
+          </div>
+        ) : (
+          <>
+            <div className="rounded-full border-2 border-white/50 bg-white/30" />
+            <div className="rounded-full border-2 border-white/50 bg-white/30" />
+            <div className="rounded-full border-2 border-white/50 bg-white/30" />
+            <div className="rounded-full border-2 border-white/50 bg-white/30" />
+          </>
+        )}
       </div>
     );
 
