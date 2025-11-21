@@ -2,7 +2,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -157,6 +157,8 @@ type FiveMinGameLayoutProps = {
   onResetAndGoHome: () => void;
   muteSound: boolean;
   onToggleMuteSound: () => void;
+  showNotifications: boolean;
+  onToggleShowNotifications: () => void;
 };
 
 export function FiveMinGameLayout({
@@ -174,7 +176,9 @@ export function FiveMinGameLayout({
   diceValue,
   onResetAndGoHome,
   muteSound,
-  onToggleMuteSound
+  onToggleMuteSound,
+  showNotifications,
+  onToggleShowNotifications
 }: FiveMinGameLayoutProps) {
     const { players } = gameSetup;
     const redPlayer = players.find(p => p.color === 'red')!;
@@ -227,6 +231,13 @@ export function FiveMinGameLayout({
                     Mute Sound
                   </Label>
                   <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
+                </div>
+                 <div className="flex items-center justify-between">
+                  <Label htmlFor="show-notifications" className="flex items-center gap-2">
+                     {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                    Show Notifications
+                  </Label>
+                  <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
                 </div>
               </div>
             </div>

@@ -732,6 +732,8 @@ export default function GameClient() {
               onResetAndGoHome={handleResetAndGoHome}
               muteSound={muteSound}
               onToggleMuteSound={() => setMuteSound(prev => !prev)}
+              showNotifications={showNotifications}
+              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
             >
                 <GameBoard showSecondarySafes={addSecondarySafePoints}>
                     {renderPawns()}
