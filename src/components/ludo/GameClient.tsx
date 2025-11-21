@@ -42,6 +42,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const TURN_TIMER_DURATION = 20000; // 20 seconds for 5-min mode
+const FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -102,7 +103,9 @@ export default function GameClient() {
   const [muteSound, setMuteSound] = useState(false);
   const [diceRollDuration, setDiceRollDuration] = useState(1000);
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [gameTimer, setGameTimer] = useState<number>(FIVE_MIN_GAME_DURATION);
+  const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -152,7 +155,7 @@ export default function GameClient() {
       const savedStateJSON = localStorage.getItem(LUDO_GAME_STATE_KEY);
       if (savedStateJSON) {
         const savedState = JSON.parse(savedStateJSON);
-        if (savedState && savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER') {
+        if (savedState && savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER' && savedState.gameSetup?.gameMode === gameMode) {
           setPawns(savedState.pawns);
           setCurrentTurn(savedState.currentTurn);
           setDiceValue(savedState.diceValue);
@@ -163,6 +166,9 @@ export default function GameClient() {
           setShowNotifications(savedState.showNotifications);
           setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
+          if (gameMode === '5-min' && savedState.gameTimer !== undefined) {
+             setGameTimer(savedState.gameTimer);
+          }
           toast({ title: "Game Resumed", description: "Your previous game has been restored." });
           return;
         }
@@ -183,7 +189,7 @@ export default function GameClient() {
   useEffect(() => {
     if (!isMounted) return;
     try {
-      const gameState = {
+      const gameState: any = {
         pawns,
         currentTurn,
         diceValue,
@@ -195,6 +201,9 @@ export default function GameClient() {
         muteSound,
         diceRollDuration,
       };
+      if (gameMode === '5-min') {
+        gameState.gameTimer = gameTimer;
+      }
       if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
         localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
       } else {
@@ -205,7 +214,7 @@ export default function GameClient() {
     }
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
-      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer
   ]);
 
 
@@ -223,6 +232,9 @@ export default function GameClient() {
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
+    if (setup.gameMode === '5-min') {
+      setGameTimer(FIVE_MIN_GAME_DURATION);
+    }
   };
 
   useEffect(() => {
@@ -248,16 +260,16 @@ export default function GameClient() {
 
   useEffect(() => {
       if (gameMode !== '5-min' || phase !== 'ROLLING' || winner) {
-          if (timerRef.current) clearInterval(timerRef.current);
+          if (turnTimerRef.current) clearInterval(turnTimerRef.current);
           return;
       }
 
       setTurnTimer(TURN_TIMER_DURATION); // Reset timer for the new turn
       
-      timerRef.current = setInterval(() => {
+      turnTimerRef.current = setInterval(() => {
           setTurnTimer(prev => {
               if (prev <= 1000) {
-                  clearInterval(timerRef.current!);
+                  clearInterval(turnTimerRef.current!);
                   addMessage("System", `${players[currentTurn].name} ran out of time!`);
                   if (showNotifications) {
                       toast({
@@ -274,10 +286,60 @@ export default function GameClient() {
       }, 1000);
 
       return () => {
-          if (timerRef.current) clearInterval(timerRef.current);
+          if (turnTimerRef.current) clearInterval(turnTimerRef.current);
       };
 
   }, [currentTurn, phase, winner, gameMode]);
+  
+  const calculateWinnerByScore = () => {
+    let bestScore = -1;
+    let winner: PlayerColor | null = null;
+    
+    playerOrder.forEach(color => {
+      let score = 0;
+      pawns[color].forEach(pawn => {
+        if (pawn.isHome) {
+          score += 57; // Max score for a pawn
+        } else if (pawn.position !== -1) {
+          const pathIndex = PATHS[color].indexOf(pawn.position);
+          score += pathIndex + 1;
+        }
+      });
+
+      if (score > bestScore) {
+        bestScore = score;
+        winner = color;
+      }
+    });
+
+    if (winner) {
+      setWinner(winner);
+    }
+  };
+
+  useEffect(() => {
+    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER') {
+        if (gameTimerRef.current) clearInterval(gameTimerRef.current);
+        return;
+    }
+
+    gameTimerRef.current = setInterval(() => {
+        setGameTimer(prev => {
+            if (prev <= 1000) {
+                clearInterval(gameTimerRef.current!);
+                addMessage("System", "5-minute game has ended!");
+                setPhase('GAME_OVER');
+                calculateWinnerByScore();
+                return 0;
+            }
+            return prev - 1000;
+        });
+    }, 1000);
+
+    return () => {
+        if (gameTimerRef.current) clearInterval(gameTimerRef.current);
+    };
+  }, [phase, gameMode]);
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
@@ -357,7 +419,7 @@ export default function GameClient() {
   };
 
   const startRoll = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (turnTimerRef.current) clearInterval(turnTimerRef.current);
     setPhase('MOVING');
   };
 
@@ -660,6 +722,8 @@ export default function GameClient() {
               currentTurn={currentTurn}
               turnTimer={turnTimer}
               turnTimerDuration={TURN_TIMER_DURATION}
+              gameTimer={gameTimer}
+              gameTimerDuration={FIVE_MIN_GAME_DURATION}
               isRolling={phase === 'MOVING'}
               diceRollDuration={diceRollDuration}
               onRollStart={startRoll}

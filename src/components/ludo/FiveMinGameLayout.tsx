@@ -2,7 +2,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -144,12 +144,31 @@ function PlayerPod({
   );
 }
 
+function GameTimer({ duration, remaining }: { duration: number; remaining: number }) {
+  const minutes = Math.floor(remaining / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+  const timerPercentage = (remaining / duration) * 100;
+
+  return (
+    <div className="flex flex-col items-center">
+        <div className="flex items-center gap-2 font-bold text-2xl text-foreground">
+            <Timer className="h-8 w-8" />
+            <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+        </div>
+        <Progress value={timerPercentage} className="w-48 h-2 mt-2" indicatorClassName="bg-primary" />
+    </div>
+  );
+}
+
+
 type FiveMinGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
   currentTurn: PlayerColor;
   turnTimer: number;
   turnTimerDuration: number;
+  gameTimer: number;
+  gameTimerDuration: number;
   isRolling: boolean;
   diceRollDuration: number;
   onRollStart: () => void;
@@ -166,6 +185,8 @@ export function FiveMinGameLayout({
   currentTurn,
   turnTimer,
   turnTimerDuration,
+  gameTimer,
+  gameTimerDuration,
   isRolling,
   diceRollDuration,
   onRollStart,
@@ -232,6 +253,10 @@ export function FiveMinGameLayout({
           </PopoverContent>
         </Popover>
       </div>
+
+     <div className="absolute top-4 z-10">
+        <GameTimer duration={gameTimerDuration} remaining={gameTimer} />
+     </div>
 
 
       <div className="w-full flex justify-center">
@@ -306,5 +331,3 @@ export function FiveMinGameLayout({
     </div>
   );
 }
-
-    
