@@ -51,6 +51,13 @@ const turnBgClasses: Record<PlayerColor, string> = {
     blue: 'bg-blue-500/10',
 };
 
+const strokeColorClasses: Record<PlayerColor, string> = {
+    red: 'stroke-red-500',
+    green: 'stroke-green-500',
+    yellow: 'stroke-yellow-400',
+    blue: 'stroke-blue-500',
+};
+
 function PlayerPod({
   player,
   color,
@@ -63,14 +70,63 @@ function PlayerPod({
   onDiceRoll,
   diceValue
 }: PlayerPodProps) {
-  const timerPercentage = (timerValue / timerDuration) * 100;
+  const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
 
+  // SVG dimensions - assuming the pod is roughly square
+  const svgSize = 180; // A bit larger than the pod to contain the stroke
+  const rectSize = 160; // The size of the visible pod area
+  const strokeWidth = 4;
+  const cornerRadius = 8;
+  const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
+  const offset = perimeter * (1 - timerPercentage);
+
+
   return (
-    <div className={cn("relative flex h-full w-full flex-col items-center justify-between rounded-lg border-2 bg-card p-4 transition-all", isCurrentTurn ? turnColorClasses[color] : 'border-transparent')}>
+    <div className={cn("relative flex h-full w-full flex-col items-center justify-between rounded-lg bg-card p-4 transition-all border-2", isCurrentTurn ? turnColorClasses[color] : 'border-transparent')}>
         <div className={cn("absolute inset-0 -z-10 transition-opacity", isCurrentTurn ? cn("opacity-100", turnBgClasses[color]) : "opacity-0")} />
-        <h3 className="text-lg font-bold">{player.name}</h3>
-        <div className="flex-1 flex items-center justify-center">
+        
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
+        >
+          <rect
+            x={strokeWidth/2}
+            y={strokeWidth/2}
+            width={rectSize}
+            height={rectSize}
+            rx={cornerRadius}
+            ry={cornerRadius}
+            fill="none"
+            stroke="hsl(var(--border))"
+            strokeWidth={strokeWidth}
+            className={cn(!isCurrentTurn && "opacity-50")}
+          />
+          <rect
+            x={strokeWidth/2}
+            y={strokeWidth/2}
+            width={rectSize}
+            height={rectSize}
+            rx={cornerRadius}
+            ry={cornerRadius}
+            fill="none"
+            strokeWidth={strokeWidth}
+            strokeDasharray={perimeter}
+            strokeDashoffset={offset}
+            className={cn(
+              "transition-[stroke-dashoffset] duration-1000 linear",
+              isCurrentTurn ? strokeColorClasses[color] : 'stroke-muted-foreground'
+            )}
+            style={{
+              transform: 'rotate(-90deg)',
+              transformOrigin: 'center',
+            }}
+          />
+        </svg>
+
+
+        <h3 className="text-lg font-bold z-10">{player.name}</h3>
+        <div className="flex-1 flex items-center justify-center z-10">
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
                 onRollStart={onRollStart}
@@ -81,11 +137,10 @@ function PlayerPod({
                 diceValue={isCurrentTurn ? diceValue : null}
             />
         </div>
-        <div className="w-full space-y-1">
+        <div className="w-full space-y-1 z-10 h-6">
             <p className="text-center text-sm font-mono text-muted-foreground">
                 {(timerValue / 1000).toFixed(1)}s
             </p>
-            <Progress value={timerPercentage} className="h-2" indicatorClassName={cn(isCurrentTurn ? `bg-${color}-500` : "bg-muted-foreground")} />
         </div>
     </div>
   );
@@ -182,7 +237,7 @@ export function FiveMinGameLayout({
 
 
       <div className="w-full flex justify-center">
-        <div className="w-48">
+        <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
                 color="green"
@@ -199,7 +254,7 @@ export function FiveMinGameLayout({
       </div>
       
       <div className="flex w-full items-center justify-center gap-4 flex-1">
-        <div className="h-full w-48">
+        <div className="h-48 w-48">
             <PlayerPod 
                 player={redPlayer}
                 color="red"
@@ -218,7 +273,7 @@ export function FiveMinGameLayout({
             {children}
         </div>
         
-        <div className="h-full w-48">
+        <div className="h-48 w-48">
             <PlayerPod 
                 player={yellowPlayer}
                 color="yellow"
@@ -235,7 +290,7 @@ export function FiveMinGameLayout({
       </div>
       
       <div className="w-full flex justify-center">
-         <div className="w-48">
+         <div className="w-48 h-48">
             <PlayerPod 
                 player={bluePlayer}
                 color="blue"
@@ -253,3 +308,5 @@ export function FiveMinGameLayout({
     </div>
   );
 }
+
+    
