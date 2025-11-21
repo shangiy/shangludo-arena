@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -97,10 +97,18 @@ export default function Home() {
                   <CardTitle className="font-headline">5-Minutes</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="mb-4">
-                  The quickest mode. Perfect for a short break. Can you win in just 5 minutes?
-                </CardDescription>
+              <CardContent className="flex flex-col flex-1 justify-between">
+                <div>
+                  <CardDescription className="mb-4">
+                    The quickest mode with a 5-minute timer. Perfect for a short break. Can you win in time?
+                  </CardDescription>
+                  <div className="flex justify-center gap-4 mb-4">
+                    <Dice5 className="h-8 w-8 text-red-500" />
+                    <Dice5 className="h-8 w-8 text-green-500" />
+                    <Dice5 className="h-8 w-8 text-yellow-400" />
+                    <Dice5 className="h-8 w-8 text-blue-500" />
+                  </div>
+                </div>
                 <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
                   <Link href="/game?mode=5-min">Play 5-Min</Link>
                 </Button>
