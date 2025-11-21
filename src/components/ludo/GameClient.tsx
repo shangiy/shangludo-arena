@@ -42,7 +42,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const TURN_TIMER_DURATION = 20000; // 20 seconds for 5-min mode
-const FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
+const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const initialPawns = (): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -103,7 +103,8 @@ export default function GameClient() {
   const [muteSound, setMuteSound] = useState(false);
   const [diceRollDuration, setDiceRollDuration] = useState(1000);
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
-  const [gameTimer, setGameTimer] = useState<number>(FIVE_MIN_GAME_DURATION);
+  const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
+  const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -166,8 +167,9 @@ export default function GameClient() {
           setShowNotifications(savedState.showNotifications);
           setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
-          if (gameMode === '5-min' && savedState.gameTimer !== undefined) {
-             setGameTimer(savedState.gameTimer);
+          if (gameMode === '5-min') {
+             if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
+             if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
           }
           toast({ title: "Game Resumed", description: "Your previous game has been restored." });
           return;
@@ -203,6 +205,7 @@ export default function GameClient() {
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
+        gameState.gameTimerDuration = gameTimerDuration;
       }
       if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
         localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
@@ -214,7 +217,7 @@ export default function GameClient() {
     }
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
-      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration
   ]);
 
 
@@ -232,8 +235,8 @@ export default function GameClient() {
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
-    if (setup.gameMode === '5-min') {
-      setGameTimer(FIVE_MIN_GAME_DURATION);
+    if (gameMode === '5-min') {
+      setGameTimer(gameTimerDuration);
     }
   };
 
@@ -652,6 +655,13 @@ export default function GameClient() {
     window.location.href = '/'; 
   };
   
+  const handleGameTimerDurationChange = (newDuration: number) => {
+    if (newDuration > 0) {
+      setGameTimerDuration(newDuration);
+      setGameTimer(newDuration); // Reset current timer to new duration
+    }
+  };
+
   if (!isMounted) {
      return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
@@ -723,7 +733,8 @@ export default function GameClient() {
               turnTimer={turnTimer}
               turnTimerDuration={TURN_TIMER_DURATION}
               gameTimer={gameTimer}
-              gameTimerDuration={FIVE_MIN_GAME_DURATION}
+              gameTimerDuration={gameTimerDuration}
+              onGameTimerDurationChange={handleGameTimerDurationChange}
               isRolling={phase === 'MOVING'}
               diceRollDuration={diceRollDuration}
               onRollStart={startRoll}

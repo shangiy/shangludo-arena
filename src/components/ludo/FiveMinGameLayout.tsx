@@ -22,6 +22,7 @@ import type { GameSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "../ui/input";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -149,6 +150,7 @@ type FiveMinGameLayoutProps = {
   turnTimerDuration: number;
   gameTimer: number;
   gameTimerDuration: number;
+  onGameTimerDurationChange: (duration: number) => void;
   isRolling: boolean;
   diceRollDuration: number;
   onRollStart: () => void;
@@ -169,6 +171,7 @@ export function FiveMinGameLayout({
   turnTimerDuration,
   gameTimer,
   gameTimerDuration,
+  onGameTimerDurationChange,
   isRolling,
   diceRollDuration,
   onRollStart,
@@ -238,6 +241,21 @@ export function FiveMinGameLayout({
                     Show Notifications
                   </Label>
                   <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="game-timer" className="flex items-center gap-2">
+                    <Timer className="h-4 w-4" />
+                    Game Time (min)
+                  </Label>
+                  <Input 
+                    id="game-timer"
+                    type="number"
+                    min="1"
+                    max="60"
+                    className="w-20"
+                    defaultValue={gameTimerDuration / 60000}
+                    onBlur={(e) => onGameTimerDurationChange(Number(e.target.value) * 60000)}
+                  />
                 </div>
               </div>
             </div>
