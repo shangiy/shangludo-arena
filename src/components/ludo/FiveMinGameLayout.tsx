@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5 } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -153,6 +153,7 @@ type FiveMinGameLayoutProps = {
   onGameTimerDurationChange: (duration: number) => void;
   isRolling: boolean;
   diceRollDuration: number;
+  onDiceRollDurationChange: (duration: number) => void;
   onRollStart: () => void;
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
@@ -174,6 +175,7 @@ export function FiveMinGameLayout({
   onGameTimerDurationChange,
   isRolling,
   diceRollDuration,
+  onDiceRollDurationChange,
   onRollStart,
   onDiceRoll,
   diceValue,
@@ -190,9 +192,14 @@ export function FiveMinGameLayout({
     const yellowPlayer = players.find(p => p.color === 'yellow')!;
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
+    const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
 
     const handleApplyTimerChange = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
+    };
+
+    const handleApplyDiceDurationChange = () => {
+      onDiceRollDurationChange(newDiceRollDuration * 1000);
     };
 
 
@@ -264,6 +271,24 @@ export function FiveMinGameLayout({
                       onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
                     />
                     <Button size="sm" onClick={handleApplyTimerChange}>OK</Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
+                    <Dice5 className="h-4 w-4" />
+                    Dice Roll (sec)
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="dice-timer"
+                      type="number"
+                      min="1"
+                      max="30"
+                      className="w-20"
+                      value={newDiceRollDuration}
+                      onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
+                    />
+                    <Button size="sm" onClick={handleApplyDiceDurationChange} className="bg-green-500 hover:bg-green-600">OK</Button>
                   </div>
                 </div>
               </div>

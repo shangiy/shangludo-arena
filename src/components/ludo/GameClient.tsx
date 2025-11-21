@@ -661,6 +661,12 @@ export default function GameClient() {
       setGameTimer(newDuration); // Reset current timer to new duration
     }
   };
+  
+  const handleDiceRollDurationChange = (newDuration: number) => {
+    if (newDuration > 0) {
+      setDiceRollDuration(newDuration);
+    }
+  };
 
   if (!isMounted) {
      return (
@@ -737,6 +743,7 @@ export default function GameClient() {
               onGameTimerDurationChange={handleGameTimerDurationChange}
               isRolling={phase === 'MOVING'}
               diceRollDuration={diceRollDuration}
+              onDiceRollDurationChange={handleDiceRollDurationChange}
               onRollStart={startRoll}
               onDiceRoll={handleDiceRollEnd}
               diceValue={diceValue}
