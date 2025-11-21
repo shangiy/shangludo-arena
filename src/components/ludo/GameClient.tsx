@@ -173,7 +173,9 @@ export default function GameClient() {
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
              if(savedState.scores !== undefined) setScores(savedState.scores);
           }
-          toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+          setTimeout(() => {
+            toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+          }, 0);
           return;
         }
       }
@@ -245,20 +247,18 @@ export default function GameClient() {
   };
 
   useEffect(() => {
-    if (winner) {
-      addMessage('System', `${players[winner]?.name} has won the game!`);
-      localStorage.removeItem(LUDO_GAME_STATE_KEY);
-      if (showNotifications) {
-        let description = `${players[winner]?.name} has won the game!`;
-        if (gameMode === '5-min') {
-            description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
-        }
-        toast({
-          title: 'Game Over!',
-          description,
-          duration: 5000,
-        });
+    if (winner && showNotifications) {
+      let description = `${players[winner]?.name} has won the game!`;
+      if (gameMode === '5-min') {
+          description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
       }
+      addMessage('System', description);
+      toast({
+        title: 'Game Over!',
+        description,
+        duration: 5000,
+      });
+      localStorage.removeItem(LUDO_GAME_STATE_KEY);
     }
   }, [winner, players, showNotifications, toast, scores, gameMode]);
 
@@ -831,3 +831,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
