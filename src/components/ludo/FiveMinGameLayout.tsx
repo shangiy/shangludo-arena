@@ -1,7 +1,8 @@
+
 "use client";
 
 import type { ReactNode } from "react";
-import { Home } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Dice3D } from "./Dice3D";
 import type { GameSetup } from "./GameSetupForm";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -99,6 +103,8 @@ type FiveMinGameLayoutProps = {
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
   onResetAndGoHome: () => void;
+  muteSound: boolean;
+  onToggleMuteSound: () => void;
 };
 
 export function FiveMinGameLayout({
@@ -112,7 +118,9 @@ export function FiveMinGameLayout({
   onRollStart,
   onDiceRoll,
   diceValue,
-  onResetAndGoHome
+  onResetAndGoHome,
+  muteSound,
+  onToggleMuteSound
 }: FiveMinGameLayoutProps) {
     const { players } = gameSetup;
     const redPlayer = players.find(p => p.color === 'red')!;
@@ -123,25 +131,55 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background">
-      <AlertDialog>
-          <AlertDialogTrigger asChild>
-              <Button variant="outline" size="icon" className="absolute top-4 left-4 z-10">
-                <Home />
-              </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Your current game progress will be lost. You will be returned to the main lobby.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
+      <div className="absolute top-4 left-4 z-10 flex gap-2">
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Home />
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Your current game progress will be lost. You will be returned to the main lobby.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Settings />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-60">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Settings</h4>
+                <p className="text-sm text-muted-foreground">
+                  Adjust in-game preferences.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="mute-sound" className="flex items-center gap-2">
+                     {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    Mute Sound
+                  </Label>
+                  <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
 
       <div className="w-full flex justify-center">
         <div className="w-48">

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
@@ -665,6 +666,8 @@ export default function GameClient() {
               onDiceRoll={handleDiceRollEnd}
               diceValue={diceValue}
               onResetAndGoHome={handleResetAndGoHome}
+              muteSound={muteSound}
+              onToggleMuteSound={() => setMuteSound(prev => !prev)}
             >
                 <GameBoard showSecondarySafes={addSecondarySafePoints}>
                     {renderPawns()}
