@@ -53,18 +53,21 @@ export function GameBoard({
     );
 
     const p = (x: number, y: number) => y * 15 + x;
+    
+    // User request to color cell (column 8, row 7) which is x=7, y=6 green
+    if (x === 7 && y === 6) return <div className={cn(borderClasses, 'bg-green-500')} />;
+
 
     // 🟡 Surrounding 8 path boxes (center ring)
 if (
   (x === 6 && y === 7) || (x === 8 && y === 7) ||
-  (x === 7 && y === 6) || (x === 7 && y === 8) ||
+  (x === 7 && y === 8) ||
   (x === 6 && y === 6) || (x === 6 && y === 8) ||
   (x === 8 && y === 6) || (x === 8 && y === 8)
 ) {
   // Full color boxes
   if (x === 6 && y === 7) return <div className={cn(borderClasses, 'bg-green-500')} />;
   if (x === 8 && y === 7) return <div className={cn(borderClasses, 'bg-blue-500')} />;
-  if (x === 7 && y === 6) return <div className={cn(borderClasses, 'bg-red-500')} />;
   if (x === 7 && y === 8) return <div className={cn(borderClasses, 'bg-yellow-400')} />;
 
   // Diagonal boxes
