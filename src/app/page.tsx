@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -30,7 +30,7 @@ export default function Home() {
 
         <section id="play" className="container pb-16 md:pb-24">
           <h2 className="text-center font-headline text-3xl font-bold mb-8">Choose Your Game</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
@@ -84,6 +84,25 @@ export default function Home() {
                 </CardDescription>
                 <Button asChild className={cn("w-full bg-green-500 hover:bg-green-600 text-white")}>
                   <Link href="/game?mode=local-multiplayer">Connect & Play</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="bg-blue-400/10 p-3 rounded-full">
+                    <Timer className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <CardTitle className="font-headline">5-Minutes</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  The quickest mode. Perfect for a short break. Can you win in just 5 minutes?
+                </CardDescription>
+                <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
+                  <Link href="/game?mode=5-min">Play 5-Min</Link>
                 </Button>
               </CardContent>
             </Card>
