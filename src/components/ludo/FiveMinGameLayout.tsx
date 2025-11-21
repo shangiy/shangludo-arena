@@ -83,9 +83,7 @@ function PlayerPod({
 
 
   return (
-    <div className={cn("relative flex h-full w-full flex-col items-center justify-between rounded-lg bg-card p-4 transition-all border-2", isCurrentTurn ? turnColorClasses[color] : 'border-transparent')}>
-        <div className={cn("absolute inset-0 -z-10 transition-opacity", isCurrentTurn ? cn("opacity-100", turnBgClasses[color]) : "opacity-0")} />
-        
+    <div className={cn("relative flex h-full w-full flex-col items-center justify-between p-4")}>
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
@@ -100,7 +98,7 @@ function PlayerPod({
             fill="none"
             stroke="hsl(var(--border))"
             strokeWidth={strokeWidth}
-            className={cn(!isCurrentTurn && "opacity-50")}
+            className={cn(!isCurrentTurn && "opacity-20")}
           />
           <rect
             x={strokeWidth/2}
