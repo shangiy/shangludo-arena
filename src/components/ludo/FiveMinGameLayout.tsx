@@ -17,7 +17,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Dice3D } from "./Dice3D";
 import type { GameSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -37,26 +36,13 @@ type PlayerPodProps = {
   diceValue: number | null;
 };
 
-const turnColorClasses: Record<PlayerColor, string> = {
-    red: 'border-red-500',
-    green: 'border-green-500',
-    yellow: 'border-yellow-400',
-    blue: 'border-blue-500',
-};
-
-const turnBgClasses: Record<PlayerColor, string> = {
-    red: 'bg-red-500/10',
-    green: 'bg-green-500/10',
-    yellow: 'bg-yellow-400/10',
-    blue: 'bg-blue-500/10',
-};
-
 const strokeColorClasses: Record<PlayerColor, string> = {
     red: 'stroke-red-500',
     green: 'stroke-green-500',
     yellow: 'stroke-yellow-400',
     blue: 'stroke-blue-500',
 };
+
 
 function PlayerPod({
   player,
@@ -73,9 +59,7 @@ function PlayerPod({
   const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
 
-  // SVG dimensions - assuming the pod is roughly square
-  const svgSize = 180; // A bit larger than the pod to contain the stroke
-  const rectSize = 160; // The size of the visible pod area
+  const rectSize = 160;
   const strokeWidth = 4;
   const cornerRadius = 8;
   const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
@@ -98,7 +82,7 @@ function PlayerPod({
             fill="none"
             stroke="hsl(var(--border))"
             strokeWidth={strokeWidth}
-            className={cn(!isCurrentTurn && "opacity-20")}
+            className={cn(!isCurrentTurn && "opacity-0")}
           />
           <rect
             x={strokeWidth/2}
@@ -113,7 +97,7 @@ function PlayerPod({
             strokeDashoffset={offset}
             className={cn(
               "transition-[stroke-dashoffset] duration-1000 linear",
-              isCurrentTurn ? strokeColorClasses[color] : 'stroke-muted-foreground'
+              isCurrentTurn ? strokeColorClasses[color] : 'stroke-transparent'
             )}
             style={{
               transform: 'rotate(-90deg)',
@@ -144,18 +128,14 @@ function PlayerPod({
   );
 }
 
-function GameTimer({ duration, remaining }: { duration: number; remaining: number }) {
+function GameTimer({ remaining }: { remaining: number }) {
   const minutes = Math.floor(remaining / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
-  const timerPercentage = (remaining / duration) * 100;
 
   return (
-    <div className="flex flex-col items-center">
-        <div className="flex items-center gap-2 font-bold text-2xl text-foreground">
-            <Timer className="h-8 w-8" />
-            <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
-        </div>
-        <Progress value={timerPercentage} className="w-48 h-2 mt-2" indicatorClassName="bg-primary" />
+    <div className="flex items-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border">
+        <Timer className="h-5 w-5" />
+        <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
     </div>
   );
 }
@@ -205,7 +185,7 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background">
-      <div className="absolute top-4 left-4 z-10 flex gap-2">
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -252,14 +232,11 @@ export function FiveMinGameLayout({
             </div>
           </PopoverContent>
         </Popover>
+
+        <GameTimer remaining={gameTimer} />
       </div>
 
-     <div className="absolute top-4 z-10">
-        <GameTimer duration={gameTimerDuration} remaining={gameTimer} />
-     </div>
-
-
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center pt-16">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
