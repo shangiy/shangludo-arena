@@ -69,10 +69,10 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // Path Entry Colors
-    if (x === 1 && y === 6) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="red" /></div>;
-    if (x === 8 && y === 1) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="green" /></div>;
-    if (x === 13 && y === 8) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="yellow" /></div>;
-    if (x === 6 && y === 13) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="blue" /></div>;
+    if (p(x,y) === START_POSITIONS.red) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="red" /></div>;
+    if (p(x,y) === START_POSITIONS.green) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="green" /></div>;
+    if (p(x,y) === START_POSITIONS.yellow) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="yellow" /></div>;
+    if (p(x,y) === START_POSITIONS.blue) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="blue" /></div>;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
@@ -89,23 +89,23 @@ export function GameBoard({
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
 
         if (x === 6 && y === 6) { // top-left
-            triangle1 = '0,0 100,100 0,100'; // bottom-left triangle
-            triangle2 = '0,0 100,0 100,100'; // top-right triangle
-            color1 = 'fill-red-500';
-            color2 = 'fill-green-500';
+            triangle1 = '0,0 100,0 100,100'; // top-right triangle
+            triangle2 = '0,0 0,100 100,100'; // bottom-left triangle
+            color1 = 'fill-green-500';
+            color2 = 'fill-red-500';
         } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,100 100,0 0,0';     // top-left triangle
+            triangle1 = '0,0 100,0 0,100';     // top-left triangle
             triangle2 = '100,100 100,0 0,100'; // bottom-right triangle
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '100,0 0,100 0,0';     // top-left triangle
-            triangle2 = '100,0 100,100 0,100'; // bottom-right triangle
-            color1 = 'fill-red-500';
-            color2 = 'fill-blue-500';
+            triangle1 = '0,100 100,100 100,0';     // bottom-right triangle
+            triangle2 = '0,0 0,100 100,0'; // top-left triangle
+            color1 = 'fill-blue-500';
+            color2 = 'fill-red-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 100,100 0,100'; // bottom-left triangle
-            triangle2 = '0,0 100,0 100,100'; // top-right triangle
+            triangle1 = '0,100 100,100 0,0'; // bottom-left triangle
+            triangle2 = '100,0 100,100 0,0'; // top-right triangle
             color1 = 'fill-blue-500';
             color2 = 'fill-yellow-400';
         }
