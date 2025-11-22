@@ -79,60 +79,49 @@ export function GameControls({
   const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn);
   
   const [playerConfig, setPlayerConfig] = useState<PlayerSetup[] | undefined>(gameSetup?.players);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const handleApplyAllChanges = () => {
+    onApplyGameSetupChanges();
+    setIsSettingsOpen(false);
+  };
 
   const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
       if (!gameSetup) return;
-      const newPlayers = (playerConfig || gameSetup.players).map(p => {
+      const currentPlayers = playerConfig || gameSetup.players;
+      
+      let newPlayers: PlayerSetup[];
+      const playerExists = currentPlayers.some(p => p.color === color);
+
+      if (playerExists) {
+        newPlayers = currentPlayers.map(p => {
           if (p.color === color) {
-              const colorName = color.charAt(0).toUpperCase() + color.slice(1);
-              const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
-              return {...p, type, name };
+            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+            let name = p.name;
+            if (p.type !== type) {
+               name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
+            }
+            return { ...p, type, name };
           }
           return p;
-      });
+        });
+      } else {
+        const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+        const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
+        newPlayers = [...currentPlayers, { color, name, type }];
+      }
 
-      // Handle 'none' case - we need a representation for it.
-      // The logic in GameClient will filter out 'none' players on game start/setup.
-      let fullPlayerList = [...newPlayers];
       const allColors: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
-      allColors.forEach(c => {
-          if (!fullPlayerList.some(p => p.color === c)) {
-              if (c === color && type !== 'none') {
-                  // This case should be handled by the map above, but as a fallback
-              } else if (c === color && type === 'none') {
-                  fullPlayerList.push({color: c, type: 'none', name: 'Empty'});
-              } else if (!fullPlayerList.some(p => p.color === c)) {
-                   // This is to ensure we always have a placeholder for each color
-                   // to show in the settings UI.
-                   const existing = gameSetup.players.find(p => p.color === c);
-                   if (!existing) {
-                       fullPlayerList.push({color: c, type: 'none', name: 'Empty'});
-                   }
-              }
-          }
-      });
-      
-      const updatedConfig = allColors.map(c => {
+      const finalPlayerList = allColors.map(c => {
           const found = newPlayers.find(p => p.color === c);
           if (found) return found;
-          if (c === color) {
-               const colorName = c.charAt(0).toUpperCase() + c.slice(1);
-               const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
-               return {color: c, type, name};
-          }
-          // return existing or a new 'none' player
-          return gameSetup.players.find(p => p.color === c) || {color: c, type: 'none', name: 'Empty'};
-      }).map(p => {
-           if (p.color === color) {
-              const colorName = p.color.charAt(0).toUpperCase() + p.color.slice(1);
-              const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
-              return {...p, type, name};
-           }
-           return p;
-      });
+          // If not found, create a 'none' player placeholder for UI consistency
+          return { color: c, type: 'none', name: 'Empty' };
+      }).filter((p, index, self) => index === self.findIndex(t => t.color === p.color));
 
-      setPlayerConfig(updatedConfig);
-      onGameSetupChange({...gameSetup, players: updatedConfig});
+
+      setPlayerConfig(finalPlayerList);
+      onGameSetupChange({...gameSetup, players: finalPlayerList});
   };
 
   const handlePlayerNameChange = (color: PlayerColor, name: string) => {
@@ -211,7 +200,7 @@ export function GameControls({
             )}
         </div>
 
-      <Popover>
+      <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="icon" className="absolute top-0 right-4">
             <Settings />
@@ -233,9 +222,9 @@ export function GameControls({
                       
                       return (
                       <div key={p.color} className="flex items-center justify-between gap-2">
-                          {type === 'human' ? (
+                          {type === 'human' && currentPlayerConfig ? (
                                 <Input
-                                    value={currentPlayerConfig?.name || ''}
+                                    value={currentPlayerConfig.name}
                                     onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
                                     className="h-8 flex-1"
                                 />
@@ -326,7 +315,7 @@ export function GameControls({
                 </div>
             </div>
             
-            <Button size="sm" className="w-full mt-2" onClick={onApplyGameSetupChanges}>
+            <Button size="sm" className="w-full mt-2" onClick={handleApplyAllChanges}>
                 Apply Changes &amp; Restart
             </Button>
 
