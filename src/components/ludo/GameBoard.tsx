@@ -180,7 +180,7 @@ export function GameBoard({
     const renderYard = (color: PlayerColor) => (
       <div
         className={cn(
-          'h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2',
+          'h-full w-full p-2 relative',
           YARD_BGS[color],
           borderClasses
         )}
@@ -188,16 +188,16 @@ export function GameBoard({
         {gameMode === '5-min' ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className={cn("text-5xl font-bold opacity-80", YARD_SCORE_TEXT_COLORS[color])}>
-                {scores[color]}
+              {scores[color]}
             </span>
           </div>
         ) : (
-          <>
+          <div className="h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2">
             <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
             <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
             <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
             <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
-          </>
+          </div>
         )}
       </div>
     );
@@ -314,6 +314,8 @@ export function Pawn({
     </motion.div>
   );
 }
+
+    
 
     
 
