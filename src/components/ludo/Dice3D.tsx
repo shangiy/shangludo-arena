@@ -39,8 +39,9 @@ const getTransformFromTopFace = (face: number): string => {
 };
 
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue }: DiceProps) {
-    const [visualFace, setVisualFace] = useState(1);
+    const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
+    const [finalValue, setFinalValue] = useState<number | null>(diceValue);
 
     useEffect(() => {
         setIsClient(true);
@@ -48,11 +49,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     
     useEffect(() => {
         if (rolling) {
+            setFinalValue(null);
             onRollStart();
             const roll = Math.floor(Math.random() * 6) + 1;
             
             // Random animation spin
-            let faceIndex = 0;
             const animationInterval = 100;
             const totalSteps = duration / animationInterval;
             let currentStep = 0;
@@ -65,11 +66,15 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 if (currentStep >= totalSteps) {
                     clearInterval(interval);
                     setVisualFace(roll);
+                    setFinalValue(roll);
                     setTimeout(() => onRollEnd(roll), 500); 
                 }
             }, animationInterval);
 
             return () => clearInterval(interval);
+        } else if (diceValue !== null) {
+            setVisualFace(diceValue);
+            setFinalValue(diceValue);
         }
     }, [rolling, duration, onRollEnd, onRollStart]);
     
@@ -126,7 +131,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 </motion.div>
             </div>
             <div className="text-center h-10">
-                {isHumanTurn && !rolling && diceValue === null && (
+                {isHumanTurn && !rolling && finalValue === null && (
                      <button
                         onClick={handleHumanRoll}
                         className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
@@ -134,9 +139,9 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                          Click to Roll
                      </button>
                 )}
-                 {diceValue !== null && (
+                 {finalValue !== null && !rolling && (
                     <p className="text-lg font-semibold">
-                       <span className={cn("capitalize", turnTextColor[color])}>{color}</span> rolled: {diceValue}
+                       <span className={cn("capitalize", turnTextColor[color])}>{color}</span> rolled: {finalValue}
                     </p>
                 )}
             </div>

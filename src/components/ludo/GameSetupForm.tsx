@@ -64,7 +64,7 @@ const defaultValues: GameSetup = {
   ],
   turnOrder: ["red", "green", "yellow", "blue"],
   humanPlayerColor: "red",
-  diceRollDuration: "2000",
+  diceRollDuration: "3000",
 };
 
 const COLOR_CLASSES: Record<PlayerColor, string> = {

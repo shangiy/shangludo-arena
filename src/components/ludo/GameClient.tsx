@@ -43,7 +43,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEFAULT_DICE_ROLL_DURATION = 2000; // 2 seconds
+const DEFAULT_DICE_ROLL_DURATION = 3000; // 3 seconds
 
 const initialPawns = (gameMode = 'classic'): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -70,7 +70,7 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: '2000',
+  diceRollDuration: '3000',
 };
 
 const fiveMinSetup: GameSetup = {
@@ -83,7 +83,7 @@ const fiveMinSetup: GameSetup = {
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
-    diceRollDuration: '2000',
+    diceRollDuration: '3000',
   };
 
 export default function GameClient() {
@@ -709,6 +709,9 @@ export default function GameClient() {
 
   const handleGameSetupChange = (newSetup: GameSetup) => {
     setGameSetup(newSetup);
+    if (gameMode === '5-min') {
+      setPawns(initialPawns('5-min'));
+    }
     // Potentially reset parts of the game state if player config changes drastically
     if(showNotifications) {
       toast({title: "Player Configuration Updated", description: "The game has been updated with new players."})
