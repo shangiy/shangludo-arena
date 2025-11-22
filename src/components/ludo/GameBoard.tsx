@@ -69,9 +69,9 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // Path Entry Colors
-    if (x === 1 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
-    if (x === 8 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
-    if (x === 13 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+    if (x === 1 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+    if (x === 6 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+    if (x === 13 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
     if (x === 6 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
 
 
@@ -80,10 +80,11 @@ export function GameBoard({
         (x >= 6 && x <= 8 && y >= 6 && y <= 8) && !(x === 7 && y === 7)
     ) {
         // Correctly colored home entries
-        if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
-        if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
-        if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
         if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
+        if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+        if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+        if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+
 
         // Diagonal boxes
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
@@ -99,13 +100,13 @@ export function GameBoard({
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '0,100 100,100 100,0'; // bottom-left triangle
-            triangle2 = '0,0 0,100 100,0'; // top-right triangle
-            color1 = 'fill-blue-500';
-            color2 = 'fill-red-500';
+            triangle1 = '0,100 100,100 100,0'; // bottom-right triangle (was wrong)
+            triangle2 = '0,0 100,0 0,100'; // top-left triangle (was wrong)
+            color1 = 'fill-red-500';
+            color2 = 'fill-blue-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 100,100 0,100'; // bottom-left triangle
-            triangle2 = '0,0 100,0 100,100'; // top-right triangle
+            triangle1 = '0,100 100,100 0,0'; // top-left triangle (was wrong)
+            triangle2 = '100,0 100,100 0,100'; // bottom-right triangle (was wrong)
             color1 = 'fill-blue-500';
             color2 = 'fill-yellow-400';
         }
@@ -318,3 +319,4 @@ export function Pawn({
     
 
     
+
