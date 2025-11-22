@@ -8,7 +8,7 @@ export function Logo({ className, ...props }: { className?: string }) {
       alt="ShangLudo Arena Logo"
       width={32}
       height={32}
-      className={cn("h-8 w-8", className)}
+      className={cn("h-8 w-auto", className)}
       {...props}
     />
   );
