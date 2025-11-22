@@ -91,7 +91,7 @@ export default function Home() {
                 <CardDescription className="mb-4">
                   Play with friends on the same network using different devices via Wi-Fi, hotspot, or Bluetooth.
                 </CardDescription>
-                <Button asChild className={cn("w-full bg-green-500 hover:bg-green-600 text-white")}>
+                <Button asChild className={cn("w-full gradient-button-green-inverse")}>
                   <Link href="/game?mode=local-multiplayer">Connect & Play</Link>
                 </Button>
               </CardContent>
