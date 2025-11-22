@@ -45,7 +45,7 @@ const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_DICE_ROLL_DURATION = 2000; // 2 seconds
 
-const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
+const initialPawns = (gameMode = 'classic'): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
   (Object.keys(PLAYER_COLORS) as PlayerColor[]).forEach((color) => {
     pawns[color] = Array(4)
@@ -53,7 +53,7 @@ const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
       .map((_, i) => ({
         id: i,
         color,
-        position: isFiveMinMode ? START_POSITIONS[color] : -1, // -1 is in the yard
+        position: gameMode === '5-min' ? START_POSITIONS[color] : -1, // -1 is in the yard
         isHome: false,
       }));
   });
@@ -91,7 +91,7 @@ export default function GameClient() {
   const gameMode = searchParams.get('mode') || 'classic';
   const { toast } = useToast();
 
-  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(() => initialPawns(gameMode === '5-min'));
+  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(() => initialPawns(gameMode));
   const [scores, setScores] = useState<Record<PlayerColor, number>>({ red: 0, green: 0, yellow: 0, blue: 0 });
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
@@ -247,7 +247,7 @@ export default function GameClient() {
     setGameSetup(setup);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
-    setPawns(initialPawns(setup.gameMode === '5-min'));
+    setPawns(initialPawns(setup.gameMode));
     setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
     setDiceValue(null);
@@ -357,7 +357,8 @@ export default function GameClient() {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
 
-    if (roll === 6) {
+    // For 5-min mode, don't need a 6 to move out of yard, because they don't start in yard.
+    if (roll === 6 && gameMode !== '5-min') {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
@@ -435,7 +436,7 @@ export default function GameClient() {
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-    if (roll === 6) {
+    if (roll === 6 && gameMode !== '5-min') {
       const moveOutOfYard = possibleMoves.find((m) => m.pawn.position === -1);
       if (moveOutOfYard) {
         performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
@@ -453,8 +454,9 @@ export default function GameClient() {
     if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING') {
       return;
     }
-
-    if (pawnToMove.position === -1 && diceValue === 6) {
+    
+    // In 5-min mode, players don't need a 6 to move from the start.
+    if (pawnToMove.position === -1 && diceValue === 6 && gameMode !== '5-min') {
       const startPos = START_POSITIONS[currentTurn];
       performMove(pawnToMove, startPos);
       return;
@@ -641,21 +643,12 @@ export default function GameClient() {
         let highlight = false;
 
         if (isPlayerTurn) {
-          if (pawn.position === -1) { 
-            if (
-              diceValue === 6 &&
-              possibleMovesForHighlight.some((move) => move.pawn.id === pawn.id)
-            ) {
-              highlight = true;
-            }
-          } else if (pawn.position !== -1) {
-            const canMove = possibleMovesForHighlight.some(
-              (move) =>
-                move.pawn.id === pawn.id && move.pawn.color === pawn.color
-            );
-            if (canMove) {
-              highlight = true;
-            }
+          const canMove = possibleMovesForHighlight.some(
+            (move) =>
+              move.pawn.id === pawn.id && move.pawn.color === pawn.color
+          );
+          if (canMove) {
+            highlight = true;
           }
         }
 
