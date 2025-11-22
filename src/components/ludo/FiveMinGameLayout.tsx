@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -211,7 +212,7 @@ export function FiveMinGameLayout({
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(true);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai') => {
@@ -263,7 +264,9 @@ export function FiveMinGameLayout({
               <Settings />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
+          <PopoverContent className="w-80 animated-border">
+            <div className="absolute inset-0.5 bg-popover rounded-md z-0" />
+            <div className="relative z-10">
            <TooltipProvider>
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -397,10 +400,25 @@ export function FiveMinGameLayout({
                     </TooltipContent>
                   </Tooltip>
                 </div>
+                 <div className="space-y-2">
+                  <Label>Number of Dice</Label>
+                  <RadioGroup
+                      defaultValue="1"
+                      className="grid grid-cols-4 gap-2"
+                  >
+                      {[1, 2, 3, 4].map(num => (
+                          <div key={num} className="flex items-center space-x-2">
+                              <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
+                              <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                          </div>
+                      ))}
+                  </RadioGroup>
+               </div>
               </div>
-              <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Player Changes</Button>
+              <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes & Play</Button>
             </div>
            </TooltipProvider>
+           </div>
           </PopoverContent>
         </Popover>
 
