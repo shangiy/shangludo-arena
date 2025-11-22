@@ -20,7 +20,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="container text-center py-16 md:py-24">
+        <section id="play" className="container px-4 sm:px-6 lg:px-8 pb-16 md:pb-24 pt-16 md:pt-24 text-center">
           <h1 className="font-headline text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
             The Ultimate Ludo
           </h1>
@@ -53,7 +53,7 @@ export default function Home() {
                     <Dice5 className="h-8 w-8 text-blue-500" />
                   </div>
                 </div>
-                <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
+                <Button asChild className={cn("w-full gradient-button-yellow")}>
                   <Link href="/game?mode=5-min">Play 5-Min</Link>
                 </Button>
               </CardContent>
