@@ -322,3 +322,4 @@ export function Pawn({
     </motion.div>
   );
 }
+

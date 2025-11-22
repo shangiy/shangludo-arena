@@ -462,13 +462,13 @@ export default function GameClient() {
 
       console.log('AI Response:', aiResponse);
       addMessage(`AI (${players[currentTurn].name})`, aiResponse.reasoning, currentTurn);
-
-      const moveRegex = /pawn:(\d+).*to:(\d+)/;
+      
+      const moveRegex = /pawn:(\d+),from:(-?\d+),to:(\d+)/;
       const match = aiResponse.move.match(moveRegex);
 
       if (match) {
         const pawnId = parseInt(match[1], 10);
-        const newPosition = parseInt(match[2], 10);
+        const newPosition = parseInt(match[3], 10);
         
         const pawnToMove = pawns[currentTurn].find(p => p.id === pawnId);
         
