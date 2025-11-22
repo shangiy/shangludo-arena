@@ -19,7 +19,7 @@ const GenerateAIMoveInputSchema = z.object({
 export type GenerateAIMoveInput = z.infer<typeof GenerateAIMoveInputSchema>;
 
 const GenerateAIMoveOutputSchema = z.object({
-  move: z.string().describe('The AI opponent’s determined move based on the board state and dice roll.'),
+  move: z.string().describe('The AI opponent’s determined move based on the board state and dice roll. MUST be in the format "pawn:[pawnId],from:[currentPosition],to:[newPosition]".'),
   reasoning: z.string().describe('The AI’s reasoning for making the move.'),
 });
 export type GenerateAIMoveOutput = z.infer<typeof GenerateAIMoveOutputSchema>;
@@ -49,7 +49,7 @@ Output the move to make and the reasoning for making that move. If there are no 
 
 Make sure to pick a valid move according to standard Ludo rules.
 
-Ensure that the outputted move is in a format that can be easily interpreted by a Ludo game engine. A possible move format would be pawn:[pawnNumber], from:[startingLocation], to:[endingLocation].
+The outputted move MUST be in the format "pawn:[pawnId],from:[currentPosition],to:[newPosition]". Do NOT include any other text or formatting for the move. For example: "pawn:2,from:15,to:21".
 
 Reasoning for the move should be provided as well.
 `,
