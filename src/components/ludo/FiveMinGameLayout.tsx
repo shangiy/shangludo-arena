@@ -365,18 +365,25 @@ export function FiveMinGameLayout({
                         </TooltipContent>
                      </Tooltip>
                   </Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="dice-timer"
-                      type="number"
-                      min="1"
-                      max="2"
-                      step="1"
-                      className="w-20"
-                      value={newDiceRollDuration}
-                      readOnly
-                    />
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="dice-timer"
+                          type="number"
+                          min="1"
+                          max="2"
+                          step="1"
+                          className="w-20"
+                          value={newDiceRollDuration}
+                          readOnly
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>admin only level</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
               <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Player Changes</Button>
