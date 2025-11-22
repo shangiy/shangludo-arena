@@ -376,16 +376,6 @@ export function FiveMinGameLayout({
                       value={newDiceRollDuration}
                       readOnly
                     />
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size="sm" disabled>
-                          🚫
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>admin auth</p>
-                      </TooltipContent>
-                    </Tooltip>
                   </div>
                 </div>
               </div>
