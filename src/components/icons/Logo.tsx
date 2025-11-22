@@ -6,9 +6,9 @@ export function Logo({ className, ...props }: { className?: string }) {
     <Image
       src="/logo.png"
       alt="ShangLudo Arena Logo"
-      width={32}
-      height={32}
-      className={cn("h-8 w-auto", className)}
+      width={48}
+      height={48}
+      className={cn("h-12 w-auto", className)}
       {...props}
     />
   );

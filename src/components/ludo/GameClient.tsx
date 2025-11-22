@@ -801,7 +801,7 @@ export default function GameClient() {
             )}
           </DialogHeader>
           <div className="flex justify-center items-center p-4">
-            <Logo className="h-24 w-24" />
+            <Logo className="h-20 w-20" />
           </div>
           <DialogFooter className="sm:justify-center">
             <Button onClick={() => {
