@@ -69,13 +69,13 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // This is the green home run entry, which should be green
-    if (x === 7 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+    if (x === 8 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
     // This is the yellow home run entry, which should be yellow
-    if (x === 13 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+    if (x === 13 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
      // This is the blue home run entry, which should be blue
-    if (x === 7 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
+    if (x === 6 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
     // This is the red home run entry, which should be red
-    if (x === 1 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+    if (x === 1 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
@@ -99,8 +99,8 @@ export function GameBoard({
         } else if (x === 8 && y === 6) { // top-right
             triangle1 = '0,0 100,0 100,100';
             triangle2 = '0,0 0,100 100,100';
-            color1 = 'fill-yellow-400';
-            color2 = 'fill-green-500';
+            color1 = 'fill-green-500';
+            color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
             triangle1 = '0,100 100,100 100,0';
             triangle2 = '0,0 0,100 100,0';
@@ -109,8 +109,8 @@ export function GameBoard({
         } else if (x === 8 && y === 8) { // bottom-right
             triangle1 = '0,0 100,100 0,100';
             triangle2 = '0,0 100,0 100,100';
-            color1 = 'fill-blue-500';
-            color2 = 'fill-yellow-400';
+            color1 = 'fill-yellow-400';
+            color2 = 'fill-blue-500';
         }
 
         return (
@@ -317,5 +317,7 @@ export function Pawn({
     </motion.div>
   );
 }
+
+    
 
     
