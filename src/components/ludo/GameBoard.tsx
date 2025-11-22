@@ -154,8 +154,14 @@ export function GameBoard({
     if (x === 7 && y >= 9 && y <= 13) homePathColor = 'blue';
 
     if (isPath) {
-      let bgColor = 'bg-yellow-400/20'; // Changed to yellow tint
-      if (homePathColor) bgColor = HOME_RUN_BGS[homePathColor];
+      let bgColor = 'bg-white';
+      if (homePathColor) {
+        bgColor = HOME_RUN_BGS[homePathColor];
+      } else {
+        if (gameMode === 'quick' || gameMode === '5-min') {
+           bgColor = 'bg-yellow-400/20'; // Tint for modern modes
+        }
+      }
       
       const currentPos = p(x,y);
       if (x === 7 && y === 6) bgColor = HOME_RUN_BGS.green;
@@ -340,7 +346,3 @@ export function Pawn({
     </motion.div>
   );
 }
-
-    
-
-    

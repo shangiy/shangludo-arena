@@ -45,7 +45,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEFAULT_DICE_ROLL_DURATION = 3000; // 3 seconds
+const DEFAULT_DICE_ROLL_DURATION = 1000; // 1 second for AI
 
 const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'green', 'yellow', 'blue']): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -69,12 +69,12 @@ const quickPlaySetup: GameSetup = {
   players: [
     { color: 'red', name: 'You', type: 'human' },
     { color: 'green', name: 'Green AI', type: 'ai' },
-    { color: 'yellow', name: 'Yellow AI', type: 'ai' },
+    { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
     { color: 'blue', name: 'Blue AI', type: 'ai' },
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: '3000',
+  diceRollDuration: '1000',
 };
 
 const fiveMinSetup: GameSetup = {
@@ -269,7 +269,7 @@ export default function GameClient() {
         });
         setPhase('SETUP');
         // If we are in quick/5-min mode, we need to reset the gameSetup so the form doesn't disappear
-        if (gameMode === 'quick' || gameMode === '5-min') {
+        if (gameMode === 'quick' || gameMode === '5-min' || gameMode === 'classic') {
             setGameSetup(setup);
         } else {
              setGameSetup(null);
@@ -298,7 +298,10 @@ export default function GameClient() {
 
   useEffect(() => {
     if (winner && showNotifications) {
-      let description = `${players[winner]?.name} has won the game by getting the first pawn home!`;
+      let description = `${players[winner]?.name} has won the game by getting all their pawns home!`;
+       if (gameMode === 'quick' || gameMode === 'classic') {
+            description = `${players[winner].name} has won the game by getting all their pawns home!`;
+        }
       if (gameMode === '5-min') {
           description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
       }
@@ -397,73 +400,68 @@ export default function GameClient() {
     if (!playerPawns) return [];
 
     const moves: { pawn: Pawn; newPosition: number }[] = [];
+    const isClassic = gameMode === 'classic';
 
-    if (roll === 6 && gameMode !== '5-min') {
+    if (roll === 6) {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
-        const ownPawnsAtStart = playerPawns.filter(
-          (p) => p.position === startPos
-        ).length;
-        if (!SAFE_ZONES.includes(startPos) && ownPawnsAtStart >= 2) {
-          // Cannot move to start if it's not a safe zone and is blockaded
-        } else {
-          pawnsInYard.forEach((pawn) =>
-            moves.push({ pawn, newPosition: startPos })
-          );
+        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+        const canMoveToStart = isClassic || !SAFE_ZONES.includes(startPos);
+        
+        if (canMoveToStart && ownPawnsAtStart < 2) {
+            pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
+        } else if (ownPawnsAtStart < 2) { // for non-classic modes
+            pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
         }
       }
     }
 
-    // Move on board
     playerPawns.forEach((pawn) => {
-      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min' && roll !== 6)) return;
+      if (pawn.isHome || (pawn.position === -1 && roll !== 6)) return;
 
       const currentPath = PATHS[player];
       let currentPathIndex = currentPath.indexOf(pawn.position);
 
-      if (pawn.position === -1 && (gameMode === '5-min' || roll === 6)) {
-        currentPathIndex = -1; // Effectively before the start of path
-      }
-      
-      if (currentPathIndex === -1 && (gameMode === '5-min' || roll === 6)) {
-         const newPosition = START_POSITIONS[player];
-         const ownPawnsAtDestination = playerPawns.filter( (p) => p.position === newPosition ).length;
-         if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-            // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
-         } else {
-             moves.push({ pawn, newPosition });
-         }
-         return; // Don't process further for this pawn if it's just coming out
-      }
+       if (pawn.position === -1 && roll === 6) {
+           const newPosition = START_POSITIONS[player];
+           const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
+           if ((isClassic || !SAFE_ZONES.includes(newPosition)) && ownPawnsAtDestination >= 2) {
+               // Blockade rule for non-classic
+           } else if (ownPawnsAtDestination >= 2 && !isClassic) {
+               // Blockade rule for non-classic
+           }
+           else {
+               moves.push({ pawn, newPosition });
+           }
+           return;
+       }
 
 
       if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
 
-        // Glass wall check
-        const wallPosition = GLASS_WALL_POSITIONS[player];
-        if(glassWalls[player] && wallPosition) {
-            const wallIndexOnPath = currentPath.indexOf(wallPosition);
-            if (wallIndexOnPath !== -1) {
-                // If move crosses or lands on the wall
-                if(currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
+        // Glass wall check for quick mode
+        if (gameMode === 'quick') {
+            const wallPosition = GLASS_WALL_POSITIONS[player];
+            if(glassWalls[player] && wallPosition) {
+                const wallIndexOnPath = currentPath.indexOf(wallPosition);
+                if (wallIndexOnPath !== -1 && currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
                     return; // Invalid move, blocked by wall
                 }
             }
         }
-
-        const ownPawnsAtDestination = playerPawns.filter(
-          (p) => p.position === newPosition
-        ).length;
-
-        if (
-          !SAFE_ZONES.includes(newPosition) &&
-          ownPawnsAtDestination >= 2
-        ) {
-          // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
-        } else {
-          moves.push({ pawn, newPosition });
+        
+        const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
+        
+        if (isClassic) {
+            moves.push({ pawn, newPosition });
+        } else { // Blockade rules for non-classic
+            if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+              // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+            } else {
+              moves.push({ pawn, newPosition });
+            }
         }
       }
     });
@@ -575,7 +573,7 @@ export default function GameClient() {
     }
     
     if (pawnToMove.position === -1) {
-        if (gameMode === '5-min' || diceValue === 6) {
+        if (diceValue === 6) {
              const startPos = START_POSITIONS[currentTurn];
              performMove(pawnToMove, startPos);
              return;
@@ -609,7 +607,6 @@ export default function GameClient() {
     let capturedPawn = false;
     let pawnReachedHome = false;
 
-    // For 5-min mode scoring
     if (gameMode === '5-min') {
         const path = PATHS[currentTurn];
         const oldIndex = pawnToMove.position === -1 ? -1 : path.indexOf(pawnToMove.position);
@@ -638,49 +635,44 @@ export default function GameClient() {
             let opponentPawnsAtPos = newPawns[color]?.filter(
               (p: Pawn) => p.position === newPosition
             );
-            if (
-              opponentPawnsAtPos?.length === 1 &&
-              !SAFE_ZONES.includes(newPosition)
-            ) {
-              addMessage(
-                'System',
-                `${players[currentTurn].name} captured a pawn from ${players[color].name}!`
-              );
-              newPawns[color] = newPawns[color].map((p: Pawn) => {
-                if (p.position === newPosition) {
-                  capturedPawn = true;
 
-                  if(glassWalls[currentTurn]) {
-                    setGlassWalls(prev => ({...prev, [currentTurn]: false}));
-                    if (!muteSound && glassBreakAudioRef.current) {
-                        glassBreakAudioRef.current.play();
+            // In classic mode, you can capture a single pawn.
+            if (gameMode === 'classic' && opponentPawnsAtPos?.length === 1) {
+                capturedPawn = true;
+            }
+            // In other modes, you can capture if it's not a blockade.
+            else if (gameMode !== 'classic' && opponentPawnsAtPos?.length === 1 && !SAFE_ZONES.includes(newPosition)) {
+                 capturedPawn = true;
+            }
+
+            if (capturedPawn) {
+                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
+                 newPawns[color] = newPawns[color].map((p: Pawn) => {
+                    if (p.position === newPosition) {
+                        if (gameMode === 'quick' && glassWalls[currentTurn]) {
+                             setGlassWalls(prev => ({...prev, [currentTurn]: false}));
+                            if (!muteSound && glassBreakAudioRef.current) {
+                                glassBreakAudioRef.current.play();
+                            }
+                            addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
+                            if (showNotifications) {
+                                toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
+                            }
+                        }
+                        if (gameMode === '5-min') {
+                           setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
+                        }
+                        return { ...p, position: -1 };
                     }
-                    addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
-                    if (showNotifications) {
-                        toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
-                    }
-                  }
-                  
-                  if (gameMode === '5-min') {
-                      setScores(prev => ({
-                          ...prev,
-                          [currentTurn]: prev[currentTurn] + 20,
-                          [color]: Math.max(0, prev[color] - 20)
-                      }));
-                  }
-                  
-                  // Send pawn to yard (-1) for all game modes on capture.
-                  return { ...p, position: -1 };
-                }
-                return p;
-              });
+                    return p;
+                 });
             }
           }
         });
       }
 
       const currentPath = PATHS[currentTurn];
-      if (currentPath.indexOf(newPosition) >= 51) { // 51 steps on main path + 6 on home run
+      if (currentPath.indexOf(newPosition) >= 51) { 
         pawnsOfPlayer[pawnIndex].isHome = true;
         addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
         pawnReachedHome = true;
@@ -692,11 +684,9 @@ export default function GameClient() {
 
       newPawns[currentTurn] = pawnsOfPlayer;
 
-      if (gameMode !== '5-min') {
-          const aPawnIsHome = newPawns[currentTurn].some((p: Pawn) => p.isHome);
-          if (aPawnIsHome) {
-            setWinner(currentTurn);
-          }
+      const allPawnsHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
+      if (allPawnsHome) {
+          setWinner(currentTurn);
       }
 
       return newPawns;
@@ -730,7 +720,7 @@ export default function GameClient() {
       return getPossibleMoves(currentTurn, diceValue);
     }
     return [];
-  }, [phase, diceValue, currentTurn, pawns, players]);
+  }, [phase, diceValue, currentTurn, pawns, players, gameMode]);
 
   const renderPawns = () => {
     if (!gameSetup) return [];
@@ -766,7 +756,7 @@ export default function GameClient() {
                 const stackCount = pawnsAtSamePos.length;
                 const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
                 
-                allPawns.push({ pawn, highlight, stackCount: stackCount > 1 ? stackCount : 0, stackIndex });
+                allPawns.push({ pawn, highlight, stackCount: gameMode !== 'classic' && stackCount > 1 ? stackCount : 0, stackIndex });
             });
         }
     });
@@ -797,7 +787,6 @@ export default function GameClient() {
 
   const handleResetAndGoHome = () => {
     localStorage.removeItem(LUDO_GAME_STATE_KEY);
-    // This will effectively reload the page state, but without a full refresh if navigation is client-side
     window.location.href = '/'; 
   };
   
@@ -822,10 +811,9 @@ export default function GameClient() {
   };
 
   const handleGameSetupChange = (newSetup: GameSetup) => {
-    setGameSetup(newSetup); // This will just update the state, not start the game yet.
-    if(showNotifications) {
-      toast({title: "Player Configuration Updated", description: "The game will restart with new settings when you apply them."})
-    }
+      if (!gameSetup) return;
+      const mergedSetup = { ...gameSetup, ...newSetup };
+      setGameSetup(mergedSetup);
   }
 
   const applyGameSetupChanges = () => {
@@ -935,7 +923,6 @@ export default function GameClient() {
                     </FiveMinGameLayout>
                 )}
             </main>
-            <GameFooter />
         </div>
       ) : (
         <>
@@ -969,7 +956,7 @@ export default function GameClient() {
             </header>
             <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8 mb-8">
                 <div className="w-full max-w-2xl relative">
-                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
+                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}>
                     {renderPawns()}
                   </GameBoard>
                 </div>
@@ -980,5 +967,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
