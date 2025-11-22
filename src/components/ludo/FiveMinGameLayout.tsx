@@ -415,7 +415,7 @@ export function FiveMinGameLayout({
                   </RadioGroup>
                </div>
               </div>
-              <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes & Play</Button>
+              <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes &amp; Play</Button>
             </div>
            </TooltipProvider>
            </div>
