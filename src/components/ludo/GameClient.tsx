@@ -204,7 +204,7 @@ export default function GameClient() {
   
   // Save state to localStorage on change
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || phase === 'SETUP' || phase === 'GAME_OVER') return;
     try {
       const gameState: any = {
         pawns,
@@ -223,17 +223,13 @@ export default function GameClient() {
         gameState.gameTimerDuration = gameTimerDuration;
         gameState.scores = scores;
       }
-      if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
-        localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
-      } else {
-        localStorage.removeItem(LUDO_GAME_STATE_KEY);
-      }
+      localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
     } catch (error) {
       console.error("Could not save game state to localStorage", error);
     }
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
-      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration, scores
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration, scores, gameMode
   ]);
 
 
@@ -357,8 +353,7 @@ export default function GameClient() {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
 
-    // In 5-min mode, you can't move pawns from the yard with a 6, they start on board.
-    if (roll === 6 && gameMode !== '5-min') {
+    if (roll === 6) {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
@@ -436,7 +431,7 @@ export default function GameClient() {
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-    if (roll === 6 && gameMode !== '5-min') {
+    if (roll === 6) {
       const moveOutOfYard = possibleMoves.find((m) => m.pawn.position === -1);
       if (moveOutOfYard) {
         performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
@@ -455,8 +450,7 @@ export default function GameClient() {
       return;
     }
 
-    // This check is for standard modes, not 5-min mode as pawns start on the board
-    if (pawnToMove.position === -1 && diceValue === 6 && gameMode !== '5-min') {
+    if (pawnToMove.position === -1 && diceValue === 6) {
       const startPos = START_POSITIONS[currentTurn];
       performMove(pawnToMove, startPos);
       return;
@@ -537,7 +531,8 @@ export default function GameClient() {
                       }));
                   }
                   
-                  return { ...p, position: gameMode === '5-min' ? START_POSITIONS[color] : -1 };
+                  // Send pawn to yard (-1) for all game modes on capture.
+                  return { ...p, position: -1 };
                 }
                 return p;
               });
@@ -570,7 +565,7 @@ export default function GameClient() {
       return newPawns;
     });
 
-    const getsAnotherTurn = (rolledSix || capturedPawn || pawnReachedHome) && gameMode !== '5-min';
+    const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
 
     if (getsAnotherTurn && !winner) {
       addMessage('System', `${players[currentTurn].name} gets another turn.`);
@@ -642,8 +637,7 @@ export default function GameClient() {
         let highlight = false;
 
         if (isPlayerTurn) {
-          // This check is for standard modes, not 5-min mode
-          if (pawn.position === -1 && gameMode !== '5-min') { 
+          if (pawn.position === -1) { 
             if (
               diceValue === 6 &&
               possibleMovesForHighlight.some((move) => move.pawn.id === pawn.id)
