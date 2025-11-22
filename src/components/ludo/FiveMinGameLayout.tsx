@@ -224,10 +224,11 @@ export function FiveMinGameLayout({
     };
 
     const handleApplyPlayerConfig = () => {
-        onGameSetupChange({
-            ...gameSetup,
-            players: playerConfig,
-        });
+      onGameSetupChange({
+        ...gameSetup,
+        players: playerConfig,
+      });
+      setIsSettingsOpen(false);
     };
 
 
