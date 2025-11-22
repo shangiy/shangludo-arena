@@ -104,10 +104,10 @@ export function GameBoard({
             color1 = 'fill-blue-500';
             color2 = 'fill-red-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,100 100,100 100,0';
-            triangle2 = '0,0 0,100 100,0';
-            color1 = 'fill-blue-500';
-            color2 = 'fill-yellow-400';
+            triangle1 = '0,0 0,100 100,0';
+            triangle2 = '0,100 100,100 100,0';
+            color1 = 'fill-yellow-400';
+            color2 = 'fill-blue-500';
         }
 
 
@@ -299,5 +299,3 @@ export function Pawn({
     </motion.div>
   );
 }
-
-    
