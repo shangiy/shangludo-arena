@@ -53,7 +53,7 @@ export default function Home() {
                     <Dice5 className="h-8 w-8 text-blue-500" />
                   </div>
                 </div>
-                <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
+                <Button asChild className={cn("w-full text-white", "gradient-button-blue")}>
                   <Link href="/game?mode=5-min">Play 5-Min</Link>
                 </Button>
               </CardContent>
