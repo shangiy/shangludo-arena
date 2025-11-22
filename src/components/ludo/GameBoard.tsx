@@ -154,14 +154,14 @@ export function GameBoard({
     if (x === 7 && y >= 9 && y <= 13) homePathColor = 'blue';
 
     if (isPath) {
-      let bgColor = 'bg-yellow-400/10';
+      let bgColor = 'bg-yellow-400/20'; // Changed to yellow tint
       if (homePathColor) bgColor = HOME_RUN_BGS[homePathColor];
       
       const currentPos = p(x,y);
-      if (x === 7 && y === 6) bgColor = HOME_RUN_BGS.green; // row 7, col 8
-      if (x === 6 && y === 7) bgColor = HOME_RUN_BGS.red;   // row 8, col 7
-      if (x === 7 && y === 8) bgColor = HOME_RUN_BGS.blue;  // row 9, col 8
-      if (x === 8 && y === 7) bgColor = HOME_RUN_BGS.yellow; // row 8, col 9
+      if (x === 7 && y === 6) bgColor = HOME_RUN_BGS.green;
+      if (x === 6 && y === 7) bgColor = HOME_RUN_BGS.red;
+      if (x === 7 && y === 8) bgColor = HOME_RUN_BGS.blue;
+      if (x === 8 && y === 7) bgColor = HOME_RUN_BGS.yellow;
 
       return (
         <div className={cn(borderClasses, bgColor, 'relative h-full w-full')}>
