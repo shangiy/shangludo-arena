@@ -85,7 +85,7 @@ export function GameBoard({
         if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
         if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
         
-        // 🏠 Center cell at (7, 7)
+        // 🏠 Center cell at (7, 7) -> x=7, y=7
         if (x === 7 && y === 7) {
           return (
             <div className={cn(borderClasses, 'bg-white relative')}>
@@ -122,8 +122,8 @@ export function GameBoard({
         // Row 9, Col 9 (x=8, y=8)
         } else if (x === 8 && y === 8) {
              polygons = [
+                { points: '0,0 100,100 0,100', className: 'fill-blue-500' },
                 { points: '0,0 100,0 100,100', className: 'fill-yellow-400' },
-                { points: '0,0 0,100 100,100', className: 'fill-blue-500' },
             ];
         }
 
