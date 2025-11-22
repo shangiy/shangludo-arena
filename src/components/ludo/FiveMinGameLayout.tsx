@@ -37,6 +37,7 @@ type PlayerPodProps = {
   onRollStart: () => void;
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
+  phase: string;
 };
 
 const strokeColorClasses: Record<PlayerColor, string> = {
@@ -57,7 +58,8 @@ function PlayerPod({
   diceRollDuration,
   onRollStart,
   onDiceRoll,
-  diceValue
+  diceValue,
+  phase
 }: PlayerPodProps) {
   const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
@@ -125,10 +127,10 @@ function PlayerPod({
         <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
             {isCurrentTurn && diceValue !== null && !isRolling && (
                 <p className="text-lg font-semibold">
-                    You rolled: {diceValue}
+                    <span className={cn("capitalize", strokeColorClasses[color])}>{color}</span> rolled: {diceValue}
                 </p>
             )}
-            {isHumanTurn && !isRolling && diceValue === null && (
+            {isHumanTurn && !isRolling && diceValue === null && phase === 'ROLLING' && (
                  <button
                     onClick={onRollStart}
                     className={cn("font-bold text-lg animate-pulse", strokeColorClasses[color])}
@@ -215,7 +217,7 @@ export function FiveMinGameLayout({
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
-    const [newDiceRollDuration, setNewDiceRollDuration] = useState(3);
+    const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
     const [isSettingsOpen, setIsSettingsOpen] = useState(true);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
