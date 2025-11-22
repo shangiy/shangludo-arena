@@ -154,7 +154,7 @@ export function GameBoard({
     if (x === 7 && y >= 9 && y <= 13) homePathColor = 'blue';
 
     if (isPath) {
-      let bgColor = 'bg-green-500/10';
+      let bgColor = 'bg-yellow-400/10';
       if (homePathColor) bgColor = HOME_RUN_BGS[homePathColor];
       
       const currentPos = p(x,y);
@@ -340,5 +340,7 @@ export function Pawn({
     </motion.div>
   );
 }
+
+    
 
     
