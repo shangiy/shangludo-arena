@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5 } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -158,6 +158,8 @@ type FiveMinGameLayoutProps = {
   onToggleMuteSound: () => void;
   showNotifications: boolean;
   onToggleShowNotifications: () => void;
+  addSecondarySafePoints: boolean;
+  onToggleSecondarySafePoints: () => void;
 };
 
 export function FiveMinGameLayout({
@@ -179,7 +181,9 @@ export function FiveMinGameLayout({
   muteSound,
   onToggleMuteSound,
   showNotifications,
-  onToggleShowNotifications
+  onToggleShowNotifications,
+  addSecondarySafePoints,
+  onToggleSecondarySafePoints,
 }: FiveMinGameLayoutProps) {
     const { players } = gameSetup;
     const redPlayer = players.find(p => p.color === 'red')!;
@@ -250,6 +254,13 @@ export function FiveMinGameLayout({
                     Show Notifications
                   </Label>
                   <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
+                </div>
+                 <div className="flex items-center justify-between">
+                  <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
+                     <Star className="h-4 w-4" />
+                    Secondary Safe Points
+                  </Label>
+                  <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">

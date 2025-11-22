@@ -794,6 +794,8 @@ export default function GameClient() {
               onToggleMuteSound={() => setMuteSound(prev => !prev)}
               showNotifications={showNotifications}
               onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+              addSecondarySafePoints={addSecondarySafePoints}
+              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             >
                 <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
                     {renderPawns()}
@@ -842,9 +844,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
-
-    
-
-    
