@@ -106,10 +106,10 @@ export default function GameClient() {
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
+  const [showResumeToast, setShowResumeToast] = useState(false);
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const hasShownResumeToastRef = useRef(false);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -177,6 +177,7 @@ export default function GameClient() {
              if(savedState.scores !== undefined) setScores(savedState.scores);
           }
           resumed = true;
+          setShowResumeToast(true);
         }
       }
     } catch (error) {
@@ -195,14 +196,11 @@ export default function GameClient() {
   
   // Effect to show toast only after game is resumed and component is mounted
   useEffect(() => {
-    if (gameSetup && !hasShownResumeToastRef.current && phase !== 'SETUP' && phase !== 'GAME_OVER') {
-        const isRestored = localStorage.getItem(LUDO_GAME_STATE_KEY);
-        if(isRestored) {
-             toast({ title: "Game Resumed", description: "Your previous game has been restored." });
-             hasShownResumeToastRef.current = true;
-        }
+    if (showResumeToast) {
+        toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+        setShowResumeToast(false); // Reset after showing
     }
-  }, [gameSetup, phase, toast]);
+  }, [showResumeToast, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
@@ -844,6 +842,8 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
 
     
 
