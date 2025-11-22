@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +23,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -233,6 +234,7 @@ export function FiveMinGameLayout({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">
+           <TooltipProvider>
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Settings</h4>
@@ -283,7 +285,15 @@ export function FiveMinGameLayout({
                 <div className="flex items-center justify-between gap-2">
                   <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
                     <Dice5 className="h-4 w-4" />
-                    Dice Roll (sec)
+                    Dice Rolling Time
+                     <Tooltip>
+                        <TooltipTrigger asChild>
+                           <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                           <p>Max time in seconds for the dice animation.</p>
+                        </TooltipContent>
+                     </Tooltip>
                   </Label>
                   <div className="flex items-center gap-2">
                     <Input 
@@ -301,6 +311,7 @@ export function FiveMinGameLayout({
                 </div>
               </div>
             </div>
+           </TooltipProvider>
           </PopoverContent>
         </Popover>
 
