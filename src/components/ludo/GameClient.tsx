@@ -41,7 +41,7 @@ import { GameSetup, GameSetupForm } from './GameSetupForm';
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
-const TURN_TIMER_DURATION = 15000; // 15 seconds for 5-min mode
+const TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
@@ -106,9 +106,10 @@ export default function GameClient() {
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
-  const [wasGameResumed, setWasGameResumed] = useState(false);
+  
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasShownResumeToastRef = useRef(false);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
 
@@ -183,24 +184,25 @@ export default function GameClient() {
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
     }
 
-    if (resumed) {
-        setWasGameResumed(true);
-    } else {
-        if (gameMode === 'quick') {
-          handleGameSetup(quickPlaySetup);
-        } else if (gameMode === '5-min') {
-          handleGameSetup(fiveMinSetup);
-        }
+    if (!resumed) {
+      if (gameMode === 'quick') {
+        handleGameSetup(quickPlaySetup);
+      } else if (gameMode === '5-min') {
+        handleGameSetup(fiveMinSetup);
+      }
     }
   }, [gameMode]);
   
   // Effect to show toast only after game is resumed and component is mounted
   useEffect(() => {
-    if (wasGameResumed) {
-        toast({ title: "Game Resumed", description: "Your previous game has been restored." });
-        setWasGameResumed(false); // Reset after showing toast
+    if (gameSetup && !hasShownResumeToastRef.current && phase !== 'SETUP' && phase !== 'GAME_OVER') {
+        const isRestored = localStorage.getItem(LUDO_GAME_STATE_KEY);
+        if(isRestored) {
+             toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+             hasShownResumeToastRef.current = true;
+        }
     }
-  }, [wasGameResumed, toast]);
+  }, [gameSetup, phase, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
@@ -842,5 +844,7 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
 
     
