@@ -41,7 +41,7 @@ import { GameSetup, GameSetupForm } from './GameSetupForm';
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
-const TURN_TIMER_DURATION = 15000;
+const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_DICE_ROLL_DURATION = 1500; // 1.5 seconds
 
@@ -104,7 +104,8 @@ export default function GameClient() {
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
   const [diceRollDuration, setDiceRollDuration] = useState(DEFAULT_DICE_ROLL_DURATION);
-  const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
+  const [turnTimer, setTurnTimer] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
+  const [turnTimerDuration, setTurnTimerDuration] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
@@ -175,6 +176,7 @@ export default function GameClient() {
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
+             if(savedState.turnTimerDuration !== undefined) setTurnTimerDuration(savedState.turnTimerDuration);
              if(savedState.scores !== undefined) setScores(savedState.scores);
           }
           resumed = true;
@@ -221,6 +223,7 @@ export default function GameClient() {
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
         gameState.gameTimerDuration = gameTimerDuration;
+        gameState.turnTimerDuration = turnTimerDuration;
         gameState.scores = scores;
       }
       localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
@@ -229,7 +232,8 @@ export default function GameClient() {
     }
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
-      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, isMounted, gameTimer, gameTimerDuration, scores, gameMode
+      addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, 
+      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode
   ]);
 
 
@@ -273,7 +277,7 @@ export default function GameClient() {
     setCurrentTurn(nextPlayerColor);
     setPhase('ROLLING');
     setDiceValue(null);
-    setTurnTimer(TURN_TIMER_DURATION);
+    setTurnTimer(turnTimerDuration);
   };
 
   useEffect(() => {
@@ -282,7 +286,7 @@ export default function GameClient() {
           return;
       }
 
-      setTurnTimer(TURN_TIMER_DURATION); // Reset timer for the new turn
+      setTurnTimer(turnTimerDuration); // Reset timer for the new turn
       
       turnTimerRef.current = setInterval(() => {
           setTurnTimer(prev => {
@@ -307,7 +311,7 @@ export default function GameClient() {
           if (turnTimerRef.current) clearInterval(turnTimerRef.current);
       };
 
-  }, [currentTurn, phase, winner, gameMode]);
+  }, [currentTurn, phase, winner, gameMode, turnTimerDuration]);
   
   const calculateWinnerByScore = () => {
     let bestScore = -Infinity;
@@ -697,6 +701,13 @@ export default function GameClient() {
     }
   };
   
+  const handleTurnTimerDurationChange = (newDuration: number) => {
+    if (newDuration > 0) {
+      setTurnTimerDuration(newDuration);
+      setTurnTimer(newDuration);
+    }
+  };
+
   const handleDiceRollDurationChange = (newDuration: number) => {
     if (newDuration > 0) {
       setDiceRollDuration(newDuration);
@@ -772,7 +783,8 @@ export default function GameClient() {
               gameSetup={gameSetup}
               currentTurn={currentTurn}
               turnTimer={turnTimer}
-              turnTimerDuration={TURN_TIMER_DURATION}
+              turnTimerDuration={turnTimerDuration}
+              onTurnTimerDurationChange={handleTurnTimerDurationChange}
               gameTimer={gameTimer}
               gameTimerDuration={gameTimerDuration}
               onGameTimerDurationChange={handleGameTimerDurationChange}

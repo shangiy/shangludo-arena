@@ -145,6 +145,7 @@ type FiveMinGameLayoutProps = {
   currentTurn: PlayerColor;
   turnTimer: number;
   turnTimerDuration: number;
+  onTurnTimerDurationChange: (duration: number) => void;
   gameTimer: number;
   gameTimerDuration: number;
   onGameTimerDurationChange: (duration: number) => void;
@@ -169,6 +170,7 @@ export function FiveMinGameLayout({
   currentTurn,
   turnTimer,
   turnTimerDuration,
+  onTurnTimerDurationChange,
   gameTimer,
   gameTimerDuration,
   onGameTimerDurationChange,
@@ -193,12 +195,17 @@ export function FiveMinGameLayout({
     const yellowPlayer = players.find(p => p.color === 'yellow')!;
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
+    const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
 
     const handleApplyTimerChange = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
     };
 
+    const handleApplyTurnTimerChange = () => {
+        onTurnTimerDurationChange(newTurnTimerDuration * 1000);
+    };
+    
     const handleApplyDiceDurationChange = () => {
       onDiceRollDurationChange(newDiceRollDuration * 1000);
     };
@@ -280,6 +287,25 @@ export function FiveMinGameLayout({
                       onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
                     />
                     <Button size="sm" onClick={handleApplyTimerChange}>OK</Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
+                    <Timer className="h-4 w-4" />
+                    Turn Time Limit (s)
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="turn-timer"
+                      type="number"
+                      min="5"
+                      max="60"
+                      step="5"
+                      className="w-20"
+                      value={newTurnTimerDuration}
+                      onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
+                    />
+                    <Button size="sm" onClick={handleApplyTurnTimerChange}>OK</Button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2">
