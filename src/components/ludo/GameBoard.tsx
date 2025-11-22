@@ -99,16 +99,17 @@ export function GameBoard({
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '0,0 0,100 100,0';
-            triangle2 = '0,100 100,100 100,0';
+            triangle1 = '0,0 100,100 0,100';
+            triangle2 = '0,0 100,0 100,100';
             color1 = 'fill-red-500';
             color2 = 'fill-blue-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,100 100,100 0,0';
-            triangle2 = '100,0 100,100 0,100';
-            color1 = 'fill-blue-500';
-            color2 = 'fill-yellow-400';
+            triangle1 = '0,100 100,0 100,100';
+            triangle2 = '0,0 100,0 0,100';
+            color1 = 'fill-yellow-400';
+            color2 = 'fill-blue-500';
         }
+
 
         return (
             <div className={cn(borderClasses, 'bg-white relative')}>
@@ -322,3 +323,4 @@ export function Pawn({
 
 
     
+
