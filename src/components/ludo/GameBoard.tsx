@@ -89,8 +89,8 @@ export function GameBoard({
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
         
         if (x === 6 && y === 6) { // top-left
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '100,0 100,100 0,100';
+            triangle1 = '0,0 100,100 0,100';
+            triangle2 = '0,0 100,0 100,100';
             color1 = 'fill-red-500';
             color2 = 'fill-green-500';
         } else if (x === 8 && y === 6) { // top-right
@@ -131,10 +131,8 @@ export function GameBoard({
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
-            <polygon points="0,0 100,0 50,50" className="fill-green-500" />
-            <polygon points="100,0 100,100 50,50" className="fill-yellow-400" />
-            <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
-            <polygon points="0,0 0,100 50,50" className="fill-red-500" />
+            <polygon points="0,0 100,0 100,100" className="fill-green-500" />
+            <polygon points="0,0 0,100 100,100" className="fill-red-500" />
           </svg>
         </div>
       );
