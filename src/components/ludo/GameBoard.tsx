@@ -133,7 +133,7 @@ export function GameBoard({
 
 
         return (
-            <div className={cn(borderClasses, 'bg-white relative')}>
+            <div className={cn(borderClasses, 'bg-white/90', 'relative')}>
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                     {polygons.map((poly, i) => <polygon key={i} points={poly.points} className={poly.className} />)}
                 </svg>
@@ -154,7 +154,7 @@ export function GameBoard({
     if (x === 7 && y >= 9 && y <= 13) homePathColor = 'blue';
 
     if (isPath) {
-      let bgColor = 'bg-white';
+      let bgColor = 'bg-green-500/10';
       if (homePathColor) bgColor = HOME_RUN_BGS[homePathColor];
       
       const currentPos = p(x,y);
@@ -340,3 +340,5 @@ export function Pawn({
     </motion.div>
   );
 }
+
+    
