@@ -211,7 +211,7 @@ export function FiveMinGameLayout({
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai') => {
@@ -235,7 +235,7 @@ export function FiveMinGameLayout({
 
 
   return (
-    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32">
+    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32 pb-8">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>

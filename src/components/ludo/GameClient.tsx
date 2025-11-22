@@ -88,6 +88,16 @@ const fiveMinSetup: GameSetup = {
     diceRollDuration: '3000',
   };
 
+function GameFooter() {
+    return (
+        <footer className="absolute bottom-0 w-full bg-[#111827] text-gray-300 py-2">
+            <div className="max-w-7xl mx-auto flex justify-center items-center">
+                 <p className="text-xs">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
+            </div>
+        </footer>
+    );
+}
+
 export default function GameClient() {
   const searchParams = useSearchParams();
   const gameMode = searchParams.get('mode') || 'classic';
@@ -399,7 +409,7 @@ export default function GameClient() {
         const newPosition = currentPath[currentPathIndex + roll];
 
         // Glass wall check
-        if(isGlassWallActive) {
+        if(isGlassWallActive && player !== 'red') {
             const wallIndexOnPath = currentPath.indexOf(GLASS_WALL_POSITION);
             if (wallIndexOnPath !== -1) {
                 // If move crosses or lands on the wall
@@ -448,11 +458,14 @@ export default function GameClient() {
       }, 1000);
     } else {
       setPhase('MOVING');
-      if (players[currentTurn].type === 'human') {
+      const isHumanTurn = players[currentTurn].type === 'human';
+      const isAITurn = players[currentTurn].type === 'ai';
+
+      if (isHumanTurn) {
         if (possibleMoves.length === 1) {
           setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
-      } else { // AI move logic
+      } else if (isAITurn) {
         setPhase('AI_THINKING');
         setTimeout(() => {
             handleAiMove(value);
@@ -799,6 +812,7 @@ export default function GameClient() {
                       <GameSetupForm onSetupComplete={handleGameSetup} />
                   </div>
                </Suspense>
+               <GameFooter />
           </div>
       );
   }
@@ -916,6 +930,7 @@ export default function GameClient() {
             </main>
         </>
       )}
+      <GameFooter />
     </div>
   );
 }
