@@ -91,23 +91,23 @@ export function GameBoard({
         if (x === 6 && y === 6) { // top-left
             triangle1 = '0,0 100,0 0,100';
             triangle2 = '100,0 100,100 0,100';
-            color1 = 'fill-red-500';
-            color2 = 'fill-green-500';
+            color1 = 'fill-green-500';
+            color2 = 'fill-red-500';
         } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '100,0 100,100 0,100';
+            triangle1 = '0,0 100,0 100,100';
+            triangle2 = '0,0 0,100 100,100';
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
             triangle1 = '0,0 100,100 0,100';
             triangle2 = '0,0 100,0 100,100';
-            color1 = 'fill-red-500';
-            color2 = 'fill-blue-500';
+            color1 = 'fill-blue-500';
+            color2 = 'fill-red-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 100,0 100,100';
-            triangle2 = '0,100 100,100 0,0';
-            color1 = 'fill-yellow-400';
-            color2 = 'fill-blue-500';
+            triangle1 = '0,100 100,100 100,0';
+            triangle2 = '0,0 0,100 100,0';
+            color1 = 'fill-blue-500';
+            color2 = 'fill-yellow-400';
         }
 
 
@@ -131,11 +131,8 @@ export function GameBoard({
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
           >
-            <polygon points="0,0 100,0 50,50" className="fill-green-500" stroke="white" strokeWidth="2" />
-            <polygon points="100,0 100,100 50,50" className="fill-yellow-400" stroke="white" strokeWidth="2" />
-            <polygon points="100,100 0,100 50,50" className="fill-blue-500" stroke="white" strokeWidth="2" />
-            <polygon points="0,100 0,0 50,50" className="fill-red-500" stroke="white" strokeWidth="2" />
-            <circle cx="50" cy="50" r="6" fill="white" stroke="black" strokeWidth="1" />
+            <polygon points="0,0 100,0 0,100" className="fill-green-500" />
+            <polygon points="100,0 100,100 0,100" className="fill-red-500" />
           </svg>
         </div>
       );
