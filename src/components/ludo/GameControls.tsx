@@ -209,7 +209,6 @@ export function GameControls({
                         ))}
                     </RadioGroup>
                 </div>
-                <Button size="sm" className="w-full mt-2">Apply Changes &amp; Play</Button>
             </div>
             <Separator />
             <Accordion type="single" collapsible className="w-full">

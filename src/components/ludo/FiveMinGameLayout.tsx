@@ -222,12 +222,14 @@ export function FiveMinGameLayout({
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
         setPlayerConfig(prev => {
             const playerExists = prev.some(p => p.color === color);
+            if (type === 'none') {
+                return prev.filter(p => p.color !== color);
+            }
             if (playerExists) {
                 return prev.map(p => p.color === color ? {...p, type} : p);
             }
-            // Add new player if it doesn't exist
             const colorName = color.charAt(0).toUpperCase() + color.slice(1);
-            return [...prev, { color, type, name: type === 'none' ? 'Empty' : `${colorName} ${type === 'ai' ? 'AI' : 'Player'}` }];
+            return [...prev, { color, type, name: `${colorName} ${type === 'ai' ? 'AI' : 'Player'}` }];
         });
     };
 
@@ -239,21 +241,22 @@ export function FiveMinGameLayout({
       onGameTimerDurationChange(newGameTimerDuration * 60000);
       onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onDiceRollDurationChange(newDiceRollDuration * 1000);
-      const activePlayers = playerConfig.filter(p => p.type !== 'none');
       
+      const turnOrder = playerConfig.map(p => p.color);
+
       onGameSetupChange({
         ...gameSetup,
-        players: activePlayers,
-        turnOrder: activePlayers.map(p => p.color),
+        players: playerConfig,
+        turnOrder,
       });
       setIsSettingsOpen(false);
     };
-
-    const allPlayers: PlayerSetup[] = [
-        { color: 'red', name: 'Red', type: 'human' },
-        { color: 'green', name: 'Green', type: 'human' },
-        { color: 'yellow', name: 'Yellow', type: 'human' },
-        { color: 'blue', name: 'Blue', type: 'human' },
+    
+    const allPlayers: {color: PlayerColor, name: string}[] = [
+        { color: 'red', name: 'Red' },
+        { color: 'green', name: 'Green' },
+        { color: 'yellow', name: 'Yellow' },
+        { color: 'blue', name: 'Blue' },
     ];
 
   return (
@@ -301,12 +304,13 @@ export function FiveMinGameLayout({
                 <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
                  <div className="space-y-2 rounded-lg border p-2">
                   {allPlayers.map(p => {
-                      const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color) || { ...p, type: 'none' };
+                      const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
+                      const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
                       return (
                       <div key={p.color} className="flex items-center justify-between gap-2">
-                          {currentPlayerConfig.type === 'human' ? (
+                          {type === 'human' ? (
                                 <Input
-                                    value={currentPlayerConfig.name}
+                                    value={currentPlayerConfig?.name || ''}
                                     onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
                                     className="h-8 flex-1"
                                 />
@@ -317,7 +321,7 @@ export function FiveMinGameLayout({
                             </Label>
                           )}
                           <Select
-                            value={currentPlayerConfig.type}
+                            value={type}
                             onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
                           >
                               <SelectTrigger className="w-32 h-8">
