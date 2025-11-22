@@ -106,6 +106,7 @@ export default function GameClient() {
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
+  const [wasGameResumed, setWasGameResumed] = useState(false);
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -153,6 +154,7 @@ export default function GameClient() {
   // Load state from localStorage on mount
   useEffect(() => {
     setIsMounted(true);
+    let resumed = false;
     try {
       const savedStateJSON = localStorage.getItem(LUDO_GAME_STATE_KEY);
       if (savedStateJSON) {
@@ -173,10 +175,7 @@ export default function GameClient() {
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
              if(savedState.scores !== undefined) setScores(savedState.scores);
           }
-          setTimeout(() => {
-            toast({ title: "Game Resumed", description: "Your previous game has been restored." });
-          }, 0);
-          return;
+          resumed = true;
         }
       }
     } catch (error) {
@@ -184,12 +183,24 @@ export default function GameClient() {
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
     }
 
-    if (gameMode === 'quick') {
-      handleGameSetup(quickPlaySetup);
-    } else if (gameMode === '5-min') {
-      handleGameSetup(fiveMinSetup);
+    if (resumed) {
+        setWasGameResumed(true);
+    } else {
+        if (gameMode === 'quick') {
+          handleGameSetup(quickPlaySetup);
+        } else if (gameMode === '5-min') {
+          handleGameSetup(fiveMinSetup);
+        }
     }
   }, [gameMode]);
+  
+  // Effect to show toast only after game is resumed and component is mounted
+  useEffect(() => {
+    if (wasGameResumed) {
+        toast({ title: "Game Resumed", description: "Your previous game has been restored." });
+        setWasGameResumed(false); // Reset after showing toast
+    }
+  }, [wasGameResumed, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
