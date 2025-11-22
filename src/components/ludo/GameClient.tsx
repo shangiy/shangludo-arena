@@ -37,6 +37,7 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
+import { generateAIMove } from '@/ai/flows/ai-opponent';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -435,9 +436,10 @@ export default function GameClient() {
           setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
       } else { // AI move logic
+        setPhase('AI_THINKING');
         setTimeout(() => {
-            handleAiMove(value, possibleMoves);
-        }, 1000);
+            handleAiMove(value);
+        }, 500);
       }
     }
   };
@@ -449,18 +451,57 @@ export default function GameClient() {
     setDiceValue(null);
   };
 
-  const handleAiMove = async (roll: number, possibleMoves: any[]) => {
-    if (roll === 6 && gameMode !== '5-min') {
-      const moveOutOfYard = possibleMoves.find((m) => m.pawn.position === -1);
-      if (moveOutOfYard) {
-        performMove(moveOutOfYard.pawn, moveOutOfYard.newPosition);
-        return;
-      }
-    }
+  const handleAiMove = async (roll: number) => {
+    const boardState = JSON.stringify(pawns, null, 2);
+    try {
+      const aiResponse = await generateAIMove({
+        boardState,
+        currentPlayer: currentTurn,
+        diceRoll: roll,
+      });
 
-    if (possibleMoves.length > 0) {
-      // Basic AI: just take the first possible move
-      performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
+      console.log('AI Response:', aiResponse);
+      addMessage(`AI (${players[currentTurn].name})`, aiResponse.reasoning, currentTurn);
+
+      const moveRegex = /pawn:(\d+).*to:(\d+)/;
+      const match = aiResponse.move.match(moveRegex);
+
+      if (match) {
+        const pawnId = parseInt(match[1], 10);
+        const newPosition = parseInt(match[2], 10);
+        
+        const pawnToMove = pawns[currentTurn].find(p => p.id === pawnId);
+        
+        if (pawnToMove) {
+          const possibleMoves = getPossibleMoves(currentTurn, roll);
+          const isValidMove = possibleMoves.some(m => m.pawn.id === pawnToMove.id && m.newPosition === newPosition);
+
+          if (isValidMove) {
+            performMove(pawnToMove, newPosition);
+          } else {
+             addMessage('System', `AI for ${currentTurn} chose an invalid move. Taking first valid move.`);
+             const fallbackMove = possibleMoves[0];
+             if(fallbackMove) {
+                performMove(fallbackMove.pawn, fallbackMove.newPosition);
+             } else {
+                nextTurn(); // Should have been caught earlier, but just in case
+             }
+          }
+        } else {
+          throw new Error('AI chose a non-existent pawn.');
+        }
+      } else {
+        throw new Error('AI response move format is incorrect.');
+      }
+    } catch (error) {
+      console.error("AI move failed, performing fallback move:", error);
+      addMessage('System', `AI for ${currentTurn} failed. Taking first valid move.`);
+      const possibleMoves = getPossibleMoves(currentTurn, roll);
+       if (possibleMoves.length > 0) {
+        performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
+      } else {
+        nextTurn();
+      }
     }
   };
 
@@ -849,3 +890,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
