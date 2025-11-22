@@ -90,7 +90,7 @@ const fiveMinSetup: GameSetup = {
 
 function GameFooter() {
     return (
-        <footer className="w-full bg-[#111827] text-gray-300 py-2 mt-auto">
+        <footer className="w-full bg-[#111827] text-gray-300 py-2">
             <div className="max-w-7xl mx-auto flex justify-center items-center">
                  <p className="text-xs">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
             </div>
@@ -870,37 +870,42 @@ export default function GameClient() {
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
       {gameMode === '5-min' ? (
-        gameSetup && (
-            <FiveMinGameLayout
-              gameSetup={gameSetup}
-              onGameSetupChange={handleGameSetupChange}
-              currentTurn={currentTurn}
-              turnTimer={turnTimer}
-              turnTimerDuration={turnTimerDuration}
-              onTurnTimerDurationChange={handleTurnTimerDurationChange}
-              gameTimer={gameTimer}
-              gameTimerDuration={gameTimerDuration}
-              onGameTimerDurationChange={handleGameTimerDurationChange}
-              isRolling={isRolling}
-              diceRollDuration={diceRollDuration}
-              onDiceRollDurationChange={handleDiceRollDurationChange}
-              onRollStart={startRoll}
-              onDiceRoll={handleDiceRollEnd}
-              diceValue={diceValue}
-              onResetAndGoHome={handleResetAndGoHome}
-              muteSound={muteSound}
-              onToggleMuteSound={() => setMuteSound(prev => !prev)}
-              showNotifications={showNotifications}
-              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-              addSecondarySafePoints={addSecondarySafePoints}
-              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-              phase={phase}
-            >
-                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
-                    {renderPawns()}
-                </GameBoard>
-            </FiveMinGameLayout>
-        )
+        <div className="flex flex-col flex-1 h-full">
+            <main className="flex-1">
+                {gameSetup && (
+                    <FiveMinGameLayout
+                      gameSetup={gameSetup}
+                      onGameSetupChange={handleGameSetupChange}
+                      currentTurn={currentTurn}
+                      turnTimer={turnTimer}
+                      turnTimerDuration={turnTimerDuration}
+                      onTurnTimerDurationChange={handleTurnTimerDurationChange}
+                      gameTimer={gameTimer}
+                      gameTimerDuration={gameTimerDuration}
+                      onGameTimerDurationChange={handleGameTimerDurationChange}
+                      isRolling={isRolling}
+                      diceRollDuration={diceRollDuration}
+                      onDiceRollDurationChange={handleDiceRollDurationChange}
+                      onRollStart={startRoll}
+                      onDiceRoll={handleDiceRollEnd}
+                      diceValue={diceValue}
+                      onResetAndGoHome={handleResetAndGoHome}
+                      muteSound={muteSound}
+                      onToggleMuteSound={() => setMuteSound(prev => !prev)}
+                      showNotifications={showNotifications}
+                      onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+                      addSecondarySafePoints={addSecondarySafePoints}
+                      onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+                      phase={phase}
+                    >
+                        <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
+                            {renderPawns()}
+                        </GameBoard>
+                    </FiveMinGameLayout>
+                )}
+            </main>
+            <GameFooter />
+        </div>
       ) : (
         <>
             <header className="w-full flex justify-center items-center py-4">
@@ -937,9 +942,9 @@ export default function GameClient() {
                   </GameBoard>
                 </div>
             </main>
+            <GameFooter />
         </>
       )}
-      <GameFooter />
     </div>
   );
 }
