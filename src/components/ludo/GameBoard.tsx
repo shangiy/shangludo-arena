@@ -116,14 +116,14 @@ export function GameBoard({
         // Row 9, Col 7 (x=6, y=8)
         } else if (x === 6 && y === 8) {
              polygons = [
-                { points: '100,0 0,100 100,100', className: 'fill-blue-500' },
                 { points: '0,0 100,0 0,100', className: 'fill-red-500' },
+                { points: '0,100 100,0 100,100', className: 'fill-blue-500' },
             ];
         // Row 9, Col 9 (x=8, y=8)
         } else if (x === 8 && y === 8) {
              polygons = [
-                { points: '0,0 100,100 0,100', className: 'fill-blue-500' },
                 { points: '0,0 100,0 100,100', className: 'fill-yellow-400' },
+                { points: '0,0 0,100 100,100', className: 'fill-blue-500' },
             ];
         }
 
