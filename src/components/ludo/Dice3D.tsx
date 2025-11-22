@@ -50,7 +50,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     useEffect(() => {
         if (rolling) {
             setFinalValue(null);
-            onRollStart();
             const roll = Math.floor(Math.random() * 6) + 1;
             
             // Random animation spin
@@ -75,8 +74,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         } else if (diceValue !== null) {
             setVisualFace(diceValue);
             setFinalValue(diceValue);
+        } else {
+             setFinalValue(null);
+             setVisualFace(1);
         }
-    }, [rolling, duration, onRollEnd, onRollStart]);
+    }, [rolling, duration, onRollEnd]);
     
     const handleHumanRoll = () => {
         if (rolling || !isHumanTurn) return;

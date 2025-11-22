@@ -96,6 +96,7 @@ export default function GameClient() {
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [phase, setPhase] = useState<GamePhase>('SETUP');
+  const [isRolling, setIsRolling] = useState(false);
   const [winner, setWinner] = useState<PlayerColor | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -274,8 +275,8 @@ export default function GameClient() {
   }, [winner, players, showNotifications, toast, scores, gameMode]);
 
   const nextTurn = () => {
-    setCurrentTurn(nextPlayerColor);
     setPhase('ROLLING');
+    setCurrentTurn(nextPlayerColor);
     setDiceValue(null);
     setTurnTimer(turnTimerDuration);
   };
@@ -407,6 +408,8 @@ export default function GameClient() {
       diceRollAudioRef.current.play();
     }
     setDiceValue(value);
+    setPhase('MOVING');
+    setIsRolling(false);
 
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
@@ -426,13 +429,18 @@ export default function GameClient() {
         if (possibleMoves.length === 1) {
           setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
         }
+      } else { // AI move logic
+        setTimeout(() => {
+            handleAiMove(value, possibleMoves);
+        }, 1000);
       }
     }
   };
 
   const startRoll = () => {
+    if (phase !== 'ROLLING') return;
     if (turnTimerRef.current) clearInterval(turnTimerRef.current);
-    setPhase('MOVING');
+    setIsRolling(true);
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
@@ -589,28 +597,10 @@ export default function GameClient() {
       playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setTimeout(() => {
-        // AI starts "rolling"
-        startRoll(); 
-      }, 1000); // A small delay to make it feel like the AI is thinking
+        startRoll();
+      }, 1000); 
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
-
-
-  useEffect(() => {
-    const isAiTurn =
-      playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
-    if (isAiTurn && phase === 'MOVING' && diceValue && isMounted) {
-        // AI has rolled and now needs to decide on a move
-        const possibleMoves = getPossibleMoves(currentTurn, diceValue);
-        if (possibleMoves.length > 0) {
-            // A delay to make it seem like AI is deciding
-            setTimeout(() => {
-              handleAiMove(diceValue, possibleMoves);
-            }, 1000); 
-        }
-        // If no possible moves, the handleDiceRollEnd function already handles it.
-    }
-  }, [phase, diceValue, currentTurn, isMounted]);
 
   const possibleMovesForHighlight = useMemo(() => {
     if (phase === 'MOVING' && diceValue && players[currentTurn]?.type === 'human') {
@@ -793,7 +783,7 @@ export default function GameClient() {
               gameTimer={gameTimer}
               gameTimerDuration={gameTimerDuration}
               onGameTimerDurationChange={handleGameTimerDurationChange}
-              isRolling={phase === 'MOVING'}
+              isRolling={isRolling}
               diceRollDuration={diceRollDuration}
               onDiceRollDurationChange={handleDiceRollDurationChange}
               onRollStart={startRoll}
@@ -837,7 +827,6 @@ export default function GameClient() {
                   onPlayerNameChange={handlePlayerNameChange}
                   nextPlayerColor={nextPlayerColor}
                   onRollStart={startRoll}
-
                   onDiceRoll={handleDiceRollEnd}
                   onResetAndGoHome={handleResetAndGoHome}
                 />

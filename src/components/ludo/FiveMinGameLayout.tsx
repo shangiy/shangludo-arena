@@ -199,7 +199,7 @@ export function FiveMinGameLayout({
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
-    const [newDiceRollDuration, setNewDiceRollDuration] = useState(2);
+    const [newDiceRollDuration, setNewDiceRollDuration] = useState(3);
     const [isSettingsOpen, setIsSettingsOpen] = useState(true);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
@@ -372,11 +372,11 @@ export function FiveMinGameLayout({
                           id="dice-timer"
                           type="number"
                           min="1"
-                          max="2"
+                          max="3"
                           step="1"
                           className="w-20"
                           value={newDiceRollDuration}
-                          readOnly
+                          onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
                         />
                       </div>
                     </TooltipTrigger>

@@ -71,7 +71,7 @@ export function GameControls({
 }: GameControlsProps) {
 
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
-  const isRolling = phase === 'MOVING' || phase === 'AI_THINKING';
+  const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn) || (phase === 'MOVING');
 
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
