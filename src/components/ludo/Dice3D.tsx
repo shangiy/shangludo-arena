@@ -49,7 +49,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     
     useEffect(() => {
         let animationInterval: NodeJS.Timeout | null = null;
-        let stopTimeout: NodeJS.Timeout | null = null;
         
         if (rolling && !isRollingRef.current) {
             isRollingRef.current = true;
@@ -58,24 +57,23 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             animationInterval = setInterval(() => {
                 setVisualFace(Math.floor(Math.random() * 6) + 1);
             }, 100);
-
-            stopTimeout = setTimeout(() => {
-                if (animationInterval) {
-                    clearInterval(animationInterval);
-                }
+            
+            const stopTimeout = setTimeout(() => {
+                if (animationInterval) clearInterval(animationInterval);
                 setVisualFace(finalRoll);
                 isRollingRef.current = false;
                 onRollEnd(finalRoll);
             }, duration);
+
+            return () => {
+                if (animationInterval) clearInterval(animationInterval);
+                clearTimeout(stopTimeout);
+            };
         } else if (!rolling) {
              setVisualFace(diceValue !== null ? diceValue : 1);
              isRollingRef.current = false;
         }
 
-        return () => {
-            if (animationInterval) clearInterval(animationInterval);
-            if (stopTimeout) clearTimeout(stopTimeout);
-        };
     }, [rolling, duration, onRollEnd, diceValue]);
     
     const handleHumanRoll = () => {
@@ -139,7 +137,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                          Click to Roll
                      </button>
                 )}
-                 {diceValue !== null && !rolling && isHumanTurn && (
+                 {isHumanTurn && !rolling && diceValue !== null && (
                     <p className="text-lg font-semibold">
                        You rolled: {diceValue}
                     </p>
