@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 
 export default function Home() {
   return (
-    <div id="top" className="flex flex-col min-h-screen bg-background pl-4">
+    <div id="top" className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
@@ -29,7 +29,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section id="play" className="container pb-16 md:pb-24 pl-8">
+        <section id="play" className="container pb-16 md:pb-24">
           <h2 className="text-center font-headline text-3xl font-bold mb-8">Choose Your Game</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             <Card className="hover:shadow-lg transition-shadow">
@@ -138,7 +138,7 @@ export default function Home() {
       </main>
       
       <footer className="bg-[#111827] text-gray-300">
-        <div className="container py-12">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* About Me */}
             <div className="space-y-4">
@@ -232,7 +232,7 @@ export default function Home() {
         </div>
 
         <div className="border-t border-gray-700">
-            <div className="container py-6 flex justify-center items-center relative">
+            <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center relative">
                 <div className="flex items-center space-x-2">
                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white font-bold">
                         N
@@ -249,5 +249,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
