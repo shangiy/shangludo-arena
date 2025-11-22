@@ -196,11 +196,11 @@ export default function GameClient() {
   
   // Effect to show toast only after game is resumed and component is mounted
   useEffect(() => {
-    if (showResumeToast) {
+    if (isMounted && showResumeToast) {
         toast({ title: "Game Resumed", description: "Your previous game has been restored." });
         setShowResumeToast(false); // Reset after showing
     }
-  }, [showResumeToast, toast]);
+  }, [showResumeToast, isMounted, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
@@ -351,7 +351,7 @@ export default function GameClient() {
     return () => {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
     };
-  }, [phase, gameMode]);
+  }, [phase, gameMode, gameTimerDuration]);
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
@@ -698,7 +698,7 @@ export default function GameClient() {
   
   const handleGameTimerDurationChange = (newDuration: number) => {
     if (newDuration > 0) {
-      const durationMs = newDuration * 60000;
+      const durationMs = newDuration;
       setGameTimerDuration(durationMs);
       setGameTimer(durationMs); // Reset current timer to new duration
     }
@@ -844,3 +844,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
