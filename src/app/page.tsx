@@ -231,7 +231,7 @@ export default function Home() {
         </div>
 
         <div className="border-t border-gray-700">
-            <div className="container py-6 flex justify-between items-center relative">
+            <div className="container py-6 flex justify-center items-center relative">
                 <div className="flex items-center space-x-2">
                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white font-bold">
                         N
