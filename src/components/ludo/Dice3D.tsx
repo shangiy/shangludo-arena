@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -130,7 +131,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                         onClick={handleHumanRoll}
                         className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
                      >
-                         Roll Dice
+                         Click to Roll
                      </button>
                 )}
                  {diceValue !== null && (
