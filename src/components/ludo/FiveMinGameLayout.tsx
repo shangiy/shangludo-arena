@@ -311,7 +311,7 @@ export function FiveMinGameLayout({
                 <div className="flex items-center justify-between gap-2">
                   <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
                     <Dice5 className="h-4 w-4" />
-                    Dice Rolling Time
+                    Dice Rolling Time (s)
                      <Tooltip>
                         <TooltipTrigger asChild>
                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
@@ -327,7 +327,7 @@ export function FiveMinGameLayout({
                       type="number"
                       min="1"
                       max="2"
-                      step="0.5"
+                      step="1"
                       className="w-20"
                       value={newDiceRollDuration}
                       readOnly
