@@ -22,7 +22,7 @@ import type { GameSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -120,11 +120,7 @@ function PlayerPod({
                 diceValue={isCurrentTurn ? diceValue : null}
             />
         </div>
-        <div className="w-full space-y-1 z-10 h-6">
-            <p className="text-center text-sm font-mono text-muted-foreground">
-                {(timerValue / 1000).toFixed(1)}s
-            </p>
-        </div>
+        <div className="w-full space-y-1 z-10 h-6" />
     </div>
   );
 }
