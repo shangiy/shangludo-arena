@@ -197,6 +197,7 @@ export function FiveMinGameLayout({
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(2);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(true);
 
     const handleApplyTimerChange = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
@@ -234,7 +235,7 @@ export function FiveMinGameLayout({
             </AlertDialogContent>
         </AlertDialog>
 
-        <Popover>
+        <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="icon">
               <Settings />
