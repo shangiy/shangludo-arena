@@ -36,11 +36,13 @@ import {
 } from "@/components/ui/select";
 import { useEffect } from "react";
 
-const playerSchema = z.object({
+export const playerSchema = z.object({
   color: z.enum(["red", "green", "yellow", "blue"]),
   name: z.string().min(1, "Name is required").max(15, "Name is too long"),
   type: z.enum(["human", "ai"]),
 });
+export type PlayerSetup = z.infer<typeof playerSchema>;
+
 
 const setupSchema = z.object({
   gameMode: z.enum(["vs-computer", "multiplayer"]),

@@ -714,6 +714,14 @@ export default function GameClient() {
     }
   };
 
+  const handleGameSetupChange = (newSetup: GameSetup) => {
+    setGameSetup(newSetup);
+    // Potentially reset parts of the game state if player config changes drastically
+    if(showNotifications) {
+      toast({title: "Player Configuration Updated", description: "The game has been updated with new players."})
+    }
+  }
+
   if (!isMounted) {
      return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
@@ -781,6 +789,7 @@ export default function GameClient() {
         gameSetup && (
             <FiveMinGameLayout
               gameSetup={gameSetup}
+              onGameSetupChange={handleGameSetupChange}
               currentTurn={currentTurn}
               turnTimer={turnTimer}
               turnTimerDuration={turnTimerDuration}

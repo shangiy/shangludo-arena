@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -18,12 +18,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dice3D } from "./Dice3D";
-import type { GameSetup } from "./GameSetupForm";
+import type { GameSetup, PlayerSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" };
@@ -142,6 +143,7 @@ function GameTimer({ remaining }: { remaining: number }) {
 type FiveMinGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
+  onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
   turnTimer: number;
   turnTimerDuration: number;
@@ -167,6 +169,7 @@ type FiveMinGameLayoutProps = {
 export function FiveMinGameLayout({
   children,
   gameSetup,
+  onGameSetupChange,
   currentTurn,
   turnTimer,
   turnTimerDuration,
@@ -198,6 +201,7 @@ export function FiveMinGameLayout({
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(2);
     const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+    const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
     const handleApplyTimerChange = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
@@ -209,6 +213,17 @@ export function FiveMinGameLayout({
     
     const handleApplyDiceDurationChange = () => {
       onDiceRollDurationChange(newDiceRollDuration * 1000);
+    };
+
+    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai') => {
+        setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, type} : p));
+    };
+
+    const handleApplyPlayerConfig = () => {
+        onGameSetupChange({
+            ...gameSetup,
+            players: playerConfig,
+        });
     };
 
 
@@ -250,6 +265,34 @@ export function FiveMinGameLayout({
                   Adjust in-game preferences.
                 </p>
               </div>
+
+               <div className="space-y-2">
+                <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                 <div className="space-y-2 rounded-lg border p-2">
+                  {playerConfig.map(p => (
+                      <div key={p.color} className="flex items-center justify-between">
+                          <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                {p.color}
+                          </Label>
+                          <Select
+                            value={p.type}
+                            onValueChange={(value: 'human' | 'ai') => handlePlayerConfigChange(p.color, value)}
+                          >
+                              <SelectTrigger className="w-32 h-8">
+                                  <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="human">Human</SelectItem>
+                                  <SelectItem value="ai">AI</SelectItem>
+                              </SelectContent>
+                          </Select>
+                      </div>
+                  ))}
+                 </div>
+                <Button size="sm" className="w-full" onClick={handleApplyPlayerConfig}>Apply Player Changes</Button>
+              </div>
+
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="mute-sound" className="flex items-center gap-2">
