@@ -242,7 +242,7 @@ export function FiveMinGameLayout({
 
 
   return (
-    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32">
+    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-40">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -414,7 +414,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </div>
 
-      <div className="w-full flex justify-center mt-12">
+      <div className="w-full flex justify-center mt-8">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
@@ -490,5 +490,3 @@ export function FiveMinGameLayout({
     </div>
   );
 }
-
-    
