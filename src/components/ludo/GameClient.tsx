@@ -618,11 +618,12 @@ export default function GameClient() {
   }, [phase, diceValue, currentTurn, pawns, players]);
 
   const renderPawns = () => {
-    const allPawns: (Pawn & { highlight: boolean; isStacked: boolean })[] = [];
+    const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
     const positions: { [key: number]: Pawn[] } = {};
-
-    (Object.keys(pawns) as PlayerColor[]).forEach((color) => {
-      pawns[color].forEach((pawn) => {
+  
+    // Group pawns by position
+    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
+      pawns[color].forEach(pawn => {
         if (pawn.position !== -1 && !pawn.isHome) {
           if (!positions[pawn.position]) {
             positions[pawn.position] = [];
@@ -631,42 +632,37 @@ export default function GameClient() {
         }
       });
     });
-
-    (Object.keys(pawns) as PlayerColor[]).forEach((color) => {
-      pawns[color].forEach((pawn) => {
-        const isPlayerTurn =
-          pawn.color === currentTurn &&
-          phase === 'MOVING' &&
-          players[currentTurn]?.type === 'human';
+  
+    // Create render list
+    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
+      pawns[color].forEach(pawn => {
+        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
         let highlight = false;
-
+  
         if (isPlayerTurn) {
-          const canMove = possibleMovesForHighlight.some(
-            (move) =>
-              move.pawn.id === pawn.id && move.pawn.color === pawn.color
-          );
-          if (canMove) {
-            highlight = true;
-          }
+          highlight = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
         }
-
-        const isStacked =
-          pawn.position !== -1 &&
-          positions[pawn.position] &&
-          positions[pawn.position].length > 1;
-        allPawns.push({ ...pawn, highlight, isStacked });
+  
+        const pawnsAtSamePos = positions[pawn.position] || [];
+        const stackCount = pawnsAtSamePos.length;
+        const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
+        
+        allPawns.push({ pawn, highlight, stackCount: stackCount > 1 ? stackCount : 0, stackIndex });
       });
     });
-
-    return allPawns.map((pawn) => (
+  
+    return allPawns.map(({ pawn, highlight, stackCount, stackIndex }) => (
       <PawnComponent
         key={`${pawn.color}-${pawn.id}`}
         {...pawn}
         onPawnClick={handlePawnMove}
+        highlight={highlight}
+        stackCount={stackCount}
+        stackIndex={stackIndex}
       />
     ));
   };
-
+  
   const handlePlayerNameChange = (color: PlayerColor, newName: string) => {
     if (!gameSetup) return;
 
@@ -852,5 +848,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

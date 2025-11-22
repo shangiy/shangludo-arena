@@ -220,7 +220,8 @@ export function GameBoard({
 interface PawnProps extends PawnType {
   onPawnClick: (pawn: PawnType) => void;
   highlight: boolean;
-  isStacked: boolean;
+  stackCount: number;
+  stackIndex: number;
 }
 
 export function Pawn({
@@ -230,7 +231,8 @@ export function Pawn({
   isHome,
   onPawnClick,
   highlight,
-  isStacked,
+  stackCount,
+  stackIndex,
 }: PawnProps) {
   const cellSize = 100 / 15;
   let top: number;
@@ -268,6 +270,24 @@ export function Pawn({
     left = x * cellSize;
   }
 
+  const stackOffsets = [
+    { x: -15, y: -15 },
+    { x: 15, y: -15 },
+    { x: -15, y: 15 },
+    { x: 15, y: 15 },
+  ];
+  
+  let translateX = '0%';
+  let translateY = '0%';
+  let scale = 1;
+
+  if (stackCount > 1) {
+    const offset = stackOffsets[stackIndex];
+    translateX = `${offset.x}%`;
+    translateY = `${offset.y}%`;
+    scale = 0.7;
+  }
+  
   return (
     <motion.div
       layout
@@ -281,7 +301,8 @@ export function Pawn({
         left: `${left}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
-        zIndex: highlight ? 10 : isHome ? 0 : 1,
+        zIndex: highlight ? 10 : isHome ? 0 : (stackIndex + 1),
+        transform: `translateX(${translateX}) translateY(${translateY}) scale(${scale})`,
       }}
       className="p-1 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
@@ -294,8 +315,8 @@ export function Pawn({
         )}
       >
         <PawnIcon color={color} className="w-full h-full drop-shadow-md" />
-        {isStacked && (
-          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold z-10 text-black">2</span>
+        {stackCount > 1 && (
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold z-10 text-black">{stackCount}</span>
         )}
       </div>
     </motion.div>
