@@ -203,18 +203,6 @@ export function FiveMinGameLayout({
     const [isSettingsOpen, setIsSettingsOpen] = useState(true);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
-    const handleApplyTimerChange = () => {
-      onGameTimerDurationChange(newGameTimerDuration * 60000);
-    };
-
-    const handleApplyTurnTimerChange = () => {
-        onTurnTimerDurationChange(newTurnTimerDuration * 1000);
-    };
-    
-    const handleApplyDiceDurationChange = () => {
-      onDiceRollDurationChange(newDiceRollDuration * 1000);
-    };
-
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai') => {
         setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, type} : p));
     };
@@ -223,7 +211,9 @@ export function FiveMinGameLayout({
         setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, name} : p));
     };
 
-    const handleApplyPlayerConfig = () => {
+    const handleApplyAllChanges = () => {
+      onGameTimerDurationChange(newGameTimerDuration * 60000);
+      onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onGameSetupChange({
         ...gameSetup,
         players: playerConfig,
@@ -303,7 +293,6 @@ export function FiveMinGameLayout({
                       </div>
                   ))}
                  </div>
-                <Button size="sm" className="w-full" onClick={handleApplyPlayerConfig}>Apply Player Changes</Button>
               </div>
 
               <div className="grid gap-2">
@@ -343,7 +332,6 @@ export function FiveMinGameLayout({
                       value={newGameTimerDuration}
                       onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
                     />
-                    <Button size="sm" onClick={handleApplyTimerChange}>OK</Button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2">
@@ -362,7 +350,6 @@ export function FiveMinGameLayout({
                       value={newTurnTimerDuration}
                       onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
                     />
-                    <Button size="sm" onClick={handleApplyTurnTimerChange}>OK</Button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2">
@@ -402,6 +389,7 @@ export function FiveMinGameLayout({
                   </div>
                 </div>
               </div>
+              <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Player Changes</Button>
             </div>
            </TooltipProvider>
           </PopoverContent>
