@@ -372,7 +372,7 @@ export function FiveMinGameLayout({
                       min="1"
                       max="2"
                       step="1"
-                      className="w-20"
+                      className="w-16"
                       value={newDiceRollDuration}
                       readOnly
                     />
