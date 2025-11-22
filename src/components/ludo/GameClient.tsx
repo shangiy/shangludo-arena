@@ -259,10 +259,32 @@ export default function GameClient() {
 
   const handleGameSetup = (setup: GameSetup) => {
     localStorage.removeItem(LUDO_GAME_STATE_KEY);
-    setGameSetup(setup);
-    const playerColors = setup.players.map(p => p.color);
+    const activePlayers = setup.players.filter(p => p.type !== 'none');
+    
+    if (activePlayers.length < 2) {
+        toast({
+            variant: 'destructive',
+            title: 'Not Enough Players',
+            description: 'You need at least two players to start a game.',
+        });
+        setPhase('SETUP');
+        // If we are in quick/5-min mode, we need to reset the gameSetup so the form doesn't disappear
+        if (gameMode === 'quick' || gameMode === '5-min') {
+            setGameSetup(setup);
+        } else {
+             setGameSetup(null);
+        }
+        return;
+    }
+
+    const turnOrder = setup.turnOrder.filter(color => activePlayers.some(p => p.color === color));
+    const finalSetup = { ...setup, players: activePlayers, turnOrder: turnOrder.length > 0 ? turnOrder : activePlayers.map(p => p.color) };
+    
+    setGameSetup(finalSetup);
+    
+    const playerColors = finalSetup.players.map(p => p.color);
     setDiceRollDuration(Number(setup.diceRollDuration));
-    setCurrentTurn(setup.turnOrder[0]);
+    setCurrentTurn(finalSetup.turnOrder[0]);
     setPawns(initialPawns(gameMode, playerColors));
     setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
@@ -613,11 +635,11 @@ export default function GameClient() {
       if (!SAFE_ZONES.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
           if (color !== currentTurn) {
-            let opponentPawnsAtPos = newPawns[color].filter(
+            let opponentPawnsAtPos = newPawns[color]?.filter(
               (p: Pawn) => p.position === newPosition
             );
             if (
-              opponentPawnsAtPos.length === 1 &&
+              opponentPawnsAtPos?.length === 1 &&
               !SAFE_ZONES.includes(newPosition)
             ) {
               addMessage(
@@ -800,14 +822,18 @@ export default function GameClient() {
   };
 
   const handleGameSetupChange = (newSetup: GameSetup) => {
-    setGameSetup(newSetup);
-    const playerColors = newSetup.players.map(p => p.color);
-    setCurrentTurn(newSetup.turnOrder[0]);
-    setPawns(initialPawns(gameMode, playerColors));
+    setGameSetup(newSetup); // This will just update the state, not start the game yet.
     if(showNotifications) {
-      toast({title: "Player Configuration Updated", description: "The game has been updated with new settings."})
+      toast({title: "Player Configuration Updated", description: "The game will restart with new settings when you apply them."})
     }
   }
+
+  const applyGameSetupChanges = () => {
+      if (gameSetup) {
+          handleGameSetup(gameSetup);
+      }
+  };
+
 
   if (!isMounted) {
      return (
@@ -880,7 +906,7 @@ export default function GameClient() {
                 {gameSetup && (
                     <FiveMinGameLayout
                       gameSetup={gameSetup}
-                      onGameSetupChange={handleGameSetupChange}
+                      onGameSetupChange={handleGameSetup}
                       currentTurn={currentTurn}
                       turnTimer={turnTimer}
                       turnTimerDuration={turnTimerDuration}
@@ -933,7 +959,8 @@ export default function GameClient() {
                   onDiceRollDurationChange={setDiceRollDuration}
                   gameMode={gameMode}
                   gameSetup={gameSetup}
-                  onPlayerNameChange={handlePlayerNameChange}
+                  onGameSetupChange={handleGameSetupChange}
+                  onApplyGameSetupChanges={applyGameSetupChanges}
                   nextPlayerColor={nextPlayerColor}
                   onRollStart={startRoll}
                   onDiceRoll={handleDiceRollEnd}

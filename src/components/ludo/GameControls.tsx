@@ -1,16 +1,17 @@
 
 "use client";
 
+import { useState } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
-import { Settings, HelpCircle, Home } from 'lucide-react';
+import { Settings, HelpCircle, Home, Users, Star, Bell, BellOff, Volume2, VolumeX } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import type { GameSetup } from './GameSetupForm';
+import type { GameSetup, PlayerSetup } from './GameSetupForm';
 import { Input } from '../ui/input';
 import { Dice3D } from './Dice3D';
 import {
@@ -24,6 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { cn } from '@/lib/utils';
 
 
 type GameControlsProps = {
@@ -41,7 +44,8 @@ type GameControlsProps = {
   onDiceRollDurationChange: (duration: number) => void;
   gameMode: string;
   gameSetup: GameSetup | null;
-  onPlayerNameChange: (color: PlayerColor, newName: string) => void;
+  onGameSetupChange: (newSetup: GameSetup) => void;
+  onApplyGameSetupChanges: () => void;
   nextPlayerColor: PlayerColor;
   onRollStart: () => void;
   onDiceRoll: (value: number) => void;
@@ -63,16 +67,83 @@ export function GameControls({
   onDiceRollDurationChange,
   gameMode,
   gameSetup,
-  onPlayerNameChange,
+  onGameSetupChange,
+  onApplyGameSetupChanges,
   nextPlayerColor,
   onRollStart,
   onDiceRoll,
   onResetAndGoHome
 }: GameControlsProps) {
 
-  const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
   const currentPlayerDetails = gameSetup?.players.find(p => p.color === currentTurn);
   const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn);
+  
+  const [playerConfig, setPlayerConfig] = useState<PlayerSetup[] | undefined>(gameSetup?.players);
+
+  const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
+      if (!gameSetup) return;
+      const newPlayers = (playerConfig || gameSetup.players).map(p => {
+          if (p.color === color) {
+              const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+              const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
+              return {...p, type, name };
+          }
+          return p;
+      });
+
+      // Handle 'none' case - we need a representation for it.
+      // The logic in GameClient will filter out 'none' players on game start/setup.
+      let fullPlayerList = [...newPlayers];
+      const allColors: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
+      allColors.forEach(c => {
+          if (!fullPlayerList.some(p => p.color === c)) {
+              if (c === color && type !== 'none') {
+                  // This case should be handled by the map above, but as a fallback
+              } else if (c === color && type === 'none') {
+                  fullPlayerList.push({color: c, type: 'none', name: 'Empty'});
+              } else if (!fullPlayerList.some(p => p.color === c)) {
+                   // This is to ensure we always have a placeholder for each color
+                   // to show in the settings UI.
+                   const existing = gameSetup.players.find(p => p.color === c);
+                   if (!existing) {
+                       fullPlayerList.push({color: c, type: 'none', name: 'Empty'});
+                   }
+              }
+          }
+      });
+      
+      const updatedConfig = allColors.map(c => {
+          const found = newPlayers.find(p => p.color === c);
+          if (found) return found;
+          if (c === color) {
+               const colorName = c.charAt(0).toUpperCase() + c.slice(1);
+               const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
+               return {color: c, type, name};
+          }
+          // return existing or a new 'none' player
+          return gameSetup.players.find(p => p.color === c) || {color: c, type: 'none', name: 'Empty'};
+      }).map(p => {
+           if (p.color === color) {
+              const colorName = p.color.charAt(0).toUpperCase() + p.color.slice(1);
+              const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
+              return {...p, type, name};
+           }
+           return p;
+      });
+
+      setPlayerConfig(updatedConfig);
+      onGameSetupChange({...gameSetup, players: updatedConfig});
+  };
+
+  const handlePlayerNameChange = (color: PlayerColor, name: string) => {
+      if (!gameSetup) return;
+      const newPlayers = (playerConfig || gameSetup.players).map(p => 
+        p.color === color ? {...p, name} : p
+      );
+      setPlayerConfig(newPlayers);
+      onGameSetupChange({...gameSetup, players: newPlayers});
+  };
+
 
   const classicRules = (
     <>
@@ -93,6 +164,15 @@ export function GameControls({
         <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
     </>
   );
+
+  const allPlayers: {color: PlayerColor, name: string}[] = [
+      { color: 'red', name: 'Red' },
+      { color: 'green', name: 'Green' },
+      { color: 'yellow', name: 'Yellow' },
+      { color: 'blue', name: 'Blue' },
+  ];
+  
+  const currentPlayersForUI = playerConfig || gameSetup?.players || [];
 
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
@@ -140,26 +220,55 @@ export function GameControls({
         <PopoverContent className="w-80">
           <div className="grid gap-4">
             <div className="space-y-2">
-              <h4 className="font-medium leading-none">Game Settings</h4>
-              <p className="text-sm text-muted-foreground">Adjust game rules and preferences.</p>
+              <h4 className="font-medium leading-none">Settings</h4>
+              <p className="text-sm text-muted-foreground">Adjust in-game preferences.</p>
             </div>
+            <Separator />
+            <div className="space-y-2">
+                <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                 <div className="space-y-2 rounded-lg border p-2">
+                  {allPlayers.map(p => {
+                      const currentPlayerConfig = currentPlayersForUI.find(pc => pc.color === p.color);
+                      const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
+                      
+                      return (
+                      <div key={p.color} className="flex items-center justify-between gap-2">
+                          {type === 'human' ? (
+                                <Input
+                                    value={currentPlayerConfig?.name || ''}
+                                    onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                    className="h-8 flex-1"
+                                />
+                          ) : (
+                            <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                {p.color}
+                            </Label>
+                          )}
+                          <Select
+                            value={type}
+                            onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
+                          >
+                              <SelectTrigger className="w-32 h-8">
+                                  <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="human">Human</SelectItem>
+                                  <SelectItem value="ai">AI</SelectItem>
+                                  <SelectItem value="none">No One</SelectItem>
+                              </SelectContent>
+                          </Select>
+                      </div>
+                  )})}
+                 </div>
+              </div>
+            
             <div className="grid gap-2">
-              {gameSetup && humanPlayer && (
-                <>
-                  <div className="flex items-center justify-between">
-                     <Label htmlFor="player-name">Change Your Name</Label>
-                     <Input 
-                       id="player-name"
-                       defaultValue={humanPlayer.name}
-                       className="w-40"
-                       onBlur={(e) => onPlayerNameChange(humanPlayer.color, e.target.value)}
-                     />
-                  </div>
-                  <Separator />
-                </>
-              )}
               <div className="flex items-center justify-between">
-                <Label htmlFor="secondary-safepoints">Add Secondary SafePoints</Label>
+                <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  Secondary SafePoints
+                </Label>
                 <Switch
                   id="secondary-safepoints"
                   checked={addSecondarySafePoints}
@@ -167,7 +276,10 @@ export function GameControls({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="show-notifications">Show Notifications</Label>
+                 <Label htmlFor="show-notifications" className="flex items-center gap-2">
+                     {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                     Show Notifications
+                 </Label>
                 <Switch
                   id="show-notifications"
                   checked={showNotifications}
@@ -175,7 +287,10 @@ export function GameControls({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="mute-sound">Mute Sound</Label>
+                 <Label htmlFor="mute-sound" className="flex items-center gap-2">
+                    {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                    Mute Sound
+                 </Label>
                 <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
               </div>
               <Separator />
@@ -210,7 +325,13 @@ export function GameControls({
                     </RadioGroup>
                 </div>
             </div>
+            
+            <Button size="sm" className="w-full mt-2" onClick={onApplyGameSetupChanges}>
+                Apply Changes &amp; Restart
+            </Button>
+
             <Separator />
+
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="how-to-play">
                   <AccordionTrigger>
