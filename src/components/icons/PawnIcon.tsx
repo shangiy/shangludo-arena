@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import { PlayerColor } from "@/lib/ludo-constants";
 import type { SVGProps } from "react";
@@ -15,3 +16,5 @@ export function PawnIcon({color, ...props}: SVGProps<SVGSVGElement> & {color: Pl
         </svg>
     )
 };
+
+    

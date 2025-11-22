@@ -14,6 +14,7 @@ import {
   SECONDARY_YELLOW_SAFE_ZONE,
 } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
+import { PawnIcon } from '../icons/PawnIcon';
 
 const gridCellStyle =
   'flex items-center justify-center border-r border-b border-black/40';
@@ -195,10 +196,10 @@ export function GameBoard({
           </div>
         ) : (
           <>
-            <div className="rounded-full border-2 border-white/50 bg-white/30" />
-            <div className="rounded-full border-2 border-white/50 bg-white/30" />
-            <div className="rounded-full border-2 border-white/50 bg-white/30" />
-            <div className="rounded-full border-2 border-white/50 bg-white/30" />
+            <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
+            <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
+            <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
+            <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
           </>
         )}
       </div>
@@ -231,13 +232,6 @@ export function GameBoard({
   );
 }
 
-// 🧍 Pawn + Player Names
-const PAWN_COLORS: Record<PlayerColor, { bg: string; border: string }> = {
-  red: { bg: 'bg-red-500', border: 'border-black' },
-  green: { bg: 'bg-green-500', border: 'border-black' },
-  yellow: { bg: 'bg-yellow-400', border: 'border-black' },
-  blue: { bg: 'bg-blue-500', border: 'border-black' },
-};
 
 interface PawnProps extends PawnType {
   onPawnClick: (pawn: PawnType) => void;
@@ -312,22 +306,16 @@ export function Pawn({
         className={cn(
           'w-full h-full rounded-full flex items-center justify-center text-white font-bold text-xs border-2 shadow-lg cursor-pointer transition-all',
           'relative',
-          PAWN_COLORS[color].bg,
-          PAWN_COLORS[color].border,
           highlight && 'ring-4 ring-offset-0 ring-white scale-110'
         )}
       >
-        <div className="absolute inset-[3px] bg-white rounded-full" />
-        <div
-          className={cn(
-            'absolute w-1/2 h-1/2 rounded-full',
-            PAWN_COLORS[color].bg
-          )}
-        />
+        <PawnIcon color={color} className="w-full h-full drop-shadow-md" />
         {isStacked && (
-          <span className="text-xs font-bold relative z-10 text-black">2</span>
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold z-10 text-black">2</span>
         )}
       </div>
     </motion.div>
   );
 }
+
+    
