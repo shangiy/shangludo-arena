@@ -379,5 +379,3 @@ export function FiveMinGameLayout({
     </div>
   );
 }
-
-    
