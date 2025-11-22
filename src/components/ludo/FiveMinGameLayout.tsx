@@ -118,11 +118,25 @@ function PlayerPod({
                 onRollEnd={onDiceRoll}
                 color={color}
                 duration={diceRollDuration}
-                isHumanTurn={isHumanTurn && !isRolling}
+                isHumanTurn={isHumanTurn && !isRolling && phase === 'ROLLING'}
                 diceValue={isCurrentTurn ? diceValue : null}
             />
         </div>
-        <div className="w-full space-y-1 z-10 h-6" />
+        <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
+            {isCurrentTurn && diceValue !== null && !isRolling && (
+                <p className="text-lg font-semibold">
+                    You rolled: {diceValue}
+                </p>
+            )}
+            {isHumanTurn && !isRolling && diceValue === null && (
+                 <button
+                    onClick={onRollStart}
+                    className={cn("font-bold text-lg animate-pulse", strokeColorClasses[color])}
+                 >
+                     Click to Roll
+                 </button>
+            )}
+        </div>
     </div>
   );
 }
@@ -164,6 +178,7 @@ type FiveMinGameLayoutProps = {
   onToggleShowNotifications: () => void;
   addSecondarySafePoints: boolean;
   onToggleSecondarySafePoints: () => void;
+  phase: string;
 };
 
 export function FiveMinGameLayout({
@@ -190,6 +205,7 @@ export function FiveMinGameLayout({
   onToggleShowNotifications,
   addSecondarySafePoints,
   onToggleSecondarySafePoints,
+  phase
 }: FiveMinGameLayoutProps) {
     const { players } = gameSetup;
     const redPlayer = players.find(p => p.color === 'red')!;
@@ -214,6 +230,7 @@ export function FiveMinGameLayout({
     const handleApplyAllChanges = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
       onTurnTimerDurationChange(newTurnTimerDuration * 1000);
+      onDiceRollDurationChange(newDiceRollDuration * 1000);
       onGameSetupChange({
         ...gameSetup,
         players: playerConfig,
@@ -223,7 +240,7 @@ export function FiveMinGameLayout({
 
 
   return (
-    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background">
+    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-16">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -395,7 +412,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </div>
 
-      <div className="w-full flex justify-center pt-16">
+      <div className="w-full flex justify-center">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
@@ -408,6 +425,7 @@ export function FiveMinGameLayout({
                 onRollStart={onRollStart}
                 onDiceRoll={onDiceRoll}
                 diceValue={diceValue}
+                phase={phase}
             />
         </div>
       </div>
@@ -425,6 +443,7 @@ export function FiveMinGameLayout({
                 onRollStart={onRollStart}
                 onDiceRoll={onDiceRoll}
                 diceValue={diceValue}
+                phase={phase}
             />
         </div>
 
@@ -444,6 +463,7 @@ export function FiveMinGameLayout({
                 onRollStart={onRollStart}
                 onDiceRoll={onDiceRoll}
                 diceValue={diceValue}
+                phase={phase}
             />
         </div>
       </div>
@@ -461,9 +481,12 @@ export function FiveMinGameLayout({
                 onRollStart={onRollStart}
                 onDiceRoll={onDiceRoll}
                 diceValue={diceValue}
+                phase={phase}
             />
         </div>
       </div>
     </div>
   );
 }
+
+    

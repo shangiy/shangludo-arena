@@ -378,12 +378,17 @@ export default function GameClient() {
 
     // Move on board
     playerPawns.forEach((pawn) => {
-      if (pawn.isHome || pawn.position === -1) return;
+      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min')) return;
 
       const currentPath = PATHS[player];
-      const currentPathIndex = currentPath.indexOf(pawn.position);
+      let currentPathIndex = currentPath.indexOf(pawn.position);
+      
+      // If pawn is in yard in 5-min mode, treat as if it's at the start.
+      if (pawn.position === -1 && gameMode === '5-min') {
+        currentPathIndex = -1; // effectively before the start of path
+      }
 
-      if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
+      if (currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
 
         const ownPawnsAtDestination = playerPawns.filter(
@@ -464,15 +469,18 @@ export default function GameClient() {
     }
     
     // In 5-min mode, players don't need a 6 to move from the start.
-    if (pawnToMove.position === -1 && diceValue === 6 && gameMode !== '5-min') {
-      const startPos = START_POSITIONS[currentTurn];
-      performMove(pawnToMove, startPos);
-      return;
+    if (pawnToMove.position === -1) {
+        if (gameMode === '5-min' || diceValue === 6) {
+             const startPos = START_POSITIONS[currentTurn];
+             performMove(pawnToMove, startPos);
+             return;
+        }
     }
 
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
     const selectedMove = possibleMoves.find(
-      (m) => m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color
+      (m) =>
+        m.pawn.id === pawnToMove.id && m.pawn.color === pawnToMove.color
     );
 
     if (!selectedMove) {
@@ -796,6 +804,7 @@ export default function GameClient() {
               onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
               addSecondarySafePoints={addSecondarySafePoints}
               onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+              phase={phase}
             >
                 <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
                     {renderPawns()}
@@ -843,3 +852,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
