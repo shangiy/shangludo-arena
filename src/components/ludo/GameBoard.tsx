@@ -68,7 +68,7 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // User request to color cell (column 8, row 7) which is x=7, y=6 green
-    if (x === 7 && y === 6) return <div className={cn(borderClasses, 'bg-green-500')} />;
+    if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
@@ -79,9 +79,9 @@ if (
   (x === 8 && y === 6) || (x === 8 && y === 8)
 ) {
   // Full color boxes
-  if (x === 6 && y === 7) return <div className={cn(borderClasses, 'bg-red-500')} />;
-  if (x === 8 && y === 7) return <div className={cn(borderClasses, 'bg-yellow-400')} />;
-  if (x === 7 && y === 8) return <div className={cn(borderClasses, 'bg-blue-500')} />;
+  if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+  if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+  if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
 
   // Diagonal boxes
   let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
@@ -90,13 +90,13 @@ if (
       if (x === 6 && y === 6) { // top-left
         triangle1 = '0,0 0,100 100,100';
         triangle2 = '0,0 100,0 100,100'  // bottom + right
-        color1 = 'fill-red-500';
+        color1 = `hsl(var(--primary))`;
         color2 = 'fill-green-500';
       } else if (x === 6 && y === 8) { // top-right
         triangle1 =  '100,100 100,0 0,100';
         triangle2 = '0,0 100,0 0,100';
         color1 = 'fill-blue-500';
-        color2 = 'fill-red-500';
+        color2 = `hsl(var(--primary))`;
       } else if (x === 8 && y === 6) { // bottom-left
         triangle1 =  '100,100 100,0 0,100';
         triangle2 = '0,0 100,0 0,100';

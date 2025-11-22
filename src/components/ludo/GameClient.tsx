@@ -41,7 +41,7 @@ import { GameSetup, GameSetupForm } from './GameSetupForm';
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
-const TURN_TIMER_DURATION = 20000; // 20 seconds for 5-min mode
+const TURN_TIMER_DURATION = 15000; // 15 seconds for 5-min mode
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
@@ -537,7 +537,7 @@ export default function GameClient() {
                       }));
                   }
                   
-                  return { ...p, position: -1 };
+                  return { ...p, position: gameMode === '5-min' ? START_POSITIONS[color] : -1 };
                 }
                 return p;
               });
