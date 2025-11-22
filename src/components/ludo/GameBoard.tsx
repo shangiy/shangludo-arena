@@ -104,8 +104,8 @@ export function GameBoard({
             color1 = 'fill-blue-500';
             color2 = 'fill-red-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 0,100 100,0';
-            triangle2 = '0,100 100,100 100,0';
+            triangle1 = '0,0 100,0 100,100';
+            triangle2 = '0,0 0,100 100,100';
             color1 = 'fill-yellow-400';
             color2 = 'fill-blue-500';
         }
@@ -126,10 +126,8 @@ export function GameBoard({
       return (
         <div className={cn(borderClasses, 'bg-white relative')}>
             <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <polygon points="0,0 50,50 0,100" className="fill-red-500" />
-                <polygon points="0,0 100,0 50,50" className="fill-green-500" />
-                <polygon points="100,0 100,100 50,50" className="fill-yellow-400" />
-                <polygon points="0,100 100,100 50,50" className="fill-blue-500" />
+                <polygon points="0,0 100,0 0,100" className="fill-green-500" />
+                <polygon points="100,0 100,100 0,100" className="fill-red-500" />
             </svg>
         </div>
       );
