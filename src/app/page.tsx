@@ -28,7 +28,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section id="play" className="container pb-16 md:pb-24">
+        <section id="play" className="container pb-16 md:pb-24 pl-8">
           <h2 className="text-center font-headline text-3xl font-bold mb-8">Choose Your Game</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             <Card className="hover:shadow-lg transition-shadow">
@@ -169,7 +169,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="#" className="hover:text-white">FAQs</Link></li>
                 <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
+                <li><Link href="#" className="hover Shangludo. -white">Terms of Service</Link></li>
               </ul>
             </div>
             
