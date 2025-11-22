@@ -32,21 +32,29 @@ export default function Home() {
         <section id="play" className="container px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
           <h2 className="text-center font-headline text-3xl font-bold mb-8">Choose Your Game</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-            <Card className="hover:shadow-lg transition-shadow">
+             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Crown className="h-6 w-6 text-primary" />
+                  <div className="bg-blue-400/10 p-3 rounded-full">
+                    <Timer className="h-6 w-6 text-blue-500" />
                   </div>
-                  <CardTitle className="font-headline">Classic Ludo</CardTitle>
+                  <CardTitle className="font-headline">5-Minutes</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="mb-4">
-                  The traditional Ludo experience. Strategy is key. Perfect for purists and those who love a longer, more tactical game.
-                </CardDescription>
-                <Button asChild className="w-full bg-primary hover:bg-primary/90">
-                  <Link href="/game?mode=classic">Play Classic</Link>
+              <CardContent className="flex flex-col flex-1 justify-between">
+                <div>
+                  <CardDescription className="mb-4">
+                    The quickest mode with a 5-minute timer. Perfect for a short break. Can you win in time?
+                  </CardDescription>
+                  <div className="flex justify-center gap-4 mb-4">
+                    <Dice5 className="h-8 w-8 text-red-500" />
+                    <Dice5 className="h-8 w-8 text-green-500" />
+                    <Dice5 className="h-8 w-8 text-yellow-400" />
+                    <Dice5 className="h-8 w-8 text-blue-500" />
+                  </div>
+                </div>
+                <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
+                  <Link href="/game?mode=5-min">Play 5-Min</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -92,26 +100,18 @@ export default function Home() {
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-400/10 p-3 rounded-full">
-                    <Timer className="h-6 w-6 text-blue-500" />
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Crown className="h-6 w-6 text-primary" />
                   </div>
-                  <CardTitle className="font-headline">5-Minutes</CardTitle>
+                  <CardTitle className="font-headline">Classic Ludo</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-col flex-1 justify-between">
-                <div>
-                  <CardDescription className="mb-4">
-                    The quickest mode with a 5-minute timer. Perfect for a short break. Can you win in time?
-                  </CardDescription>
-                  <div className="flex justify-center gap-4 mb-4">
-                    <Dice5 className="h-8 w-8 text-red-500" />
-                    <Dice5 className="h-8 w-8 text-green-500" />
-                    <Dice5 className="h-8 w-8 text-yellow-400" />
-                    <Dice5 className="h-8 w-8 text-blue-500" />
-                  </div>
-                </div>
-                <Button asChild className={cn("w-full bg-blue-500 hover:bg-blue-600 text-white")}>
-                  <Link href="/game?mode=5-min">Play 5-Min</Link>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  The traditional Ludo experience. Strategy is key. Perfect for purists and those who love a longer, more tactical game.
+                </CardDescription>
+                <Button asChild className="w-full bg-primary hover:bg-primary/90">
+                  <Link href="/game?mode=classic">Play Classic</Link>
                 </Button>
               </CardContent>
             </Card>
