@@ -325,8 +325,8 @@ export function FiveMinGameLayout({
                     <Input 
                       id="dice-timer"
                       type="number"
-                      min="0.5"
-                      max="10"
+                      min="1"
+                      max="2.5"
                       step="0.5"
                       className="w-20"
                       value={newDiceRollDuration}
