@@ -93,9 +93,9 @@ export function GameBoard({
             triangle2 = '0,0 0,100 100,100';
             color1 = 'fill-green-500';
             color2 = 'fill-red-500';
-        } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,0 0,100 100,100';
-            triangle2 = '100,0 0,0 100,100';
+        } else if (x === 8 && y === 6) { // top-right (Row 7, Col 9)
+            triangle1 = '0,0 100,0 0,100'; // Top triangle (green)
+            triangle2 = '100,0 100,100 0,100'; // Bottom triangle (yellow)
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
@@ -299,3 +299,5 @@ export function Pawn({
     </motion.div>
   );
 }
+
+    
