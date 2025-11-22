@@ -131,6 +131,11 @@ function PlayerPod({
                    Your turn to move.
                 </p>
             )}
+             {isCurrentTurn && !isRolling && diceValue !== null && (
+                <p className="text-lg font-semibold">
+                   <span className={cn(strokeColorClasses[color], 'capitalize')}>{player.name}</span> rolled: {diceValue}
+                </p>
+            )}
         </div>
     </div>
   );
@@ -235,7 +240,7 @@ export function FiveMinGameLayout({
 
 
   return (
-    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-48">
+    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -384,7 +389,7 @@ export function FiveMinGameLayout({
                           id="dice-timer"
                           type="number"
                           min="1"
-                          max="3"
+                          max="9"
                           step="1"
                           className="w-20"
                           value={newDiceRollDuration}
