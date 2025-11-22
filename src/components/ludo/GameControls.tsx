@@ -71,7 +71,8 @@ export function GameControls({
 }: GameControlsProps) {
 
   const humanPlayer = gameSetup?.players.find(p => p.type === 'human');
-  const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn) || (phase === 'MOVING');
+  const currentPlayerDetails = gameSetup?.players.find(p => p.color === currentTurn);
+  const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn);
 
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
@@ -96,7 +97,7 @@ export function GameControls({
         </AlertDialog>
 
        <div className="w-48 h-48 relative flex items-center justify-center">
-            {gameMode !== '5-min' && (
+            {gameMode !== '5-min' && currentPlayerDetails && (
                 <Dice3D
                     rolling={isRolling}
                     onRollStart={onRollStart}
@@ -105,6 +106,7 @@ export function GameControls({
                     duration={diceRollDuration}
                     isHumanTurn={isHumanTurn && phase === 'ROLLING'}
                     diceValue={diceValue}
+                    playerName={currentPlayerDetails.name}
                 />
             )}
         </div>

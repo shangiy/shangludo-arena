@@ -122,12 +122,13 @@ function PlayerPod({
                 duration={diceRollDuration}
                 isHumanTurn={isHumanTurn && !isRolling && phase === 'ROLLING'}
                 diceValue={isCurrentTurn ? diceValue : null}
+                playerName={player.name}
             />
         </div>
         <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
-             {isCurrentTurn && !isRolling && diceValue !== null && (
+             {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && (
                 <p className="text-lg font-semibold capitalize text-center">
-                   <span className={`capitalize text-${color}-500`}>{player.name} rolled: {diceValue}</span>
+                   Your turn to move.
                 </p>
             )}
         </div>
@@ -234,7 +235,7 @@ export function FiveMinGameLayout({
 
 
   return (
-    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32">
+    <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-48">
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -406,7 +407,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </div>
 
-      <div className="w-full flex justify-center mt-4">
+      <div className="w-full flex justify-center mt-8">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
@@ -482,5 +483,3 @@ export function FiveMinGameLayout({
     </div>
   );
 }
-
-    
