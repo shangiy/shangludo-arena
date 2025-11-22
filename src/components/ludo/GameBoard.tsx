@@ -99,37 +99,39 @@ export function GameBoard({
           );
         }
 
-        // Diagonal boxes
-        let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
+        let polygons: { points: string; className: string }[] = [];
         
-        if (x === 6 && y === 6) { // top-left (Row 7, Col 7)
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '100,0 100,100 0,100';
-            color1 = 'fill-green-500';
-            color2 = 'fill-red-500';
-        } else if (x === 8 && y === 6) { // top-right (Row 7, Col 9)
-            triangle1 = '0,0 100,0 100,100';
-            triangle2 = '0,0 0,100 100,100';
-            color1 = 'fill-green-500';
-            color2 = 'fill-yellow-400';
-        } else if (x === 6 && y === 8) { // bottom-left (Row 9, Col 7)
-            triangle1 = '0,0 100,100 0,100';
-            triangle2 = '0,0 100,0 100,100';
-            color1 = 'fill-red-500';
-            color2 = 'fill-blue-500';
-        } else if (x === 8 && y === 8) { // bottom-right (Row 9, Col 9)
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '0,100 100,0 100,100';
-            color1 = 'fill-yellow-400';
-            color2 = 'fill-blue-500';
+        // Row 7, Col 7 (x=6, y=6)
+        if (x === 6 && y === 6) { 
+            polygons = [
+                { points: '0,0 100,0 100,100', className: 'fill-green-500' },
+                { points: '0,0 0,100 100,100', className: 'fill-red-500' },
+            ];
+        // Row 7, Col 9 (x=8, y=6)
+        } else if (x === 8 && y === 6) {
+            polygons = [
+                { points: '0,0 100,0 0,100', className: 'fill-green-500' },
+                { points: '0,100 100,0 100,100', className: 'fill-yellow-400' },
+            ];
+        // Row 9, Col 7 (x=6, y=8)
+        } else if (x === 6 && y === 8) {
+             polygons = [
+                { points: '0,0 100,100 0,100', className: 'fill-red-500' },
+                { points: '0,0 100,0 100,100', className: 'fill-blue-500' },
+            ];
+        // Row 9, Col 9 (x=8, y=8)
+        } else if (x === 8 && y === 8) {
+             polygons = [
+                { points: '0,0 100,0 0,100', className: 'fill-yellow-400' },
+                { points: '0,100 100,0 100,100', className: 'fill-blue-500' },
+            ];
         }
 
 
         return (
             <div className={cn(borderClasses, 'bg-white relative')}>
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <polygon points={triangle1} className={color1} />
-                    <polygon points={triangle2} className={color2} />
+                    {polygons.map((poly, i) => <polygon key={i} points={poly.points} className={poly.className} />)}
                 </svg>
             </div>
         );
