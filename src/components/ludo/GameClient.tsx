@@ -90,7 +90,7 @@ const fiveMinSetup: GameSetup = {
 
 function GameFooter() {
     return (
-        <footer className="absolute bottom-0 w-full bg-[#111827] text-gray-300 py-2">
+        <footer className="w-full bg-[#111827] text-gray-300 py-2">
             <div className="max-w-7xl mx-auto flex justify-center items-center">
                  <p className="text-xs">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
             </div>
@@ -818,7 +818,7 @@ export default function GameClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4 gap-4 relative">
+    <div className="min-h-screen bg-gray-100 text-foreground flex flex-col p-4 gap-4">
        <Dialog
         open={!!winner}
         onOpenChange={(open) => {
