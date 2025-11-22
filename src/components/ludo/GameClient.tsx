@@ -901,8 +901,8 @@ export default function GameClient() {
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
       {gameMode === '5-min' ? (
-        <div className="flex flex-col flex-1 h-full">
-            <main className="flex-1">
+        <div className="flex flex-col flex-1 h-screen">
+            <main className="flex-1 flex flex-col">
                 {gameSetup && (
                     <FiveMinGameLayout
                       gameSetup={gameSetup}
