@@ -43,15 +43,14 @@ Current Player:
 Dice Roll:
 {{diceRoll}}
 
-Consider all possible moves and their potential outcomes. Provide the move and a brief explanation of your reasoning.
+Analyze the board and determine the best possible move. Consider capturing opponent pawns, moving your pawns out of the yard, and getting pawns to the home run.
 
-Output the move to make and the reasoning for making that move. If there are no valid moves, output that there are no valid moves.
+Your output for the move is extremely important. It MUST be ONLY in the following format: "pawn:[pawnId],from:[currentPosition],to:[newPosition]".
 
-Make sure to pick a valid move according to standard Ludo rules.
+For example, a valid move output is: "pawn:2,from:15,to:21"
 
-The outputted move MUST be in the format "pawn:[pawnId],from:[currentPosition],to:[newPosition]". Do NOT include any other text or formatting for the move. For example: "pawn:2,from:15,to:21".
-
-Reasoning for the move should be provided as well.
+Do NOT include any other text, explanation, or formatting in the 'move' field of your response.
+Provide your reasoning for the move in the 'reasoning' field. If there are no valid moves, you must state that in the reasoning.
 `,
 });
 
