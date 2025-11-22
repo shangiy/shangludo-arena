@@ -41,6 +41,7 @@ const getTransformFromTopFace = (face: number): string => {
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue }: DiceProps) {
     const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
+    const isRollingRef = useRef(false);
     
     useEffect(() => {
         setIsClient(true);
@@ -49,33 +50,28 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     useEffect(() => {
         let animationInterval: NodeJS.Timeout | null = null;
         let stopTimeout: NodeJS.Timeout | null = null;
+        
+        if (rolling && !isRollingRef.current) {
+            isRollingRef.current = true;
+            const finalRoll = Math.floor(Math.random() * 6) + 1;
 
-        if (rolling) {
-            const roll = Math.floor(Math.random() * 6) + 1;
-            
-            // Start a quick, random-looking spin animation
             animationInterval = setInterval(() => {
-                const randomFace = Math.floor(Math.random() * 6) + 1;
-                setVisualFace(randomFace);
+                setVisualFace(Math.floor(Math.random() * 6) + 1);
             }, 100);
 
-            // Set a timeout to stop the animation and show the final result
             stopTimeout = setTimeout(() => {
                 if (animationInterval) {
                     clearInterval(animationInterval);
                 }
-                setVisualFace(roll);
-                // Call the onRollEnd callback after a short delay to let the final face show
-                setTimeout(() => onRollEnd(roll), 500); 
+                setVisualFace(finalRoll);
+                isRollingRef.current = false;
+                onRollEnd(finalRoll);
             }, duration);
-
-        } else {
-            // If not rolling, ensure we show the correct diceValue or default to 1
-            const faceToShow = diceValue !== null ? diceValue : 1;
-            setVisualFace(faceToShow);
+        } else if (!rolling) {
+             setVisualFace(diceValue !== null ? diceValue : 1);
+             isRollingRef.current = false;
         }
 
-        // Cleanup function for when the component unmounts or dependencies change
         return () => {
             if (animationInterval) clearInterval(animationInterval);
             if (stopTimeout) clearTimeout(stopTimeout);
@@ -151,7 +147,3 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             </div>
         </div>
     );
-
-    
-
-    

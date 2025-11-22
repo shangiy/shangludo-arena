@@ -409,13 +409,12 @@ export default function GameClient() {
   };
 
   const handleDiceRollEnd = (value: number) => {
+    setIsRolling(false);
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.play();
     }
     setDiceValue(value);
-    setPhase('MOVING');
-    setIsRolling(false);
-
+    
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
     if (possibleMoves.length === 0) {
@@ -430,6 +429,7 @@ export default function GameClient() {
         }
       }, 1000);
     } else {
+      setPhase('MOVING');
       if (players[currentTurn].type === 'human') {
         if (possibleMoves.length === 1) {
           setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
@@ -443,9 +443,10 @@ export default function GameClient() {
   };
 
   const startRoll = () => {
-    if (phase !== 'ROLLING') return;
+    if (phase !== 'ROLLING' || isRolling) return;
     if (turnTimerRef.current) clearInterval(turnTimerRef.current);
     setIsRolling(true);
+    setDiceValue(null);
   };
 
   const handleAiMove = async (roll: number, possibleMoves: any[]) => {
