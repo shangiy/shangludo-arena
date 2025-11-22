@@ -87,26 +87,25 @@ export function GameBoard({
 
         // Diagonal boxes
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
-
-        // All diagonals run from top-left to bottom-right
+        
         if (x === 6 && y === 6) { // top-left
-            triangle1 = '0,0 100,0 100,100'; // top-right triangle
-            triangle2 = '0,0 0,100 100,100'; // bottom-left triangle
-            color1 = 'fill-green-500'; // top-right color
-            color2 = 'fill-red-500';   // bottom-left color
+            triangle1 = '100,0 0,100 100,100'; // bottom-right triangle
+            triangle2 = '0,0 100,0 0,100'; // top-left triangle
+            color1 = 'fill-red-500';
+            color2 = 'fill-green-500';
         } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,0 100,0 100,100'; // top-right triangle
-            triangle2 = '0,0 0,100 100,100'; // bottom-left triangle
+            triangle1 = '0,0 100,0 0,100'; // top-left triangle
+            triangle2 = '100,0 100,100 0,100'; // bottom-right triangle
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '0,0 100,0 100,100'; // top-right triangle
-            triangle2 = '0,0 0,100 100,100'; // bottom-left triangle
-            color1 = 'fill-blue-500';
-            color2 = 'fill-red-500';
+            triangle1 = '0,0 100,0 0,100'; // top-left triangle
+            triangle2 = '100,0 100,100 0,100'; // bottom-right triangle
+            color1 = 'fill-red-500';
+            color2 = 'fill-blue-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 100,0 100,100'; // top-right triangle
-            triangle2 = '0,0 0,100 100,100'; // bottom-left triangle
+            triangle1 = '0,0 100,0 0,100'; // top-left triangle
+            triangle2 = '100,0 100,100 0,100'; // bottom-right triangle
             color1 = 'fill-yellow-400';
             color2 = 'fill-blue-500';
         }
