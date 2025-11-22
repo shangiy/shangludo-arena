@@ -503,7 +503,7 @@ export default function GameClient() {
         setPhase('AI_THINKING');
         setTimeout(() => {
             handleAiMove(value);
-        }, 500);
+        }, 100);
       }
     }
   };
@@ -721,7 +721,7 @@ export default function GameClient() {
     if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
       setTimeout(() => {
         startRoll();
-      }, 1000); 
+      }, 100); 
     }
   }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
 
@@ -980,3 +980,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
