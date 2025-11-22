@@ -127,13 +127,13 @@ function PlayerPod({
         <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
             {isCurrentTurn && diceValue !== null && !isRolling && (
                 <p className="text-lg font-semibold">
-                    <span className={cn("capitalize", strokeColorClasses[color])}>{color}</span> rolled: {diceValue}
+                    <span className={cn("capitalize", `text-${color}-500`)}>{color}</span> rolled: {diceValue}
                 </p>
             )}
             {isHumanTurn && !isRolling && diceValue === null && phase === 'ROLLING' && (
                  <button
                     onClick={onRollStart}
-                    className={cn("font-bold text-lg animate-pulse", strokeColorClasses[color])}
+                    className={cn("font-bold text-lg animate-pulse", `text-${color}-500`)}
                  >
                      Click to Roll
                  </button>
@@ -414,7 +414,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </div>
 
-      <div className="w-full flex justify-center">
+      <div className="w-full flex justify-center mt-4">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
