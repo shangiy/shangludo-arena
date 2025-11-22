@@ -104,7 +104,7 @@ export function GameControls({
             return { ...p, type, name };
           }
           return p;
-        });
+        }).filter(p => p.type !== 'none');
       } else {
         const colorName = color.charAt(0).toUpperCase() + color.slice(1);
         const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
@@ -316,7 +316,7 @@ export function GameControls({
             </div>
             
             <Button size="sm" className="w-full mt-2" onClick={handleApplyAllChanges}>
-                Apply Changes &amp; Restart
+                Apply Changes & Restart
             </Button>
 
             <Separator />
