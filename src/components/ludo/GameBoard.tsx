@@ -89,23 +89,23 @@ export function GameBoard({
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
 
         if (x === 6 && y === 6) { // top-left
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '100,0 100,100 0,100';
+            triangle1 = '0,0 100,0 0,100'; // Top-left triangle
+            triangle2 = '100,0 100,100 0,100'; // Bottom-right triangle
             color1 = 'fill-green-500';
             color2 = 'fill-red-500';
         } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,0 100,0 100,100';
-            triangle2 = '0,0 0,100 100,100';
+            triangle1 = '0,0 100,0 100,100'; // Top-right triangle
+            triangle2 = '0,0 0,100 100,100'; // Bottom-left triangle
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '0,0 100,100 0,100';
-            triangle2 = '0,0 100,0 100,100';
+            triangle1 = '0,0 0,100 100,100'; // Bottom-left triangle
+            triangle2 = '0,0 100,0 100,100'; // Top-right triangle
             color1 = 'fill-red-500';
             color2 = 'fill-blue-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,100 100,0 100,100';
-            triangle2 = '0,0 100,0 0,100';
+            triangle1 = '0,100 100,0 100,100'; // Bottom-right triangle
+            triangle2 = '0,0 100,0 0,100'; // Top-left triangle
             color1 = 'fill-blue-500';
             color2 = 'fill-yellow-400';
         }
@@ -315,10 +315,3 @@ export function Pawn({
     </motion.div>
   );
 }
-
-    
-
-    
-
-    
-
