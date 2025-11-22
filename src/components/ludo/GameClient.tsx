@@ -23,7 +23,7 @@ import {
   SECONDARY_GREEN_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
   SECONDARY_YELLOW_SAFE_ZONE,
-  GLASS_WALL_POSITION,
+  GLASS_WALL_POSITIONS,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -90,7 +90,7 @@ const fiveMinSetup: GameSetup = {
 
 function GameFooter() {
     return (
-        <footer className="w-full bg-[#111827] text-gray-300 py-2">
+        <footer className="w-full bg-[#111827] text-gray-300 py-2 mt-auto">
             <div className="max-w-7xl mx-auto flex justify-center items-center">
                  <p className="text-xs">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
             </div>
@@ -122,7 +122,7 @@ export default function GameClient() {
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
-  const [isGlassWallActive, setIsGlassWallActive] = useState(true);
+  const [glassWalls, setGlassWalls] = useState<Record<PlayerColor, boolean>>({red: true, green: true, blue: true, yellow: true});
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -188,7 +188,7 @@ export default function GameClient() {
           setShowNotifications(savedState.showNotifications);
           setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
-          setIsGlassWallActive(savedState.isGlassWallActive ?? true);
+          setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
@@ -235,7 +235,7 @@ export default function GameClient() {
         showNotifications,
         muteSound,
         diceRollDuration,
-        isGlassWallActive,
+        glassWalls,
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
@@ -250,7 +250,7 @@ export default function GameClient() {
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
       addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, 
-      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, isGlassWallActive
+      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, glassWalls
   ]);
 
 
@@ -269,7 +269,7 @@ export default function GameClient() {
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
-    setIsGlassWallActive(true);
+    setGlassWalls({red: true, green: true, blue: true, yellow: true});
     if (gameMode === '5-min') {
       setGameTimer(gameTimerDuration);
     }
@@ -277,7 +277,7 @@ export default function GameClient() {
 
   useEffect(() => {
     if (winner && showNotifications) {
-      let description = `${players[winner]?.name} has won the game!`;
+      let description = `${players[winner]?.name} has won the game by getting the first pawn home!`;
       if (gameMode === '5-min') {
           description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
       }
@@ -375,7 +375,6 @@ export default function GameClient() {
     const playerPawns = pawns[player];
     const moves: { pawn: Pawn; newPosition: number }[] = [];
 
-    // For 5-min mode, don't need a 6 to move out of yard, because they don't start in yard.
     if (roll === 6 && gameMode !== '5-min') {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
@@ -395,22 +394,34 @@ export default function GameClient() {
 
     // Move on board
     playerPawns.forEach((pawn) => {
-      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min')) return;
+      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min' && roll !== 6)) return;
 
       const currentPath = PATHS[player];
       let currentPathIndex = currentPath.indexOf(pawn.position);
+
+      if (pawn.position === -1 && (gameMode === '5-min' || roll === 6)) {
+        currentPathIndex = -1; // Effectively before the start of path
+      }
       
-      // If pawn is in yard in 5-min mode, treat as if it's at the start.
-      if (pawn.position === -1 && gameMode === '5-min') {
-        currentPathIndex = -1; // effectively before the start of path
+      if (currentPathIndex === -1 && (gameMode === '5-min' || roll === 6)) {
+         const newPosition = START_POSITIONS[player];
+         const ownPawnsAtDestination = playerPawns.filter( (p) => p.position === newPosition ).length;
+         if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+            // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+         } else {
+             moves.push({ pawn, newPosition });
+         }
+         return; // Don't process further for this pawn if it's just coming out
       }
 
-      if (currentPathIndex + roll < currentPath.length) {
+
+      if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
 
         // Glass wall check
-        if(isGlassWallActive && player !== 'red') {
-            const wallIndexOnPath = currentPath.indexOf(GLASS_WALL_POSITION);
+        const wallPosition = GLASS_WALL_POSITIONS[player];
+        if(glassWalls[player] && wallPosition) {
+            const wallIndexOnPath = currentPath.indexOf(wallPosition);
             if (wallIndexOnPath !== -1) {
                 // If move crosses or lands on the wall
                 if(currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
@@ -493,7 +504,7 @@ export default function GameClient() {
       console.log('AI Response:', aiResponse);
       addMessage(`AI (${players[currentTurn].name})`, aiResponse.reasoning, currentTurn);
       
-      const moveRegex = /pawn:(\d+),from:(-?\d+),to:(\d+)/;
+      const moveRegex = /pawn:(\d+),from:(-?\d+),to:(-?\d+)/;
       const match = aiResponse.move.match(moveRegex);
 
       if (match) {
@@ -540,7 +551,6 @@ export default function GameClient() {
       return;
     }
     
-    // In 5-min mode, players don't need a 6 to move from the start.
     if (pawnToMove.position === -1) {
         if (gameMode === '5-min' || diceValue === 6) {
              const startPos = START_POSITIONS[currentTurn];
@@ -617,14 +627,14 @@ export default function GameClient() {
                 if (p.position === newPosition) {
                   capturedPawn = true;
 
-                  if(isGlassWallActive && currentTurn === 'red') {
-                    setIsGlassWallActive(false);
+                  if(glassWalls[currentTurn]) {
+                    setGlassWalls(prev => ({...prev, [currentTurn]: false}));
                     if (!muteSound && glassBreakAudioRef.current) {
                         glassBreakAudioRef.current.play();
                     }
-                    addMessage('System', 'The glass wall has been shattered by Red!');
+                    addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
                     if (showNotifications) {
-                        toast({ title: 'Glass Wall Shattered!', description: 'Red has broken the barrier to the home run!' });
+                        toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
                     }
                   }
                   
@@ -647,7 +657,7 @@ export default function GameClient() {
       }
 
       const currentPath = PATHS[currentTurn];
-      if (currentPath.indexOf(newPosition) >= 51) {
+      if (currentPath.indexOf(newPosition) >= 51) { // 51 steps on main path + 6 on home run
         pawnsOfPlayer[pawnIndex].isHome = true;
         addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
         pawnReachedHome = true;
@@ -659,12 +669,11 @@ export default function GameClient() {
 
       newPawns[currentTurn] = pawnsOfPlayer;
 
-      // In 5-min mode, we don't check for winner by all pawns home
       if (gameMode !== '5-min') {
-        const allHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-        if (allHome) {
-          setWinner(currentTurn);
-        }
+          const aPawnIsHome = newPawns[currentTurn].some((p: Pawn) => p.isHome);
+          if (aPawnIsHome) {
+            setWinner(currentTurn);
+          }
       }
 
       return newPawns;
@@ -818,7 +827,7 @@ export default function GameClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-foreground flex flex-col p-4 gap-4">
+    <div className="min-h-screen bg-gray-100 text-foreground flex flex-col">
        <Dialog
         open={!!winner}
         onOpenChange={(open) => {
@@ -887,7 +896,7 @@ export default function GameClient() {
               onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
               phase={phase}
             >
-                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} isGlassWallActive={isGlassWallActive}>
+                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
                     {renderPawns()}
                 </GameBoard>
             </FiveMinGameLayout>
@@ -921,9 +930,9 @@ export default function GameClient() {
                   onResetAndGoHome={handleResetAndGoHome}
                 />
             </header>
-            <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
+            <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8 mb-8">
                 <div className="w-full max-w-2xl relative">
-                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} isGlassWallActive={isGlassWallActive}>
+                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
                     {renderPawns()}
                   </GameBoard>
                 </div>
@@ -934,5 +943,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

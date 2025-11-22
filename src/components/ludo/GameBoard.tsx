@@ -12,7 +12,7 @@ import {
   SECONDARY_GREEN_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
   SECONDARY_YELLOW_SAFE_ZONE,
-  GLASS_WALL_POSITION,
+  GLASS_WALL_POSITIONS,
 } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 import { PawnIcon } from '../icons/PawnIcon';
@@ -26,13 +26,13 @@ export function GameBoard({
   showSecondarySafes,
   scores,
   gameMode,
-  isGlassWallActive
+  glassWalls
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
   scores: Record<PlayerColor, number>;
   gameMode: string;
-  isGlassWallActive: boolean;
+  glassWalls: Record<PlayerColor, boolean>;
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -165,10 +165,13 @@ export function GameBoard({
           {showSecondarySafes && currentPos === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
           {showSecondarySafes && currentPos === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="blue" />}
           {showSecondarySafes && currentPos === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
-          {isGlassWallActive && currentPos === GLASS_WALL_POSITION && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                <Ban className="w-3/4 h-3/4 text-white/80" />
-            </div>
+          
+          {Object.entries(glassWalls).map(([color, isActive]) => 
+             isActive && GLASS_WALL_POSITIONS[color as PlayerColor] === currentPos && (
+                <div key={color} className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-20">
+                    <Ban className="w-3/4 h-3/4 text-white/80" />
+                </div>
+             )
           )}
         </div>
       );

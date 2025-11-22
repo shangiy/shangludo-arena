@@ -74,6 +74,26 @@ export function GameControls({
   const currentPlayerDetails = gameSetup?.players.find(p => p.color === currentTurn);
   const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn);
 
+  const classicRules = (
+    <>
+      <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
+      <p><strong>Rolling:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
+      <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
+      <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
+      <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
+    </>
+  );
+
+  const quickPlayRules = (
+    <>
+        <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
+        <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
+        <p><strong>Breaking Walls:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
+        <p><strong>Starting a Pawn:</strong> You must roll a 6 to move a pawn from your yard onto the board.</p>
+        <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
+    </>
+  );
+
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
         <AlertDialog>
@@ -185,12 +205,8 @@ export function GameControls({
                       </h4>
                   </AccordionTrigger>
                   <AccordionContent>
-                      <div className="text-xs text-muted-foreground space-y-1 pr-6">
-                          <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
-                          <p><strong>Rolling:</strong> Roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
-                          <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
-                          <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
-                          <p><strong>Winning:</strong> You must roll the exact number to enter the home column. The first player with all 4 pawns home wins.</p>
+                      <div className="text-xs text-muted-foreground space-y-2 pr-6">
+                          {gameMode === 'quick' ? quickPlayRules : classicRules}
                       </div>
                   </AccordionContent>
               </AccordionItem>

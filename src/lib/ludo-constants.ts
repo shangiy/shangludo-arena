@@ -23,7 +23,12 @@ export interface ChatMessage {
 // Using a 15x15 grid, where position is y * 15 + x
 const p = (x: number, y: number) => y * 15 + x;
 
-export const GLASS_WALL_POSITION = p(1, 7);
+export const GLASS_WALL_POSITIONS: Record<PlayerColor, number> = {
+    red: p(1, 7),
+    green: p(7, 1),
+    yellow: p(13, 7),
+    blue: p(7, 13),
+};
 
 export const START_POSITIONS: Record<PlayerColor, number> = {
     red: p(1, 6),
