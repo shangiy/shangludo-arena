@@ -77,33 +77,47 @@ export function GameBoard({
 
     // 🟡 Surrounding 8 path boxes (center ring)
     if (
-        (x >= 6 && x <= 8 && y >= 6 && y <= 8) && !(x === 7 && y === 7)
+        (x >= 6 && x <= 8 && y >= 6 && y <= 8)
     ) {
         // Correctly colored home entries
         if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
         if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
         if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
         if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+        
+        // 🏠 Center cell at (7, 7)
+        if (x === 7 && y === 7) {
+          return (
+            <div className={cn(borderClasses, 'bg-white relative')}>
+                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polygon points="0,0 100,0 50,50" className="fill-green-500" />
+                    <polygon points="100,0 100,100 50,50" className="fill-yellow-400" />
+                    <polygon points="100,100 0,100 50,50" className="fill-blue-500" />
+                    <polygon points="0,100 0,0 50,50" className="fill-red-500" />
+                </svg>
+            </div>
+          );
+        }
 
         // Diagonal boxes
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
         
-        if (x === 6 && y === 6) { // top-left
+        if (x === 6 && y === 6) { // top-left (Row 7, Col 7)
             triangle1 = '0,0 100,0 0,100';
             triangle2 = '100,0 100,100 0,100';
             color1 = 'fill-green-500';
             color2 = 'fill-red-500';
         } else if (x === 8 && y === 6) { // top-right (Row 7, Col 9)
-            triangle1 = '0,0 100,0 0,100';
-            triangle2 = '100,0 100,100 0,100';
+            triangle1 = '0,0 100,0 100,100';
+            triangle2 = '0,0 0,100 100,100';
             color1 = 'fill-green-500';
             color2 = 'fill-yellow-400';
         } else if (x === 6 && y === 8) { // bottom-left (Row 9, Col 7)
-            triangle1 = '0,0 100,0 100,100';
-            triangle2 = '0,0 0,100 100,100';
+            triangle1 = '0,0 100,100 0,100';
+            triangle2 = '0,0 100,0 100,100';
             color1 = 'fill-red-500';
             color2 = 'fill-blue-500';
-        } else if (x === 8 && y === 8) { // bottom-right
+        } else if (x === 8 && y === 8) { // bottom-right (Row 9, Col 9)
             triangle1 = '0,0 100,0 0,100';
             triangle2 = '0,100 100,0 100,100';
             color1 = 'fill-yellow-400';
@@ -119,18 +133,6 @@ export function GameBoard({
                 </svg>
             </div>
         );
-    }
-
-    // 🏠 Center cell at (7, 7)
-    if (x === 7 && y === 7) {
-      return (
-        <div className={cn(borderClasses, 'bg-white relative')}>
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <polygon points="0,0 100,0 100,100" className="fill-green-500" />
-                <polygon points="0,0 0,100 100,100" className="fill-red-500" />
-            </svg>
-        </div>
-      );
     }
 
     const isPath =
