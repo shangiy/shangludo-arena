@@ -289,8 +289,9 @@ export function FiveMinGameLayout({
                     <Input 
                       id="dice-timer"
                       type="number"
-                      min="1"
-                      max="30"
+                      min="0.5"
+                      max="10"
+                      step="0.5"
                       className="w-20"
                       value={newDiceRollDuration}
                       onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
@@ -378,3 +379,5 @@ export function FiveMinGameLayout({
     </div>
   );
 }
+
+    

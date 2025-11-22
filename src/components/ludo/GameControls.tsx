@@ -1,3 +1,4 @@
+
 "use client";
 
 import { PlayerColor } from '@/lib/ludo-constants';
@@ -163,7 +164,7 @@ export function GameControls({
                       onValueChange={(value) => onDiceRollDurationChange(Number(value))}
                       className="grid grid-cols-2 gap-2"
                   >
-                      {[1000, 2000, 3000, 5000].map(duration => (
+                      {[1000, 1500, 3000, 5000].map(duration => (
                           <div key={duration} className="flex items-center space-x-2">
                               <RadioGroupItem value={String(duration)} id={`duration-${duration}`} />
                               <Label htmlFor={`duration-${duration}`} className="font-normal">{duration/1000}s</Label>
@@ -198,3 +199,5 @@ export function GameControls({
     </div>
   );
 }
+
+    

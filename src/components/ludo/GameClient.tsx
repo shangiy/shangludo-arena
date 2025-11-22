@@ -43,6 +43,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
+const DEFAULT_DICE_ROLL_DURATION = 1500; // 1.5 seconds
 
 const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -69,7 +70,7 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: '1000',
+  diceRollDuration: '1500',
 };
 
 const fiveMinSetup: GameSetup = {
@@ -82,7 +83,7 @@ const fiveMinSetup: GameSetup = {
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
-    diceRollDuration: '1000',
+    diceRollDuration: '1500',
   };
 
 export default function GameClient() {
@@ -102,7 +103,7 @@ export default function GameClient() {
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
   const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(false);
-  const [diceRollDuration, setDiceRollDuration] = useState(1000);
+  const [diceRollDuration, setDiceRollDuration] = useState(DEFAULT_DICE_ROLL_DURATION);
   const [turnTimer, setTurnTimer] = useState<number>(TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
