@@ -69,10 +69,10 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // Path Entry Colors
-    if (p(x,y) === START_POSITIONS.red) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="red" /></div>;
-    if (p(x,y) === START_POSITIONS.green) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="green" /></div>;
-    if (p(x,y) === START_POSITIONS.yellow) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="yellow" /></div>;
-    if (p(x,y) === START_POSITIONS.blue) return <div className={cn(borderClasses, 'relative h-full w-full')}><StarIcon color="blue" /></div>;
+    if (p(x,y) === START_POSITIONS.red) return <div className={cn(borderClasses, 'relative h-full w-full', HOME_RUN_BGS.red)}><StarIcon color="white" /></div>;
+    if (p(x,y) === START_POSITIONS.green) return <div className={cn(borderClasses, 'relative h-full w-full', HOME_RUN_BGS.green)}><StarIcon color="white" /></div>;
+    if (p(x,y) === START_POSITIONS.yellow) return <div className={cn(borderClasses, 'relative h-full w-full', HOME_RUN_BGS.yellow)}><StarIcon color="white" /></div>;
+    if (p(x,y) === START_POSITIONS.blue) return <div className={cn(borderClasses, 'relative h-full w-full', HOME_RUN_BGS.blue)}><StarIcon color="white" /></div>;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
@@ -89,23 +89,23 @@ export function GameBoard({
         let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
 
         if (x === 6 && y === 6) { // top-left
+            triangle1 = '0,0 100,0 0,100';
+            triangle2 = '100,0 100,100 0,100';
+            color1 = 'fill-green-500';
+            color2 = 'fill-red-500';
+        } else if (x === 8 && y === 6) { // top-right
+            triangle1 = '0,0 100,0 100,100';
+            triangle2 = '0,0 0,100 100,100';
+            color1 = 'fill-green-500';
+            color2 = 'fill-yellow-400';
+        } else if (x === 6 && y === 8) { // bottom-left
             triangle1 = '0,0 100,100 0,100';
             triangle2 = '0,0 100,0 100,100';
             color1 = 'fill-red-500';
-            color2 = 'fill-green-500';
-        } else if (x === 8 && y === 6) { // top-right
-            triangle1 = '0,100 100,0 0,0';
-            triangle2 = '100,100 100,0 0,100';
-            color1 = 'fill-yellow-400';
-            color2 = 'fill-green-500';
-        } else if (x === 6 && y === 8) { // bottom-left
-            triangle1 = '100,0 0,100 0,0';
-            triangle2 = '100,0 100,100 0,100';
-            color1 = 'fill-blue-500';
-            color2 = 'fill-red-500';
+            color2 = 'fill-blue-500';
         } else if (x === 8 && y === 8) { // bottom-right
-            triangle1 = '0,0 100,100 100,0';
-            triangle2 = '0,0 0,100 100,100';
+            triangle1 = '0,100 100,0 100,100';
+            triangle2 = '0,0 100,0 0,100';
             color1 = 'fill-blue-500';
             color2 = 'fill-yellow-400';
         }
@@ -143,10 +143,10 @@ export function GameBoard({
 
     // ⭐ Safe zone logic
     const safeZonePositions: Record<number, PlayerColor | 'gray'> = {
-      [START_POSITIONS.red]: 'red',
-      [START_POSITIONS.green]: 'green',
-      [START_POSITIONS.yellow]: 'yellow',
-      [START_POSITIONS.blue]: 'blue',
+      [p(6, 2)]: 'gray',
+      [p(12, 6)]: 'gray',
+      [p(8, 12)]: 'gray',
+      [p(2, 8)]: 'gray',
     };
     const safeZoneColor = safeZonePositions[p(x, y)];
 
@@ -321,3 +321,4 @@ export function Pawn({
     
 
     
+
