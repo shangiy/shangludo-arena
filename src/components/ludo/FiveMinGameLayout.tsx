@@ -126,14 +126,9 @@ function PlayerPod({
             />
         </div>
         <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
-             {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && (
+             {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && (
                 <p className="text-lg font-semibold capitalize text-center">
-                   Your turn to move.
-                </p>
-            )}
-             {isCurrentTurn && !isRolling && diceValue !== null && (
-                <p className="text-lg font-semibold">
-                   <span className={cn(strokeColorClasses[color], 'capitalize')}>{player.name}</span> rolled: {diceValue}
+                   Select a pawn to move.
                 </p>
             )}
         </div>
