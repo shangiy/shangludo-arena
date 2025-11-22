@@ -69,10 +69,10 @@ export function GameBoard({
     const p = (x: number, y: number) => y * 15 + x;
     
     // Path Entry Colors
-    if (x === 1 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
-    if (x === 8 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
-    if (x === 13 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
-    if (x === 6 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
+    if (x === 1 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['red'], 'relative h-full w-full')}><StarIcon color="red" /></div>;
+    if (x === 8 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'], 'relative h-full w-full')}><StarIcon color="green" /></div>;
+    if (x === 13 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'], 'relative h-full w-full')}><StarIcon color="yellow" /></div>;
+    if (x === 6 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'], 'relative h-full w-full')}><StarIcon color="blue" /></div>;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
