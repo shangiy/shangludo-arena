@@ -194,6 +194,22 @@ export function GameControls({
                       ))}
                   </RadioGroup>
                </div>
+                <Separator />
+                <div className="space-y-2">
+                    <Label>Number of Dice</Label>
+                    <RadioGroup
+                        defaultValue="1"
+                        className="grid grid-cols-4 gap-2"
+                    >
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={num} className="flex items-center space-x-2">
+                                <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
+                                <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                            </div>
+                        ))}
+                    </RadioGroup>
+                </div>
+                <Button size="sm" className="w-full mt-2">Apply Changes &amp; Play</Button>
             </div>
             <Separator />
             <Accordion type="single" collapsible className="w-full">
