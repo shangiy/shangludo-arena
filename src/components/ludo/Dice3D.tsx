@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -42,43 +42,52 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
     const [finalValue, setFinalValue] = useState<number | null>(diceValue);
+    const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
     
     useEffect(() => {
+        // Cleanup previous animations if a new roll starts
+        if (animationIntervalRef.current) clearInterval(animationIntervalRef.current);
+        if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+
         if (rolling) {
             setFinalValue(null);
             const roll = Math.floor(Math.random() * 6) + 1;
             
-            // Random animation spin
-            const animationInterval = 100;
-            const totalSteps = duration / animationInterval;
-            let currentStep = 0;
-
-            const interval = setInterval(() => {
+            // Start a quick, random-looking spin animation
+            animationIntervalRef.current = setInterval(() => {
                 const randomFace = Math.floor(Math.random() * 6) + 1;
                 setVisualFace(randomFace);
-                currentStep++;
+            }, 100);
 
-                if (currentStep >= totalSteps) {
-                    clearInterval(interval);
-                    setVisualFace(roll);
-                    setFinalValue(roll);
-                    setTimeout(() => onRollEnd(roll), 500); 
+            // Set a timeout to stop the animation and show the final result
+            stopTimeoutRef.current = setTimeout(() => {
+                if (animationIntervalRef.current) {
+                    clearInterval(animationIntervalRef.current);
                 }
-            }, animationInterval);
+                setVisualFace(roll);
+                setFinalValue(roll);
+                // Call the onRollEnd callback after a short delay to let the final face show
+                setTimeout(() => onRollEnd(roll), 500); 
+            }, duration);
 
-            return () => clearInterval(interval);
-        } else if (diceValue !== null) {
-            setVisualFace(diceValue);
-            setFinalValue(diceValue);
         } else {
-             setFinalValue(null);
-             setVisualFace(1);
+            // If not rolling, ensure we show the correct diceValue or default to 1
+            const faceToShow = diceValue !== null ? diceValue : 1;
+            setVisualFace(faceToShow);
+            setFinalValue(diceValue);
         }
-    }, [rolling, duration, onRollEnd]);
+
+        // Cleanup function for when the component unmounts or dependencies change
+        return () => {
+            if (animationIntervalRef.current) clearInterval(animationIntervalRef.current);
+            if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+        };
+    }, [rolling, duration, diceValue, onRollEnd]);
     
     const handleHumanRoll = () => {
         if (rolling || !isHumanTurn) return;
@@ -149,4 +158,5 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             </div>
         </div>
     );
-}
+
+    
