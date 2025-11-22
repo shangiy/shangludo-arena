@@ -23,6 +23,7 @@ import {
   SECONDARY_GREEN_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
   SECONDARY_YELLOW_SAFE_ZONE,
+  GLASS_WALL_POSITION,
 } from '@/lib/ludo-constants';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -111,11 +112,13 @@ export default function GameClient() {
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
+  const [isGlassWallActive, setIsGlassWallActive] = useState(true);
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
+  const glassBreakAudioRef = useRef<HTMLAudioElement>(null);
 
   const SAFE_ZONES = useMemo(() => {
     if (addSecondarySafePoints) {
@@ -175,6 +178,7 @@ export default function GameClient() {
           setShowNotifications(savedState.showNotifications);
           setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
+          setIsGlassWallActive(savedState.isGlassWallActive ?? true);
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
@@ -221,6 +225,7 @@ export default function GameClient() {
         showNotifications,
         muteSound,
         diceRollDuration,
+        isGlassWallActive,
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
@@ -235,7 +240,7 @@ export default function GameClient() {
   }, [
       pawns, currentTurn, diceValue, phase, winner, gameSetup, 
       addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, 
-      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode
+      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, isGlassWallActive
   ]);
 
 
@@ -254,6 +259,7 @@ export default function GameClient() {
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
+    setIsGlassWallActive(true);
     if (gameMode === '5-min') {
       setGameTimer(gameTimerDuration);
     }
@@ -391,6 +397,17 @@ export default function GameClient() {
 
       if (currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
+
+        // Glass wall check
+        if(isGlassWallActive) {
+            const wallIndexOnPath = currentPath.indexOf(GLASS_WALL_POSITION);
+            if (wallIndexOnPath !== -1) {
+                // If move crosses or lands on the wall
+                if(currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
+                    return; // Invalid move, blocked by wall
+                }
+            }
+        }
 
         const ownPawnsAtDestination = playerPawns.filter(
           (p) => p.position === newPosition
@@ -586,6 +603,17 @@ export default function GameClient() {
               newPawns[color] = newPawns[color].map((p: Pawn) => {
                 if (p.position === newPosition) {
                   capturedPawn = true;
+
+                  if(isGlassWallActive && currentTurn === 'red') {
+                    setIsGlassWallActive(false);
+                    if (!muteSound && glassBreakAudioRef.current) {
+                        glassBreakAudioRef.current.play();
+                    }
+                    addMessage('System', 'The glass wall has been shattered by Red!');
+                    if (showNotifications) {
+                        toast({ title: 'Glass Wall Shattered!', description: 'Red has broken the barrier to the home run!' });
+                    }
+                  }
                   
                   if (gameMode === '5-min') {
                       setScores(prev => ({
@@ -816,6 +844,7 @@ export default function GameClient() {
       </Dialog>
 
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
+      <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
       {gameMode === '5-min' ? (
         gameSetup && (
@@ -844,7 +873,7 @@ export default function GameClient() {
               onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
               phase={phase}
             >
-                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
+                <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} isGlassWallActive={isGlassWallActive}>
                     {renderPawns()}
                 </GameBoard>
             </FiveMinGameLayout>
@@ -880,7 +909,7 @@ export default function GameClient() {
             </header>
             <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8">
                 <div className="w-full max-w-2xl relative">
-                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode}>
+                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} isGlassWallActive={isGlassWallActive}>
                     {renderPawns()}
                   </GameBoard>
                 </div>

@@ -12,9 +12,11 @@ import {
   SECONDARY_GREEN_SAFE_ZONE,
   SECONDARY_BLUE_SAFE_ZONE,
   SECONDARY_YELLOW_SAFE_ZONE,
+  GLASS_WALL_POSITION,
 } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 import { PawnIcon } from '../icons/PawnIcon';
+import { Ban } from 'lucide-react';
 
 const gridCellStyle =
   'flex items-center justify-center border-r border-b border-black/40';
@@ -24,11 +26,13 @@ export function GameBoard({
   showSecondarySafes,
   scores,
   gameMode,
+  isGlassWallActive
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
   scores: Record<PlayerColor, number>;
   gameMode: string;
+  isGlassWallActive: boolean;
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -152,13 +156,20 @@ export function GameBoard({
     if (isPath) {
       let bgColor = 'bg-white';
       if (homePathColor) bgColor = HOME_RUN_BGS[homePathColor];
+      
+      const currentPos = p(x,y);
 
       return (
         <div className={cn(borderClasses, bgColor, 'relative h-full w-full')}>
-          {showSecondarySafes && p(x, y) === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
-          {showSecondarySafes && p(x, y) === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
-          {showSecondarySafes && p(x, y) === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="blue" />}
-          {showSecondarySafes && p(x, y) === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
+          {showSecondarySafes && currentPos === SECONDARY_RED_SAFE_ZONE && <StarIcon color="red" />}
+          {showSecondarySafes && currentPos === SECONDARY_GREEN_SAFE_ZONE && <StarIcon color="green" />}
+          {showSecondarySafes && currentPos === SECONDARY_BLUE_SAFE_ZONE && <StarIcon color="blue" />}
+          {showSecondarySafes && currentPos === SECONDARY_YELLOW_SAFE_ZONE && <StarIcon color="yellow" />}
+          {isGlassWallActive && currentPos === GLASS_WALL_POSITION && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                <Ban className="w-3/4 h-3/4 text-white/80" />
+            </div>
+          )}
         </div>
       );
     }
@@ -322,4 +333,3 @@ export function Pawn({
     </motion.div>
   );
 }
-
