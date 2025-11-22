@@ -196,7 +196,7 @@ export function FiveMinGameLayout({
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
-    const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
+    const [newDiceRollDuration, setNewDiceRollDuration] = useState(2);
 
     const handleApplyTimerChange = () => {
       onGameTimerDurationChange(newGameTimerDuration * 60000);
@@ -322,17 +322,26 @@ export function FiveMinGameLayout({
                      </Tooltip>
                   </Label>
                   <div className="flex items-center gap-2">
-                    <Input 
+                    <Input
                       id="dice-timer"
                       type="number"
                       min="1"
-                      max="2.5"
+                      max="2"
                       step="0.5"
                       className="w-20"
                       value={newDiceRollDuration}
-                      onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
+                      readOnly
                     />
-                    <Button size="sm" onClick={handleApplyDiceDurationChange} className="bg-green-500 hover:bg-green-600">OK</Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="sm" disabled>
+                          🚫
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>admin auth</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               </div>

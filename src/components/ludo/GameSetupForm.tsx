@@ -47,7 +47,7 @@ const setupSchema = z.object({
   players: z.array(playerSchema).min(2, "At least 2 players required"),
   turnOrder: z.array(z.enum(["red", "green", "yellow", "blue"])),
   humanPlayerColor: z.enum(["red", "green", "yellow", "blue"]),
-  diceRollDuration: z.enum(["1000", "1500", "3000", "5000"]),
+  diceRollDuration: z.enum(["1000", "2000", "3000", "5000"]),
 });
 
 export type GameSetup = z.infer<typeof setupSchema>;
@@ -62,7 +62,7 @@ const defaultValues: GameSetup = {
   ],
   turnOrder: ["red", "green", "yellow", "blue"],
   humanPlayerColor: "red",
-  diceRollDuration: "1500",
+  diceRollDuration: "2000",
 };
 
 const COLOR_CLASSES: Record<PlayerColor, string> = {
@@ -262,7 +262,7 @@ export function GameSetupForm({
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="1000">1 second (fast)</SelectItem>
-                      <SelectItem value="1500">1.5 seconds (default)</SelectItem>
+                      <SelectItem value="2000">2 seconds (default)</SelectItem>
                       <SelectItem value="3000">3 seconds (slow)</SelectItem>
                       <SelectItem value="5000">5 seconds (very slow)</SelectItem>
                     </SelectContent>
@@ -317,5 +317,3 @@ export function GameSetupForm({
     </Card>
   );
 }
-
-    

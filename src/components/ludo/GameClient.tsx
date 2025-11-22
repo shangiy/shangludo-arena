@@ -43,7 +43,7 @@ type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEFAULT_DICE_ROLL_DURATION = 1500; // 1.5 seconds
+const DEFAULT_DICE_ROLL_DURATION = 2000; // 2 seconds
 
 const initialPawns = (isFiveMinMode = false): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -70,7 +70,7 @@ const quickPlaySetup: GameSetup = {
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
-  diceRollDuration: '1500',
+  diceRollDuration: '2000',
 };
 
 const fiveMinSetup: GameSetup = {
@@ -83,7 +83,7 @@ const fiveMinSetup: GameSetup = {
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
-    diceRollDuration: '1500',
+    diceRollDuration: '2000',
   };
 
 export default function GameClient() {
