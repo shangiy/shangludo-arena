@@ -125,18 +125,10 @@ function PlayerPod({
             />
         </div>
         <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
-            {isCurrentTurn && !isRolling && diceValue !== null && (
-                <p className="text-lg font-semibold">
-                   You rolled: {diceValue}
+             {isCurrentTurn && !isRolling && diceValue !== null && (
+                <p className="text-lg font-semibold capitalize text-center">
+                   <span className={`text-${color}-500`}>{player.name}</span> rolled: {diceValue}
                 </p>
-            )}
-            {isHumanTurn && !isRolling && diceValue === null && phase === 'ROLLING' && (
-                 <button
-                    onClick={onRollStart}
-                    className={cn("font-bold text-lg animate-pulse", `text-${color}-500`)}
-                 >
-                     Click to Roll
-                 </button>
             )}
         </div>
     </div>
@@ -414,7 +406,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </div>
 
-      <div className="w-full flex justify-center mt-8">
+      <div className="w-full flex justify-center mt-20">
         <div className="w-48 h-48">
             <PlayerPod 
                 player={greenPlayer}
@@ -490,3 +482,5 @@ export function FiveMinGameLayout({
     </div>
   );
 }
+
+    

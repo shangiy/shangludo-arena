@@ -41,36 +41,30 @@ const getTransformFromTopFace = (face: number): string => {
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue }: DiceProps) {
     const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
-    const [finalValue, setFinalValue] = useState<number | null>(diceValue);
-    const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+    
     useEffect(() => {
         setIsClient(true);
     }, []);
     
     useEffect(() => {
-        // Cleanup previous animations if a new roll starts
-        if (animationIntervalRef.current) clearInterval(animationIntervalRef.current);
-        if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+        let animationInterval: NodeJS.Timeout | null = null;
+        let stopTimeout: NodeJS.Timeout | null = null;
 
         if (rolling) {
-            setFinalValue(null);
             const roll = Math.floor(Math.random() * 6) + 1;
             
             // Start a quick, random-looking spin animation
-            animationIntervalRef.current = setInterval(() => {
+            animationInterval = setInterval(() => {
                 const randomFace = Math.floor(Math.random() * 6) + 1;
                 setVisualFace(randomFace);
             }, 100);
 
             // Set a timeout to stop the animation and show the final result
-            stopTimeoutRef.current = setTimeout(() => {
-                if (animationIntervalRef.current) {
-                    clearInterval(animationIntervalRef.current);
+            stopTimeout = setTimeout(() => {
+                if (animationInterval) {
+                    clearInterval(animationInterval);
                 }
                 setVisualFace(roll);
-                setFinalValue(roll);
                 // Call the onRollEnd callback after a short delay to let the final face show
                 setTimeout(() => onRollEnd(roll), 500); 
             }, duration);
@@ -79,15 +73,14 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             // If not rolling, ensure we show the correct diceValue or default to 1
             const faceToShow = diceValue !== null ? diceValue : 1;
             setVisualFace(faceToShow);
-            setFinalValue(diceValue);
         }
 
         // Cleanup function for when the component unmounts or dependencies change
         return () => {
-            if (animationIntervalRef.current) clearInterval(animationIntervalRef.current);
-            if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
+            if (animationInterval) clearInterval(animationInterval);
+            if (stopTimeout) clearTimeout(stopTimeout);
         };
-    }, [rolling, duration, diceValue, onRollEnd]);
+    }, [rolling, duration, onRollEnd, diceValue]);
     
     const handleHumanRoll = () => {
         if (rolling || !isHumanTurn) return;
@@ -142,7 +135,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 </motion.div>
             </div>
             <div className="text-center h-10">
-                {isHumanTurn && !rolling && finalValue === null && (
+                {isHumanTurn && !rolling && diceValue === null && (
                      <button
                         onClick={handleHumanRoll}
                         className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
@@ -150,13 +143,15 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                          Click to Roll
                      </button>
                 )}
-                 {finalValue !== null && !rolling && (
+                 {diceValue !== null && !rolling && isHumanTurn && (
                     <p className="text-lg font-semibold">
-                       <span className={cn("capitalize", turnTextColor[color])}>{color}</span> rolled: {finalValue}
+                       You rolled: {diceValue}
                     </p>
                 )}
             </div>
         </div>
     );
+
+    
 
     
