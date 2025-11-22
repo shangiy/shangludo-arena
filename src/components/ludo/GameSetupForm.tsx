@@ -39,7 +39,7 @@ import { useEffect } from "react";
 export const playerSchema = z.object({
   color: z.enum(["red", "green", "yellow", "blue"]),
   name: z.string().min(1, "Name is required").max(15, "Name is too long"),
-  type: z.enum(["human", "ai"]),
+  type: z.enum(["human", "ai", "none"]),
 });
 export type PlayerSetup = z.infer<typeof playerSchema>;
 
@@ -96,6 +96,7 @@ export function GameSetupForm({
   useEffect(() => {
     const currentPlayers = form.getValues("players");
     const newPlayers = currentPlayers.map((p) => {
+      if (p.type === 'none') return { ...p, name: "Empty" };
       const isHuman =
         gameMode === "multiplayer" ||
         (gameMode === "vs-computer" && p.color === humanPlayerColor);
@@ -117,14 +118,23 @@ export function GameSetupForm({
   }, [gameMode, humanPlayerColor, form]);
 
   const onSubmit = (data: GameSetup) => {
+    const activePlayers = data.players.filter(p => p.type !== 'none');
+    if (activePlayers.length < 2) {
+        form.setError("players", { type: "manual", message: "You need at least two players to start a game." });
+        return;
+    }
+    const playerColors = activePlayers.map((p) => p.color);
     const selectedFirstPlayer = data.turnOrder[0];
-    const playerColors = data.players.map((p) => p.color);
     const startIndex = playerColors.indexOf(selectedFirstPlayer);
-    const newTurnOrder = [
-      ...playerColors.slice(startIndex),
-      ...playerColors.slice(0, startIndex),
-    ];
-    onSetupComplete({ ...data, turnOrder: newTurnOrder as PlayerColor[] });
+    
+    // Ensure the first player is actually in the game
+    const validStartIndex = startIndex !== -1 ? startIndex : 0;
+    const firstPlayer = playerColors[validStartIndex];
+    
+    const reorderedColors = [...playerColors.slice(validStartIndex), ...playerColors.slice(0, validStartIndex)];
+
+    const finalData = { ...data, players: activePlayers, turnOrder: reorderedColors as PlayerColor[] };
+    onSetupComplete(finalData);
   };
 
   return (
@@ -291,7 +301,7 @@ export function GameSetupForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {players.map((p) => (
+                      {players.filter(p => p.type !== 'none').map((p) => (
                         <SelectItem key={p.color} value={p.color}>
                           <div className="flex items-center gap-2">
                             <div
@@ -309,6 +319,10 @@ export function GameSetupForm({
                 </FormItem>
               )}
             />
+            
+            {form.formState.errors.players && (
+                <p className="text-sm font-medium text-destructive">{form.formState.errors.players.message}</p>
+            )}
 
             <Button type="submit" className="w-full">
               Start Game

@@ -28,7 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 type PlayerPodProps = {
-  player: { name: string; type: "human" | "ai" };
+  player: { name: string; type: "human" | "ai" | "none" };
   color: PlayerColor;
   isCurrentTurn: boolean;
   timerValue: number;
@@ -64,6 +64,10 @@ function PlayerPod({
 }: PlayerPodProps) {
   const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
+
+  if (player.type === 'none') {
+    return <div className="relative flex h-full w-full flex-col items-center justify-center p-4 rounded-lg border-dashed border-2 border-border/50" />;
+  }
 
   const rectSize = 160;
   const strokeWidth = 4;
@@ -204,10 +208,10 @@ export function FiveMinGameLayout({
   phase
 }: FiveMinGameLayoutProps) {
     const { players } = gameSetup;
-    const redPlayer = players.find(p => p.color === 'red')!;
-    const greenPlayer = players.find(p => p.color === 'green')!;
-    const bluePlayer = players.find(p => p.color === 'blue')!;
-    const yellowPlayer = players.find(p => p.color === 'yellow')!;
+    const redPlayer = players.find(p => p.color === 'red') || { color: 'red', name: 'Empty', type: 'none' };
+    const greenPlayer = players.find(p => p.color === 'green') || { color: 'green', name: 'Empty', type: 'none' };
+    const bluePlayer = players.find(p => p.color === 'blue') || { color: 'blue', name: 'Empty', type: 'none' };
+    const yellowPlayer = players.find(p => p.color === 'yellow') || { color: 'yellow', name: 'Empty', type: 'none' };
     
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
@@ -215,8 +219,16 @@ export function FiveMinGameLayout({
     const [isSettingsOpen, setIsSettingsOpen] = useState(true);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
-    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai') => {
-        setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, type} : p));
+    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
+        setPlayerConfig(prev => {
+            const playerExists = prev.some(p => p.color === color);
+            if (playerExists) {
+                return prev.map(p => p.color === color ? {...p, type} : p);
+            }
+            // Add new player if it doesn't exist
+            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+            return [...prev, { color, type, name: type === 'none' ? 'Empty' : `${colorName} ${type === 'ai' ? 'AI' : 'Player'}` }];
+        });
     };
 
     const handlePlayerNameChange = (color: PlayerColor, name: string) => {
@@ -227,13 +239,22 @@ export function FiveMinGameLayout({
       onGameTimerDurationChange(newGameTimerDuration * 60000);
       onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onDiceRollDurationChange(newDiceRollDuration * 1000);
+      const activePlayers = playerConfig.filter(p => p.type !== 'none');
+      
       onGameSetupChange({
         ...gameSetup,
-        players: playerConfig,
+        players: activePlayers,
+        turnOrder: activePlayers.map(p => p.color),
       });
       setIsSettingsOpen(false);
     };
 
+    const allPlayers: PlayerSetup[] = [
+        { color: 'red', name: 'Red', type: 'human' },
+        { color: 'green', name: 'Green', type: 'human' },
+        { color: 'yellow', name: 'Yellow', type: 'human' },
+        { color: 'blue', name: 'Blue', type: 'human' },
+    ];
 
   return (
     <div className="relative h-screen w-screen p-4 flex flex-col items-center justify-center gap-4 bg-background pt-32 pb-8">
@@ -279,23 +300,25 @@ export function FiveMinGameLayout({
                <div className="space-y-2">
                 <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
                  <div className="space-y-2 rounded-lg border p-2">
-                  {playerConfig.map(p => (
+                  {allPlayers.map(p => {
+                      const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color) || { ...p, type: 'none' };
+                      return (
                       <div key={p.color} className="flex items-center justify-between gap-2">
-                          {p.type === 'human' ? (
+                          {currentPlayerConfig.type === 'human' ? (
                                 <Input
-                                    value={p.name}
+                                    value={currentPlayerConfig.name}
                                     onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
                                     className="h-8 flex-1"
                                 />
                           ) : (
                             <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
                                 <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
-                                {p.name}
+                                {p.color}
                             </Label>
                           )}
                           <Select
-                            value={p.type}
-                            onValueChange={(value: 'human' | 'ai') => handlePlayerConfigChange(p.color, value)}
+                            value={currentPlayerConfig.type}
+                            onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
                           >
                               <SelectTrigger className="w-32 h-8">
                                   <SelectValue placeholder="Select type" />
@@ -303,10 +326,11 @@ export function FiveMinGameLayout({
                               <SelectContent>
                                   <SelectItem value="human">Human</SelectItem>
                                   <SelectItem value="ai">AI</SelectItem>
+                                  <SelectItem value="none">No One</SelectItem>
                               </SelectContent>
                           </Select>
                       </div>
-                  ))}
+                  )})}
                  </div>
               </div>
 

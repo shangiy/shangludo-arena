@@ -47,17 +47,19 @@ const DEFAULT_TURN_TIMER_DURATION = 15000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_DICE_ROLL_DURATION = 3000; // 3 seconds
 
-const initialPawns = (gameMode = 'classic'): Record<PlayerColor, Pawn[]> => {
+const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'green', 'yellow', 'blue']): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
   (Object.keys(PLAYER_COLORS) as PlayerColor[]).forEach((color) => {
-    pawns[color] = Array(4)
-      .fill(0)
-      .map((_, i) => ({
-        id: i,
-        color,
-        position: gameMode === '5-min' ? START_POSITIONS[color] : -1, // -1 is in the yard
-        isHome: false,
-      }));
+    if (players.includes(color)) {
+        pawns[color] = Array(4)
+        .fill(0)
+        .map((_, i) => ({
+            id: i,
+            color,
+            position: gameMode === '5-min' ? START_POSITIONS[color] : -1, // -1 is in the yard
+            isHome: false,
+        }));
+    }
   });
   return pawns;
 };
@@ -103,7 +105,7 @@ export default function GameClient() {
   const gameMode = searchParams.get('mode') || 'classic';
   const { toast } = useToast();
 
-  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>(() => initialPawns(gameMode));
+  const [pawns, setPawns] = useState<Record<PlayerColor, Pawn[]>>({});
   const [scores, setScores] = useState<Record<PlayerColor, number>>({ red: 0, green: 0, yellow: 0, blue: 0 });
   const [currentTurn, setCurrentTurn] = useState<PlayerColor>('red');
   const [diceValue, setDiceValue] = useState<number | null>(null);
@@ -145,12 +147,7 @@ export default function GameClient() {
 
   const players = useMemo(() => {
     if (!gameSetup) {
-      return {
-        blue: { name: 'Computer', color: 'blue', type: 'ai' },
-        yellow: { name: 'Computer', color: 'yellow', type: 'ai' },
-        red: { name: 'Player', color: 'red', type: 'human' },
-        green: { name: 'Computer', color: 'green', type: 'ai' },
-      };
+      return {};
     }
     const playerConfig: any = {};
     gameSetup.players.forEach((p) => {
@@ -160,11 +157,12 @@ export default function GameClient() {
   }, [gameSetup]);
 
   const playerOrder: PlayerColor[] = useMemo(
-    () => gameSetup?.turnOrder || ['red', 'green', 'yellow', 'blue'],
+    () => gameSetup?.turnOrder || [],
     [gameSetup]
   );
 
   const nextPlayerColor = useMemo(() => {
+    if (playerOrder.length === 0) return currentTurn;
     const currentIndex = playerOrder.indexOf(currentTurn);
     return playerOrder[(currentIndex + 1) % playerOrder.length];
   }, [currentTurn, playerOrder]);
@@ -178,12 +176,12 @@ export default function GameClient() {
       if (savedStateJSON) {
         const savedState = JSON.parse(savedStateJSON);
         if (savedState && savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER' && savedState.gameSetup?.gameMode === gameMode) {
+          setGameSetup(savedState.gameSetup);
           setPawns(savedState.pawns);
           setCurrentTurn(savedState.currentTurn);
           setDiceValue(savedState.diceValue);
           setPhase(savedState.phase);
           setWinner(savedState.winner);
-          setGameSetup(savedState.gameSetup);
           setAddSecondarySafePoints(savedState.addSecondarySafePoints);
           setShowNotifications(savedState.showNotifications);
           setMuteSound(savedState.muteSound);
@@ -262,9 +260,10 @@ export default function GameClient() {
   const handleGameSetup = (setup: GameSetup) => {
     localStorage.removeItem(LUDO_GAME_STATE_KEY);
     setGameSetup(setup);
+    const playerColors = setup.players.map(p => p.color);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(setup.turnOrder[0]);
-    setPawns(initialPawns(setup.gameMode));
+    setPawns(initialPawns(gameMode, playerColors));
     setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
     setDiceValue(null);
@@ -373,6 +372,8 @@ export default function GameClient() {
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
+    if (!playerPawns) return [];
+
     const moves: { pawn: Pawn; newPosition: number }[] = [];
 
     if (roll === 6 && gameMode !== '5-min') {
@@ -547,7 +548,7 @@ export default function GameClient() {
   };
 
   const handlePawnMove = (pawnToMove: Pawn) => {
-    if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING') {
+    if (!diceValue || pawnToMove.color !== currentTurn || phase !== 'MOVING' || !pawns[pawnToMove.color]) {
       return;
     }
     
@@ -566,7 +567,7 @@ export default function GameClient() {
     );
 
     if (!selectedMove) {
-      if (players[currentTurn].type === 'human' && showNotifications) {
+      if (players[currentTurn]?.type === 'human' && showNotifications) {
         toast({
           variant: 'destructive',
           title: 'Invalid Move',
@@ -710,37 +711,42 @@ export default function GameClient() {
   }, [phase, diceValue, currentTurn, pawns, players]);
 
   const renderPawns = () => {
+    if (!gameSetup) return [];
     const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
     const positions: { [key: number]: Pawn[] } = {};
   
     // Group pawns by position
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-      pawns[color].forEach(pawn => {
-        if (pawn.position !== -1 && !pawn.isHome) {
-          if (!positions[pawn.position]) {
-            positions[pawn.position] = [];
-          }
-          positions[pawn.position].push(pawn);
-        }
-      });
+      if (pawns[color]) {
+        pawns[color].forEach(pawn => {
+            if (pawn.position !== -1 && !pawn.isHome) {
+            if (!positions[pawn.position]) {
+                positions[pawn.position] = [];
+            }
+            positions[pawn.position].push(pawn);
+            }
+        });
+      }
     });
   
     // Create render list
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-      pawns[color].forEach(pawn => {
-        const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
-        let highlight = false;
-  
-        if (isPlayerTurn) {
-          highlight = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
-        }
-  
-        const pawnsAtSamePos = positions[pawn.position] || [];
-        const stackCount = pawnsAtSamePos.length;
-        const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
+        if (pawns[color]) {
+            pawns[color].forEach(pawn => {
+                const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
+                let highlight = false;
         
-        allPawns.push({ pawn, highlight, stackCount: stackCount > 1 ? stackCount : 0, stackIndex });
-      });
+                if (isPlayerTurn) {
+                highlight = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
+                }
+        
+                const pawnsAtSamePos = positions[pawn.position] || [];
+                const stackCount = pawnsAtSamePos.length;
+                const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
+                
+                allPawns.push({ pawn, highlight, stackCount: stackCount > 1 ? stackCount : 0, stackIndex });
+            });
+        }
     });
   
     return allPawns.map(({ pawn, highlight, stackCount, stackIndex }) => (
@@ -795,12 +801,11 @@ export default function GameClient() {
 
   const handleGameSetupChange = (newSetup: GameSetup) => {
     setGameSetup(newSetup);
-    if (gameMode === '5-min') {
-      setPawns(initialPawns('5-min'));
-    }
-    // Potentially reset parts of the game state if player config changes drastically
+    const playerColors = newSetup.players.map(p => p.color);
+    setCurrentTurn(newSetup.turnOrder[0]);
+    setPawns(initialPawns(gameMode, playerColors));
     if(showNotifications) {
-      toast({title: "Player Configuration Updated", description: "The game has been updated with new players."})
+      toast({title: "Player Configuration Updated", description: "The game has been updated with new settings."})
     }
   }
 
@@ -845,7 +850,7 @@ export default function GameClient() {
             {winner && (
               <DialogDescription className="text-center">
                 <span className={`font-semibold capitalize text-${winner}-500`}>
-                  {players[winner].name}
+                  {players[winner]?.name}
                 </span>{' '}
                 {gameMode === '5-min' ? `wins with the highest score: ${scores[winner]}!` : 'has won the game!'}
               </DialogDescription>
