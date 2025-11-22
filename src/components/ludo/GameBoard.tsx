@@ -67,56 +67,59 @@ export function GameBoard({
 
     const p = (x: number, y: number) => y * 15 + x;
     
-    // User request to color cell (column 8, row 7) which is x=7, y=6 green
-    if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+    // This is the green home run entry, which should be green
+    if (x === 7 && y === 1) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+    // This is the yellow home run entry, which should be yellow
+    if (x === 13 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+     // This is the blue home run entry, which should be blue
+    if (x === 7 && y === 13) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
+    // This is the red home run entry, which should be red
+    if (x === 1 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
 
 
     // 🟡 Surrounding 8 path boxes (center ring)
-if (
-  (x === 6 && y === 7) || (x === 8 && y === 7) ||
-  (x === 7 && y === 8) ||
-  (x === 6 && y === 6) || (x === 6 && y === 8) ||
-  (x === 8 && y === 6) || (x === 8 && y === 8)
-) {
-  // Full color boxes
-  if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
-  if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
-  if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
+    if (
+        (x >= 6 && x <= 8 && y >= 6 && y <= 8) && !(x === 7 && y === 7)
+    ) {
+        // Correctly colored home entries
+        if (x === 6 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['red'])} />;
+        if (x === 7 && y === 6) return <div className={cn(borderClasses, HOME_RUN_BGS['green'])} />;
+        if (x === 8 && y === 7) return <div className={cn(borderClasses, HOME_RUN_BGS['yellow'])} />;
+        if (x === 7 && y === 8) return <div className={cn(borderClasses, HOME_RUN_BGS['blue'])} />;
 
-  // Diagonal boxes
-  let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
+        // Diagonal boxes
+        let triangle1 = '', triangle2 = '', color1 = '', color2 = '';
 
-      // --- Diagonal boxes (inverted triangles) ---
-      if (x === 6 && y === 6) { // top-left
-        triangle1 = '0,0 0,100 100,100';
-        triangle2 = '0,0 100,0 100,100'  // bottom + right
-        color1 = `hsl(var(--primary))`;
-        color2 = 'fill-green-500';
-      } else if (x === 6 && y === 8) { // top-right
-        triangle1 =  '100,100 100,0 0,100';
-        triangle2 = '0,0 100,0 0,100';
-        color1 = 'fill-blue-500';
-        color2 = `hsl(var(--primary))`;
-      } else if (x === 8 && y === 6) { // bottom-left
-        triangle1 =  '100,100 100,0 0,100';
-        triangle2 = '0,0 100,0 0,100';
-        color1 = 'fill-yellow-400';
-        color2 = 'fill-green-500';
-      } else if (x === 8 && y === 8) { // bottom-right
-        triangle1 = '0,0 0,100 100,100';
-        triangle2 = '0,0 100,0 100,100';
-        color1 = 'fill-blue-500';
-        color2 = 'fill-yellow-400';
-      }
+        if (x === 6 && y === 6) { // top-left
+            triangle1 = '0,0 0,100 100,0';
+            triangle2 = '100,100 100,0 0,100';
+            color1 = 'fill-red-500';
+            color2 = 'fill-green-500';
+        } else if (x === 8 && y === 6) { // top-right
+            triangle1 = '0,0 100,0 0,100';
+            triangle2 = '100,0 100,100 0,100';
+            color1 = 'fill-green-500';
+            color2 = 'fill-yellow-400';
+        } else if (x === 6 && y === 8) { // bottom-left
+            triangle1 = '0,0 100,100 0,100';
+            triangle2 = '0,0 100,0 100,100';
+            color1 = 'fill-red-500';
+            color2 = 'fill-blue-500';
+        } else if (x === 8 && y === 8) { // bottom-right
+            triangle1 = '0,100 100,100 100,0';
+            triangle2 = '0,0 0,100 100,0';
+            color1 = 'fill-blue-500';
+            color2 = 'fill-yellow-400';
+        }
 
-      return (
-        <div className={cn(borderClasses, 'bg-white relative')}>
-          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <polygon points={triangle1} className={color1} />
-            <polygon points={triangle2} className={color2} />
-          </svg>
-        </div>
-      );
+        return (
+            <div className={cn(borderClasses, 'bg-white relative')}>
+                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polygon points={triangle1} className={color1} />
+                    <polygon points={triangle2} className={color2} />
+                </svg>
+            </div>
+        );
     }
 
     // 🏠 Center 3x3 grid (Home triangle star)
