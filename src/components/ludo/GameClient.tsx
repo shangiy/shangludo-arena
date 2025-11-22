@@ -77,9 +77,9 @@ const fiveMinSetup: GameSetup = {
     gameMode: 'vs-computer',
     players: [
       { color: 'red', name: 'Red', type: 'human' },
-      { color: 'green', name: 'Green', type: 'ai' },
-      { color: 'yellow', name: 'Yellow', type: 'ai' },
-      { color: 'blue', name: 'Blue', type: 'ai' },
+      { color: 'green', name: 'Green', type: 'human' },
+      { color: 'yellow', name: 'Yellow AI', type: 'ai' },
+      { color: 'blue', name: 'Blue', type: 'human' },
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',

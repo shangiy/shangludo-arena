@@ -219,6 +219,10 @@ export function FiveMinGameLayout({
         setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, type} : p));
     };
 
+    const handlePlayerNameChange = (color: PlayerColor, name: string) => {
+        setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, name} : p));
+    };
+
     const handleApplyPlayerConfig = () => {
         onGameSetupChange({
             ...gameSetup,
@@ -270,11 +274,19 @@ export function FiveMinGameLayout({
                 <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
                  <div className="space-y-2 rounded-lg border p-2">
                   {playerConfig.map(p => (
-                      <div key={p.color} className="flex items-center justify-between">
-                          <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                      <div key={p.color} className="flex items-center justify-between gap-2">
+                          {p.type === 'human' ? (
+                                <Input
+                                    value={p.name}
+                                    onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                    className="h-8 flex-1"
+                                />
+                          ) : (
+                            <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
                                 <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
-                                {p.color}
-                          </Label>
+                                {p.name}
+                            </Label>
+                          )}
                           <Select
                             value={p.type}
                             onValueChange={(value: 'human' | 'ai') => handlePlayerConfigChange(p.color, value)}
