@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 
 type DiceProps = {
   rolling: boolean;
@@ -17,30 +17,36 @@ type DiceProps = {
   playerName: string;
 };
 
-const getTransformFromFrontFace = (face: number): string => {
+const getTransformFromFace = (face: number): string => {
     switch (face) {
-        case 1: return 'rotateX(0deg) rotateY(0deg)'; // Front
-        case 2: return 'rotateX(-90deg)';             // Top -> Front
-        case 3: return 'rotateY(90deg)';            // Right -> Front
-        case 4: return 'rotateY(-90deg)';             // Left -> Front
-        case 5: return 'rotateX(90deg)';            // Bottom -> Front
-        case 6: return 'rotateX(180deg)';            // Back -> Front
+        case 1: return 'rotateX(0deg) rotateY(0deg)';
+        case 2: return 'rotateX(-90deg)';
+        case 3: return 'rotateY(90deg)';
+        case 4: return 'rotateY(-90deg)';
+        case 5: return 'rotateX(90deg)';
+        case 6: return 'rotateX(180deg)';
         default: return '';
     }
 };
+
+const getRandomRotation = () => {
+    const x = Math.floor(Math.random() * 8) * 90;
+    const y = Math.floor(Math.random() * 8) * 90;
+    return `rotateX(${x}deg) rotateY(${y}deg)`;
+}
 
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
     const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
     const [showRollResult, setShowRollResult] = useState(false);
     const isRollingRef = useRef(false);
+    const controls = useAnimation();
     
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     useEffect(() => {
-        // Show roll result only when not rolling and a dice value is present for the current turn
         if (!rolling && diceValue !== null) {
           setShowRollResult(true);
         } else {
@@ -53,22 +59,33 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         startRollingProcess();
     };
 
-    const startRollingProcess = () => {
+    const startRollingProcess = async () => {
         if (isRollingRef.current) return;
         isRollingRef.current = true;
         onRollStart();
 
-        const animationInterval = setInterval(() => {
-            setVisualFace(Math.floor(Math.random() * 6) + 1);
-        }, 100);
+        const rollStartTime = Date.now();
+        const finalRoll = Math.floor(Math.random() * 6) + 1;
+
+        const rollAnimation = async () => {
+            if (Date.now() - rollStartTime < duration) {
+                await controls.start({
+                    transform: getRandomRotation(),
+                    transition: { type: 'spring', stiffness: 200, damping: 15 }
+                });
+                requestAnimationFrame(rollAnimation);
+            } else {
+                await controls.start({
+                    transform: getTransformFromFace(finalRoll),
+                    transition: { type: 'spring', stiffness: 300, damping: 20 }
+                });
+                setVisualFace(finalRoll);
+                isRollingRef.current = false;
+                onRollEnd(finalRoll);
+            }
+        };
         
-        const stopTimeout = setTimeout(() => {
-            clearInterval(animationInterval);
-            const finalRoll = Math.floor(Math.random() * 6) + 1;
-            setVisualFace(finalRoll);
-            isRollingRef.current = false;
-            onRollEnd(finalRoll);
-        }, duration);
+        rollAnimation();
     };
 
     useEffect(() => {
@@ -76,8 +93,17 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             startRollingProcess();
         } else if (!rolling && diceValue) {
             setVisualFace(diceValue);
+            controls.start({
+                transform: getTransformFromFace(diceValue),
+                transition: { duration: 0.3 }
+            });
         }
     }, [rolling, diceValue]);
+
+     useEffect(() => {
+        // Set initial face without animation
+        controls.set({ transform: getTransformFromFace(visualFace) });
+    }, [visualFace, controls]);
 
     if (!isClient) {
         return <div className="w-12 h-12" />; // Placeholder for SSR
@@ -97,8 +123,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             <div className="w-12 h-12 perspective-500">
                 <motion.div
                     className="w-full h-full relative preserve-3d"
-                    animate={{ transform: getTransformFromFrontFace(visualFace) }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    animate={controls}
                     onClick={handleHumanRoll}
                     style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
