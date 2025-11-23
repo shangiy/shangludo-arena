@@ -135,7 +135,7 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
   
     return (
       <div className="w-full max-w-2xl mx-auto mt-4 p-4 bg-card rounded-lg border shadow-sm">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {activePlayers.map(({ color, name }) => {
             const percentage = totalScore > 0 ? (scores[color] / totalScore) * 100 : 0;
             return (
