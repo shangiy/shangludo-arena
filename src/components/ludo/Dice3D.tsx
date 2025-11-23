@@ -40,15 +40,13 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     }, []);
 
     useEffect(() => {
-      // Show roll result only when not rolling and a dice value is present
-      if (!rolling && diceValue !== null) {
-        setShowRollResult(true);
-      }
-      // Hide roll result when a new turn starts (diceValue becomes null) or when rolling starts
-      if (rolling || diceValue === null) {
-        setShowRollResult(false);
-      }
-    }, [rolling, diceValue]);
+        // Show roll result only when not rolling and a dice value is present for the current turn
+        if (!rolling && diceValue !== null) {
+          setShowRollResult(true);
+        } else {
+          setShowRollResult(false);
+        }
+      }, [rolling, diceValue]);
     
     const handleHumanRoll = () => {
         if (isRollingRef.current || !isHumanTurn) return;
@@ -139,7 +137,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                          Click to Roll
                      </button>
                 )}
-                 {showRollResult && diceValue !== null && (
+                 {showRollResult && (
                     <p className="text-lg font-semibold">
                        <span className={cn(currentTurnColorClass, 'capitalize')}>{playerName}</span> rolled: {diceValue}
                     </p>
