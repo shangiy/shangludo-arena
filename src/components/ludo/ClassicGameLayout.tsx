@@ -115,17 +115,18 @@ function Scoreboard({ pawns, players, gameMode, scores }: { pawns: Record<Player
     
     const getProgressPercentage = (color: PlayerColor) => {
         const playerPawns = pawns[color];
-        if (!playerPawns) return 0;
-        
+        if (!playerPawns || playerPawns.length === 0) return 0;
+    
         if (gameMode !== 'quick') {
             const homeCount = playerPawns.filter(p => p.isHome).length;
-            return (homeCount / 4) * 100;
+            return Math.floor((homeCount / 4) * 100);
         }
-
+    
+        // Quick mode percentage calculation
         const path = PATHS[color];
         const totalPathLength = path.length -1;
         const maxProgress = 4 * totalPathLength;
-
+    
         let currentProgress = 0;
         playerPawns.forEach(pawn => {
             if (pawn.isHome) {
@@ -138,13 +139,8 @@ function Scoreboard({ pawns, players, gameMode, scores }: { pawns: Record<Player
             }
         });
         
-        // Add score for captures in quick mode
-        currentProgress += (scores[color] || 0);
-
-        const theoreticalMax = maxProgress + (activePlayers.length - 1) * 4 * 10; // rough estimate of max score
-        const percentage = Math.min(100, (currentProgress / theoreticalMax) * 100 * 2.5); // Adjust multiplier for better feel
-        
-        return Math.floor(percentage);
+        const percentage = (currentProgress / maxProgress) * 100;
+        return Math.floor(Math.min(100, percentage));
     };
 
     const playerMap = new Map(activePlayers.map(p => [p.color, p]));
