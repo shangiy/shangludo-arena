@@ -28,7 +28,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Logo } from '../icons/Logo';
+import { EndLogo } from '../icons/EndLogo';
 import {
   Dialog,
   DialogContent,
@@ -865,7 +865,7 @@ export default function GameClient() {
             )}
           </DialogHeader>
           <div className="flex justify-center items-center p-4">
-            <Logo className="h-20 w-20" />
+            <EndLogo className="h-20 w-20" />
           </div>
           <DialogFooter className="sm:justify-center">
             <Button onClick={() => {
