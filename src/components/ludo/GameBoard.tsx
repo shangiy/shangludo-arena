@@ -198,9 +198,7 @@ export function GameBoard({
       >
         <div className="h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2 bg-white/30 rounded-md">
             {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center">
-                    <PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" />
-                </div>
+                <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
             ))}
         </div>
         {gameMode === '5-min' && (
