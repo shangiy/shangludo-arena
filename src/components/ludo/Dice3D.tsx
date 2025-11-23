@@ -32,11 +32,23 @@ const getTransformFromFrontFace = (face: number): string => {
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
     const [visualFace, setVisualFace] = useState(diceValue || 1);
     const [isClient, setIsClient] = useState(false);
+    const [showRollResult, setShowRollResult] = useState(false);
     const isRollingRef = useRef(false);
     
     useEffect(() => {
         setIsClient(true);
     }, []);
+
+    useEffect(() => {
+      // Show roll result only when not rolling and a dice value is present
+      if (!rolling && diceValue !== null) {
+        setShowRollResult(true);
+      }
+      // Hide roll result when a new turn starts (diceValue becomes null) or when rolling starts
+      if (rolling || diceValue === null) {
+        setShowRollResult(false);
+      }
+    }, [rolling, diceValue]);
     
     const handleHumanRoll = () => {
         if (isRollingRef.current || !isHumanTurn) return;
@@ -80,6 +92,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         blue: 'text-blue-500',
     };
 
+    const currentTurnColorClass = turnTextColor[color];
+
     return (
         <div className="flex flex-col items-center justify-center gap-4">
             <div className="w-24 h-24 perspective-500">
@@ -92,27 +106,27 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 >
                     {/* Face 1 (Front) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'translateZ(3rem)' }}>
-                        <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>1</span>
+                        <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>1</span>
                     </div>
                     {/* Face 6 (Back) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(180deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>6</span>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>6</span>
                     </div>
                     {/* Face 2 (Top) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>2</span>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>2</span>
                     </div>
                     {/* Face 5 (Bottom) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(-90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>5</span>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>5</span>
                     </div>
                     {/* Face 3 (Right) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>3</span>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>3</span>
                     </div>
                     {/* Face 4 (Left) */}
                     <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", turnTextColor[color])}>4</span>
+                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>4</span>
                     </div>
                 </motion.div>
             </div>
@@ -120,14 +134,14 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 {isHumanTurn && !rolling && diceValue === null && (
                      <button
                         onClick={handleHumanRoll}
-                        className={cn("font-bold text-lg animate-pulse", turnTextColor[color])}
+                        className={cn("font-bold text-lg animate-pulse", currentTurnColorClass)}
                      >
                          Click to Roll
                      </button>
                 )}
-                 {diceValue !== null && (
+                 {showRollResult && diceValue !== null && (
                     <p className="text-lg font-semibold">
-                       <span className={cn(turnTextColor[color], 'capitalize')}>{playerName}</span> rolled: {diceValue}
+                       <span className={cn(currentTurnColorClass, 'capitalize')}>{playerName}</span> rolled: {diceValue}
                     </p>
                 )}
             </div>
