@@ -35,15 +35,15 @@ const getRandomRotation = () => {
     return `rotateX(${x}deg) rotateY(${y}deg)`;
 }
 
-const DiceDot = ({ colorClass }: { colorClass: string }) => (
-    <div className={cn("w-2 h-2 rounded-full", colorClass)} />
+const DiceDot = ({ colorClass, className }: { colorClass: string, className?: string }) => (
+    <div className={cn("w-2 h-2 rounded-full", colorClass, className)} />
 );
 
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
         2: "flex justify-between p-1",
-        3: "flex justify-between items-center p-1",
+        3: "flex p-1",
         4: "grid grid-cols-2 grid-rows-2 gap-1 p-1",
         5: "grid grid-cols-3 grid-rows-3 gap-0.5 p-1",
         6: "grid grid-cols-2 grid-rows-3 gap-1 p-1",
@@ -57,7 +57,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
         ],
         3: [
             <DiceDot key="1" colorClass={colorClass} className="self-start" />,
-            <DiceDot key="2" colorClass={colorClass} className="self-center" />,
+            <DiceDot key="2" colorClass={colorClass} className="self-center mx-auto" />,
             <DiceDot key="3" colorClass={colorClass} className="self-end" />,
         ],
         4: [
@@ -232,4 +232,5 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     );
 }
 
+    
     
