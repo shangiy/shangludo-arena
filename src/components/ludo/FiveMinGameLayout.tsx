@@ -230,10 +230,10 @@ export function FiveMinGameLayout({
     ];
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center p-1 bg-background">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-2 h-full">
+    <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
+      <div className="w-full h-full max-w-7xl mx-auto flex flex-col items-center gap-2">
         {/* Header */}
-        <header className="w-full flex justify-between items-center p-2 z-20">
+        <header className="w-full flex justify-between items-center px-2 z-20">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" size="icon">
@@ -422,64 +422,73 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 relative flex items-center justify-center gap-2">
-           <div className="w-1/4 h-full flex flex-col justify-around">
-               <PlayerPod
-                player={yellowPlayer}
-                color="yellow"
-                isCurrentTurn={currentTurn === 'yellow'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-              />
-               <PlayerPod
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-              />
-           </div>
-           
-            <div className="w-1/2 h-full flex items-center justify-center">
-                {children}
-            </div>
+        <main className="w-full flex-1 relative grid grid-cols-3 grid-rows-3 gap-2">
+          {/* Top Row */}
+          <div className="col-start-1 row-start-1 flex items-center justify-center">
+            <PlayerPod
+              player={yellowPlayer}
+              color="yellow"
+              isCurrentTurn={currentTurn === 'yellow'}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onRollStart={onRollStart}
+              onDiceRoll={onDiceRoll}
+              diceValue={diceValue}
+              phase={phase}
+              showNotifications={showNotifications}
+            />
+          </div>
+          <div className="col-start-3 row-start-1 flex items-center justify-center">
+            <PlayerPod
+              player={greenPlayer}
+              color="green"
+              isCurrentTurn={currentTurn === 'green'}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onRollStart={onRollStart}
+              onDiceRoll={onDiceRoll}
+              diceValue={diceValue}
+              phase={phase}
+              showNotifications={showNotifications}
+            />
+          </div>
 
-            <div className="w-1/4 h-full flex flex-col justify-around">
-                <PlayerPod
-                    player={greenPlayer}
-                    color="green"
-                    isCurrentTurn={currentTurn === 'green'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                />
-               <PlayerPod
-                player={redPlayer}
-                color="red"
-                isCurrentTurn={currentTurn === 'red'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-              />
-            </div>
+          {/* Middle Row (Game Board) */}
+          <div className="col-start-1 col-span-3 row-start-2 flex items-center justify-center">
+             <div className="w-full h-full flex items-center justify-center max-w-[80vh] aspect-square">
+                 {children}
+             </div>
+          </div>
+
+          {/* Bottom Row */}
+          <div className="col-start-1 row-start-3 flex items-center justify-center">
+            <PlayerPod
+              player={bluePlayer}
+              color="blue"
+              isCurrentTurn={currentTurn === 'blue'}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onRollStart={onRollStart}
+              onDiceRoll={onDiceRoll}
+              diceValue={diceValue}
+              phase={phase}
+              showNotifications={showNotifications}
+            />
+          </div>
+          <div className="col-start-3 row-start-3 flex items-center justify-center">
+            <PlayerPod
+              player={redPlayer}
+              color="red"
+              isCurrentTurn={currentTurn === 'red'}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onRollStart={onRollStart}
+              onDiceRoll={onDiceRoll}
+              diceValue={diceValue}
+              phase={phase}
+              showNotifications={showNotifications}
+            />
+          </div>
         </main>
       </div>
     </div>
