@@ -241,7 +241,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
             </div>
             <style jsx>{`
+                .perspective-500 {
+                    perspective: 500px;
+                }
                 .preserve-3d {
+                    transform-style: preserve-3d;
                     --tz: ${mobileTransformZ};
                 }
                 @media (min-width: 768px) {
