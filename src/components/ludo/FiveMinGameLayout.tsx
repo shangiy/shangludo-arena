@@ -78,7 +78,7 @@ function PlayerPod({
   const isGreenPlayer = color === 'green';
 
   return (
-    <div className={cn("relative flex h-full w-full items-center justify-between p-2", isGreenPlayer ? 'flex-row' : 'flex-col')}>
+    <div className={cn("relative flex h-full w-full items-center justify-between p-2 flex-col")}>
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
@@ -118,7 +118,7 @@ function PlayerPod({
         </svg>
 
         <h3 className="text-md font-bold z-10">{player.name}</h3>
-        <div className={cn("flex-1 flex items-center justify-center z-10 w-full", isGreenPlayer ? 'flex-row gap-2' : 'flex-col')}>
+        <div className={cn("flex-1 flex items-center justify-center z-10 w-full flex-col")}>
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
                 onRollStart={onRollStart}
@@ -298,6 +298,9 @@ export function FiveMinGameLayout({
                 </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+             <GameTimer remaining={gameTimer} />
+        </div>
+        <div className="flex items-center gap-2">
             <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <PopoverTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -465,74 +468,77 @@ export function FiveMinGameLayout({
         </div>
       </header>
       
-      <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 pt-8">
-        <div className="col-start-2 row-start-1 h-32 w-48 flex flex-col items-center justify-end">
-            <PlayerPod 
-                player={greenPlayer}
-                color="green"
-                isCurrentTurn={currentTurn === 'green'}
-                timerValue={currentTurn === 'green' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-            />
-        </div>
-        
-        <div className="col-start-1 row-start-2 h-32 w-32 justify-self-start self-center">
-            <PlayerPod 
-                player={redPlayer}
-                color="red"
-                isCurrentTurn={currentTurn === 'red'}
-                timerValue={currentTurn === 'red' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-            />
+       <main className="w-full flex-1 relative grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 p-8">
+        <div className="col-start-1 row-start-1 h-24 w-24 justify-self-start self-start">
+          <PlayerPod
+            player={redPlayer}
+            color="red"
+            isCurrentTurn={currentTurn === 'red'}
+            timerValue={currentTurn === 'red' ? turnTimer : turnTimerDuration}
+            timerDuration={turnTimerDuration}
+            isRolling={isRolling}
+            diceRollDuration={diceRollDuration}
+            onRollStart={onRollStart}
+            onDiceRoll={onDiceRoll}
+            diceValue={diceValue}
+            phase={phase}
+          />
         </div>
 
-        <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center gap-2">
-            <GameTimer remaining={gameTimer} />
-            {children}
+        <div className="col-start-3 row-start-1 h-24 w-24 justify-self-end self-start">
+          <PlayerPod
+            player={greenPlayer}
+            color="green"
+            isCurrentTurn={currentTurn === 'green'}
+            timerValue={
+              currentTurn === 'green' ? turnTimer : turnTimerDuration
+            }
+            timerDuration={turnTimerDuration}
+            isRolling={isRolling}
+            diceRollDuration={diceRollDuration}
+            onRollStart={onRollStart}
+            onDiceRoll={onDiceRoll}
+            diceValue={diceValue}
+            phase={phase}
+          />
         </div>
-        
-        <div className="col-start-3 row-start-2 h-32 w-32 justify-self-end self-center">
-            <PlayerPod 
-                player={yellowPlayer}
-                color="yellow"
-                isCurrentTurn={currentTurn === 'yellow'}
-                timerValue={currentTurn === 'yellow' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-            />
+
+        <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center">
+          {children}
         </div>
-      
-        <div className="col-start-2 row-start-3 h-32 w-32 justify-self-center self-start">
-            <PlayerPod 
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                timerValue={currentTurn === 'blue' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-            />
+
+        <div className="col-start-1 row-start-3 h-24 w-24 justify-self-start self-end">
+          <PlayerPod
+            player={bluePlayer}
+            color="blue"
+            isCurrentTurn={currentTurn === 'blue'}
+            timerValue={currentTurn === 'blue' ? turnTimer : turnTimerDuration}
+            timerDuration={turnTimerDuration}
+            isRolling={isRolling}
+            diceRollDuration={diceRollDuration}
+            onRollStart={onRollStart}
+            onDiceRoll={onDiceRoll}
+            diceValue={diceValue}
+            phase={phase}
+          />
+        </div>
+
+        <div className="col-start-3 row-start-3 h-24 w-24 justify-self-end self-end">
+          <PlayerPod
+            player={yellowPlayer}
+            color="yellow"
+            isCurrentTurn={currentTurn === 'yellow'}
+            timerValue={
+              currentTurn === 'yellow' ? turnTimer : turnTimerDuration
+            }
+            timerDuration={turnTimerDuration}
+            isRolling={isRolling}
+            diceRollDuration={diceRollDuration}
+            onRollStart={onRollStart}
+            onDiceRoll={onDiceRoll}
+            diceValue={diceValue}
+            phase={phase}
+          />
         </div>
       </main>
     </div>
