@@ -77,7 +77,7 @@ export function chooseMove(
       if (pawn.isHome) return;
 
       if (pawn.position === -1) {
-        if (roll === 6 && gameState.gameMode !== '5-min') {
+        if (roll === 6) {
            const ownPawnsAtStart = pawns.filter(p => p.position === startSquare).length;
            if (!isClassic && ownPawnsAtStart >= 2 && !safeSquares.has(startSquare)) {
              // Blockade
