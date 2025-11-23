@@ -197,22 +197,21 @@ export function GameBoard({
         )}
       >
         <div className="h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2 bg-white/30 rounded-md">
-            {gameMode !== '5-min' && (
+            {gameMode !== '5-min' ? (
                 <>
                     <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
                     <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
                     <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
                     <div className="rounded-full border-2 border-white/50 bg-white/30 flex items-center justify-center"><PawnIcon color={color} className="w-1/2 h-1/2 opacity-30" /></div>
                 </>
+            ) : (
+                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 m-2 rounded-md">
+                    <span className={cn("text-5xl font-bold opacity-80", YARD_SCORE_TEXT_COLORS[color])} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
+                        {scores[color]}
+                    </span>
+                </div>
             )}
         </div>
-        {gameMode === '5-min' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/10 m-2 rounded-md">
-                <span className={cn("text-5xl font-bold opacity-80 text-shadow-lg", YARD_SCORE_TEXT_COLORS[color])} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
-                    {scores[color]}
-                </span>
-            </div>
-        )}
       </div>
     );
 
@@ -349,3 +348,6 @@ export function Pawn({
     </motion.div>
   );
 }
+
+
+    
