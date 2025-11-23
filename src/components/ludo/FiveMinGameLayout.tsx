@@ -31,6 +31,7 @@ import Image from "next/image";
 import { useTheme } from "@/hooks/use-theme";
 import { EndLogo } from "../icons/EndLogo";
 import { Progress } from "../ui/progress";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -303,6 +304,51 @@ export function FiveMinGameLayout({
     ];
     
     const turnTimerProgress = (turnTimer / turnTimerDuration) * 100;
+    
+    const classicRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
+        <p><strong>Rolling:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
+        <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
+        <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
+        <p><strong>Winning:</strong> The first player to get all four of their pawns to the center home space wins the game.</p>
+      </div>
+    );
+  
+    const quickRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
+        <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
+        <p><strong>Breaking Walls:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
+        <p><strong>Starting a Pawn:</strong> Pawns start on the board. You do not need a 6 to start.</p>
+        <p><strong>Blockades:</strong> Two of your own pawns on the same square create a blockade that other players cannot pass.</p>
+        <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
+      </div>
+    );
+  
+    const fiveMinRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Get the highest score before the 5-minute timer runs out!</p>
+        <p><strong>Scoring:</strong></p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>+1 point for each step a pawn moves.</li>
+          <li>+20 points for capturing an opponent's pawn.</li>
+          <li>+50 points for moving a pawn to the home space.</li>
+          <li>-20 points when your pawn is captured.</li>
+        </ul>
+        <p><strong>Gameplay:</strong> Follows the same rules as Quick Play (pawns start on board, blockades are active), but the goal is to score as many points as possible.</p>
+        <p><strong>Winning:</strong> The player with the highest score when the timer ends is the winner. In case of a tie, the player with more pawns finished wins.</p>
+      </div>
+    );
+  
+    const getRules = () => {
+      switch (gameSetup.gameMode) {
+        case 'quick': return quickRules;
+        case '5-min': return fiveMinRules;
+        default: return classicRules;
+      }
+    }
+
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
@@ -330,6 +376,34 @@ export function FiveMinGameLayout({
           <GameTimer remaining={gameTimer} />
 
           <div className="flex items-center gap-2">
+            <Sheet>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <HelpCircle />
+                      </Button>
+                    </SheetTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>How to Play</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>How to Play: {gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
+                  <SheetDescription>
+                    Here are the rules for the current game mode.
+                  </SheetDescription>
+                </SheetHeader>
+                <ScrollArea className="h-[calc(100%-4rem)] pr-4">
+                  {getRules()}
+                </ScrollArea>
+              </SheetContent>
+            </Sheet>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
