@@ -261,7 +261,7 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-full w-full flex flex-col items-center justify-between p-4 bg-background">
-      <header className="w-full flex justify-between items-center z-10 px-4 pt-4">
+      <header className="w-full flex justify-between items-center z-10 px-4 pt-2">
         <div className="flex items-center gap-2">
             <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -295,9 +295,6 @@ export function FiveMinGameLayout({
                 <div className="grid gap-4">
                 <div className="space-y-2">
                     <h4 className="font-medium leading-none">Settings</h4>
-                    <p className="text-sm text-muted-foreground">
-                    Adjust in-game preferences.
-                    </p>
                 </div>
 
                 <div className="space-y-2">
@@ -453,7 +450,7 @@ export function FiveMinGameLayout({
         <GameTimer remaining={gameTimer} />
       </header>
       
-      <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-4 py-4">
+      <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-2 py-2">
         {/* Top middle cell for Green */}
         <div className="col-start-2 row-start-1 h-48 w-48">
              <PlayerPod 

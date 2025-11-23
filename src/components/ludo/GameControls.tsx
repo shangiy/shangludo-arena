@@ -198,7 +198,6 @@ export function GameControls({
           <div className="grid gap-4">
             <div className="space-y-2">
               <h4 className="font-medium leading-none">Settings</h4>
-              <p className="text-sm text-muted-foreground">Adjust in-game preferences.</p>
             </div>
             <Separator />
             <div className="space-y-2">
