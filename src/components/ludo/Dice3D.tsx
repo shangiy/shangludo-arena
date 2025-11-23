@@ -43,7 +43,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
         2: "flex justify-between p-1",
-        3: "flex items-center justify-between p-1",
+        3: "flex flex-col items-center justify-between p-1",
         4: "grid grid-cols-2 grid-rows-2 gap-1 p-1",
         5: "grid grid-cols-3 grid-rows-3 gap-0.5 p-1",
         6: "grid grid-cols-2 grid-rows-3 gap-1 p-1",
@@ -57,7 +57,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
         ],
         3: [
             <DiceDot key="1" colorClass={colorClass} className="self-start" />,
-            <DiceDot key="2" colorClass={colorClass} />,
+            <DiceDot key="2" colorClass={colorClass} className="self-center" />,
             <DiceDot key="3" colorClass={colorClass} className="self-end" />,
         ],
         4: [
@@ -98,17 +98,17 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const handleHumanRoll = () => {
         if (isRollingRef.current || !isHumanTurn) return;
-        startRollingProcess();
+        const finalRoll = Math.floor(Math.random() * 6) + 1;
+        startRollingProcess(finalRoll);
     };
 
-    const startRollingProcess = async () => {
+    const startRollingProcess = async (finalRoll: number) => {
         if (isRollingRef.current) return;
         isRollingRef.current = true;
         onRollStart();
 
         const rollStartTime = Date.now();
-        const finalRoll = Math.floor(Math.random() * 6) + 1;
-
+        
         const rollAnimation = async () => {
             if (Date.now() - rollStartTime < duration) {
                 await controls.start({
@@ -131,14 +131,10 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     useEffect(() => {
         if (rolling && !isRollingRef.current) {
-            startRollingProcess();
-        } else if (!rolling && diceValue) {
-            controls.start({
-                transform: getTransformFromFace(diceValue),
-                transition: { duration: 0.3 }
-            });
+            const finalRoll = Math.floor(Math.random() * 6) + 1;
+            startRollingProcess(finalRoll);
         }
-    }, [rolling, diceValue]); // Reacting to external state changes
+    }, [rolling]);
 
      useEffect(() => {
         if (diceValue) {
