@@ -44,6 +44,7 @@ type PlayerPodProps = {
   phase: string;
   showNotifications: boolean;
   score: number;
+  turnTimerProgress: number;
 };
 
 const turnIndicatorClasses: Record<PlayerColor, string> = {
@@ -64,7 +65,8 @@ function PlayerPod({
   diceValue,
   phase,
   showNotifications,
-  score
+  score,
+  turnTimerProgress
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
@@ -72,12 +74,35 @@ function PlayerPod({
   }
 
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
+  const showTimer = isCurrentTurn && turnTimerProgress < 100;
+  const isUrgent = turnTimerProgress < 25;
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start p-2 md:p-4 gap-2 md:gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none",
+        "relative flex flex-col items-center justify-start p-2 md:p-4 gap-2 md:gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
+        {showTimer && (
+           <div className="absolute inset-0 pointer-events-none">
+              <div
+                  className={cn(
+                      "absolute inset-0 border-4 rounded-lg transition-colors",
+                      isUrgent ? "border-red-500/50 animate-pulse" : `border-${color}-500/30`
+                  )}
+              />
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path
+                      d="M50 2.5 A 47.5 47.5 0 0 1 50 97.5 A 47.5 47.5 0 0 1 50 2.5"
+                      fill="none"
+                      className={cn("stroke-current transition-colors", isUrgent ? "text-red-500" : `text-${color}-500`)}
+                      strokeWidth="5"
+                      strokeDasharray="298.45"
+                      strokeDashoffset={298.45 * (1 - turnTimerProgress / 100)}
+                      transform="rotate(90 50 50)"
+                  />
+              </svg>
+           </div>
+        )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
@@ -279,6 +304,8 @@ export function FiveMinGameLayout({
         { color: 'yellow', name: 'Yellow' },
         { color: 'blue', name: 'Blue' },
     ];
+    
+    const turnTimerProgress = (turnTimer / turnTimerDuration) * 100;
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
@@ -505,11 +532,12 @@ export function FiveMinGameLayout({
                     phase={phase}
                     showNotifications={showNotifications}
                     score={scores.red}
+                    turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
-                    player={bluePlayer}
-                    color="blue"
-                    isCurrentTurn={currentTurn === 'blue'}
+                    player={greenPlayer}
+                    color="green"
+                    isCurrentTurn={currentTurn === 'green'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -517,7 +545,8 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.blue}
+                    score={scores.green}
+                    turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
                 />
             </div>
 
@@ -529,18 +558,18 @@ export function FiveMinGameLayout({
 
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
                 <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
-  
                   onDiceRoll={onDiceRoll}
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  score={scores.green}
+                  score={scores.blue}
+                  turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
                     player={yellowPlayer}
@@ -555,6 +584,7 @@ export function FiveMinGameLayout({
                     phase={phase}
                     showNotifications={showNotifications}
                     score={scores.yellow}
+                    turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
                 />
             </div>
         </main>
