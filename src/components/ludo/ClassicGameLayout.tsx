@@ -32,6 +32,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { Progress } from "../ui/progress";
 import { Dice } from "./Dice";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { Dice3D } from "./Dice3D";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -102,7 +103,7 @@ function PlayerPod({
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
-          <Dice
+          <Dice3D
             rolling={isRolling}
             onRollStart={onRollStart}
             onRollEnd={onDiceRoll}
@@ -179,6 +180,7 @@ type ClassicGameLayoutProps = {
   currentTurn: PlayerColor;
   turnTimer: number;
   turnTimerDuration: number;
+  onTurnTimerDurationChange: (duration: number) => void;
   isRolling: boolean;
   diceRollDuration: number;
   onDiceRollDurationChange: (duration: number) => void;
@@ -203,6 +205,7 @@ export function ClassicGameLayout({
   currentTurn,
   turnTimer,
   turnTimerDuration,
+  onTurnTimerDurationChange,
   isRolling,
   diceRollDuration,
   onDiceRollDurationChange,
@@ -225,6 +228,7 @@ export function ClassicGameLayout({
     const bluePlayer = players.find(p => p.color === 'blue') || { color: 'blue', name: 'Empty', type: 'none' };
     const yellowPlayer = players.find(p => p.color === 'yellow') || { color: 'yellow', name: 'Empty', type: 'none' };
     
+    const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
@@ -257,6 +261,7 @@ export function ClassicGameLayout({
     };
 
     const handleApplyAllChanges = () => {
+      onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onDiceRollDurationChange(newDiceRollDuration * 1000);
       
       const turnOrder = playerConfig.map(p => p.color);
@@ -370,7 +375,7 @@ export function ClassicGameLayout({
               </TooltipProvider>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>How to Play: {gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
+                  <SheetTitle>How to Play: {gameSetup.gameMode === 'quick' ? 'Quick Play' : gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
                   <SheetDescription>
                     Here are the rules for the current game mode.
                   </SheetDescription>
@@ -469,6 +474,24 @@ export function ClassicGameLayout({
                               Secondary Safe Points
                             </Label>
                             <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
+                                <Timer className="h-4 w-4" />
+                                Turn Time Limit (s)
+                            </Label>
+                            <div className="flex items-center gap-2">
+                                <Input
+                                id="turn-timer"
+                                type="number"
+                                min="5"
+                                max="60"
+                                step="5"
+                                className="w-20"
+                                value={newTurnTimerDuration}
+                                onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
+                                />
+                            </div>
                           </div>
                           <div className="flex items-center justify-between gap-2">
                             <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
