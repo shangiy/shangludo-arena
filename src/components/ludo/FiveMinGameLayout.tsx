@@ -75,9 +75,10 @@ function PlayerPod({
   const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
   const offset = perimeter * (1 - timerPercentage);
 
+  const isGreenPlayer = color === 'green';
 
   return (
-    <div className={cn("relative flex h-full w-full flex-col items-center justify-between p-4")}>
+    <div className={cn("relative flex h-full w-full items-center justify-between p-4", isGreenPlayer ? 'flex-col' : 'flex-col')}>
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
@@ -116,9 +117,8 @@ function PlayerPod({
           />
         </svg>
 
-
         <h3 className="text-lg font-bold z-10">{player.name}</h3>
-        <div className="flex-1 flex items-center justify-center z-10">
+        <div className={cn("flex-1 flex items-center justify-center z-10 w-full", isGreenPlayer ? 'flex-row gap-4' : 'flex-col')}>
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
                 onRollStart={onRollStart}
@@ -129,13 +129,13 @@ function PlayerPod({
                 diceValue={isCurrentTurn ? diceValue : null}
                 playerName={player.name}
             />
-        </div>
-        <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
-             {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && (
-                <p className="text-lg font-semibold capitalize text-center">
-                   Select a pawn to move.
-                </p>
-            )}
+            <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
+                 {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && (
+                    <p className="text-lg font-semibold capitalize text-center">
+                       Select a pawn to move.
+                    </p>
+                )}
+            </div>
         </div>
     </div>
   );
@@ -457,9 +457,8 @@ export function FiveMinGameLayout({
       </header>
       
       <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 pt-8">
-        {/* Top middle cell for Game Timer & Green */}
-        <div className="col-start-2 row-start-1 h-48 w-48 flex flex-col items-center gap-2 justify-self-center self-end">
-             <PlayerPod 
+        <div className="col-start-2 row-start-1 flex flex-col items-center justify-end h-full">
+            <PlayerPod 
                 player={greenPlayer}
                 color="green"
                 isCurrentTurn={currentTurn === 'green'}
@@ -474,7 +473,6 @@ export function FiveMinGameLayout({
             />
         </div>
         
-        {/* Middle left cell for Red */}
         <div className="col-start-1 row-start-2 h-48 w-48 justify-self-start self-center">
             <PlayerPod 
                 player={redPlayer}
@@ -491,13 +489,11 @@ export function FiveMinGameLayout({
             />
         </div>
 
-        {/* Center cell for Game Board */}
         <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center gap-2">
             <GameTimer remaining={gameTimer} />
             {children}
         </div>
         
-        {/* Middle right cell for Yellow */}
         <div className="col-start-3 row-start-2 h-48 w-48 justify-self-end self-center">
             <PlayerPod 
                 player={yellowPlayer}
@@ -514,7 +510,6 @@ export function FiveMinGameLayout({
             />
         </div>
       
-        {/* Bottom middle cell for Blue */}
         <div className="col-start-2 row-start-3 h-48 w-48 justify-self-center self-start">
             <PlayerPod 
                 player={bluePlayer}
