@@ -31,8 +31,6 @@ type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
   color: PlayerColor;
   isCurrentTurn: boolean;
-  timerValue: number;
-  timerDuration: number;
   isRolling: boolean;
   diceRollDuration: number;
   onRollStart: () => void;
@@ -42,11 +40,11 @@ type PlayerPodProps = {
   showNotifications: boolean;
 };
 
-const strokeColorClasses: Record<PlayerColor, string> = {
-    red: 'stroke-red-500',
-    green: 'stroke-green-500',
-    yellow: 'stroke-yellow-400',
-    blue: 'stroke-blue-500',
+const turnIndicatorClasses: Record<PlayerColor, string> = {
+    red: 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)]',
+    green: 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]',
+    yellow: 'border-yellow-400 shadow-[0_0_15px_rgba(245,158,11,0.7)]',
+    blue: 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.7)]',
 };
 
 
@@ -54,8 +52,6 @@ function PlayerPod({
   player,
   color,
   isCurrentTurn,
-  timerValue,
-  timerDuration,
   isRolling,
   diceRollDuration,
   onRollStart,
@@ -64,60 +60,18 @@ function PlayerPod({
   phase,
   showNotifications
 }: PlayerPodProps) {
-  const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
 
   if (player.type === 'none') {
     return <div className="relative flex h-full w-full flex-col items-center justify-center p-1 rounded-lg border-dashed border-2 border-border/50" />;
   }
-  
-  const rectSize = 100;
-  const strokeWidth = 4;
-  const cornerRadius = 8;
-  const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
-  const offset = perimeter * (1 - timerPercentage);
 
   return (
-    <div className={cn("relative flex h-full w-full items-center justify-between p-1 flex-col")}>
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
-        >
-          <rect
-            x={strokeWidth/2}
-            y={strokeWidth/2}
-            width={rectSize}
-            height={rectSize}
-            rx={cornerRadius}
-            ry={cornerRadius}
-            fill="none"
-            stroke="hsl(var(--border))"
-            strokeWidth={strokeWidth}
-            className={cn(!isCurrentTurn && "opacity-0")}
-          />
-          <rect
-            x={strokeWidth/2}
-            y={strokeWidth/2}
-            width={rectSize}
-            height={rectSize}
-            rx={cornerRadius}
-            ry={cornerRadius}
-            fill="none"
-            strokeWidth={strokeWidth}
-            strokeDasharray={perimeter}
-            strokeDashoffset={offset}
-            className={cn(
-              "transition-[stroke-dashoffset] duration-1000 linear",
-              isCurrentTurn ? strokeColorClasses[color] : 'stroke-transparent'
-            )}
-            style={{
-              transform: 'rotate(-90deg)',
-              transformOrigin: 'center',
-            }}
-          />
-        </svg>
-
-        <h3 className="text-sm font-bold z-10 truncate">{player.name}</h3>
+    <div className={cn(
+        "relative flex h-full w-full items-center justify-between p-2 flex-col rounded-lg border-2 transition-all",
+        isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
+    )}>
+        <h3 className="text-sm font-bold z-10 truncate capitalize">{player.name}</h3>
         <div className={cn("flex-1 flex items-center justify-center z-10 w-full flex-col")}>
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
@@ -129,7 +83,7 @@ function PlayerPod({
                 diceValue={isCurrentTurn ? diceValue : null}
                 playerName={player.name}
             />
-            <div className="w-full space-y-1 z-10 h-8 flex items-center justify-center">
+            <div className="w-full space-y-1 z-10 h-6 flex items-center justify-center">
                  {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && showNotifications && (
                     <p className="text-xs font-semibold capitalize text-center">
                        Select a pawn to move.
@@ -276,8 +230,8 @@ export function FiveMinGameLayout({
     ];
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center p-2 bg-background">
-      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-2">
+    <div className="relative h-full w-full flex flex-col items-center justify-center p-1 bg-background">
+      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-2 h-full">
         {/* Header */}
         <header className="w-full flex justify-between items-center p-2 z-20">
           <AlertDialog>
@@ -468,15 +422,12 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 relative flex items-center justify-center gap-2">
-          <div className="flex flex-col justify-around h-full gap-4">
-            <div className="h-28 w-28">
-              <PlayerPod
+        <main className="w-full flex-1 relative grid grid-cols-3 grid-rows-3 items-center justify-center gap-2">
+            <div className="col-start-1 row-start-1 h-full w-full p-2">
+               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
                 isCurrentTurn={currentTurn === 'yellow'}
-                timerValue={currentTurn === 'yellow' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onRollStart={onRollStart}
@@ -486,36 +437,30 @@ export function FiveMinGameLayout({
                 showNotifications={showNotifications}
               />
             </div>
-            <div className="h-28 w-28">
-              <PlayerPod
-                player={greenPlayer}
-                color="green"
-                isCurrentTurn={currentTurn === 'green'}
-                timerValue={currentTurn === 'green' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-              />
+            <div className="col-start-3 row-start-1 h-full w-full p-2">
+                <PlayerPod
+                    player={greenPlayer}
+                    color="green"
+                    isCurrentTurn={currentTurn === 'green'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                />
             </div>
-          </div>
+            
+            <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center max-w-[70vh] mx-auto">
+                {children}
+            </div>
 
-          <div className="w-full h-full flex flex-col items-center justify-center max-w-[70vh]">
-            {children}
-          </div>
-
-          <div className="flex flex-col justify-around h-full gap-4">
-            <div className="h-28 w-28">
+            <div className="col-start-1 row-start-3 h-full w-full p-2">
               <PlayerPod
                 player={bluePlayer}
                 color="blue"
                 isCurrentTurn={currentTurn === 'blue'}
-                timerValue={currentTurn === 'blue' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onRollStart={onRollStart}
@@ -525,13 +470,11 @@ export function FiveMinGameLayout({
                 showNotifications={showNotifications}
               />
             </div>
-            <div className="h-28 w-28">
-              <PlayerPod
+            <div className="col-start-3 row-start-3 h-full w-full p-2">
+               <PlayerPod
                 player={redPlayer}
                 color="red"
                 isCurrentTurn={currentTurn === 'red'}
-                timerValue={currentTurn === 'red' ? turnTimer : turnTimerDuration}
-                timerDuration={turnTimerDuration}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onRollStart={onRollStart}
@@ -541,7 +484,6 @@ export function FiveMinGameLayout({
                 showNotifications={showNotifications}
               />
             </div>
-          </div>
         </main>
       </div>
     </div>
