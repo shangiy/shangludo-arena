@@ -47,21 +47,6 @@ const turnIndicatorClasses: Record<PlayerColor, string> = {
     blue: 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.7)] bg-blue-500/5',
 };
 
-const diceBoxBg: Record<PlayerColor, string> = {
-    red: 'bg-red-500/10 border-red-500/30',
-    green: 'bg-green-500/10 border-green-500/30',
-    yellow: 'bg-yellow-400/10 border-yellow-400/30',
-    blue: 'bg-blue-500/10 border-blue-500/30',
-}
-
-const diceTextColor: Record<PlayerColor, string> = {
-    red: 'text-red-500',
-    green: 'text-green-500',
-    yellow: 'text-yellow-400',
-    blue: 'text-blue-500',
-}
-
-
 function PlayerPod({
   player,
   color,
@@ -69,11 +54,17 @@ function PlayerPod({
   diceValue,
   phase,
   showNotifications,
+  isRolling,
+  diceRollDuration,
+  onRollStart,
+  onDiceRoll,
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
     return <div className="relative flex h-full min-h-28 w-full max-w-48 flex-col items-center justify-center p-2 rounded-lg" />;
   }
+
+  const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
   
   return (
     <div className={cn(
@@ -82,16 +73,18 @@ function PlayerPod({
     )}>
         <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
-        <div className={cn(diceBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
-            <span className={cn(diceTextColor[color], "text-2xl font-bold")}>{isCurrentTurn && diceValue ? diceValue : ""}</span>
-        </div>
+        <Dice3D
+          rolling={isRolling && isCurrentTurn}
+          onRollStart={onRollStart}
+          onRollEnd={onDiceRoll}
+          color={color}
+          duration={diceRollDuration}
+          isHumanTurn={isHumanTurnAndRollingPhase}
+          diceValue={isCurrentTurn ? diceValue : null}
+          playerName={player.name}
+        />
 
-        <div className="w-full space-y-1 z-10 h-10 flex flex-col items-center justify-center text-center">
-             {isCurrentTurn && diceValue !== null && (
-                <p className={cn("text-xs font-semibold capitalize", diceTextColor[color])}>
-                   {player.name} rolled: {diceValue}
-                </p>
-            )}
+        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
              {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
                 <p className="text-xs font-semibold capitalize text-center">
                     Select a pawn to move.
@@ -202,7 +195,6 @@ export function ClassicGameLayout({
     ];
 
     const currentPlayerDetails = gameSetup.players.find(p => p.color === currentTurn);
-    const isHumanTurn = currentPlayerDetails?.type === 'human';
 
   return (
     <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
@@ -226,21 +218,6 @@ export function ClassicGameLayout({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          
-          <div className="w-48 h-24 relative flex items-center justify-center">
-            {currentPlayerDetails && (
-                <Dice3D
-                    rolling={isRolling}
-                    onRollStart={onRollStart}
-                    onRollEnd={onDiceRoll}
-                    color={currentTurn}
-                    duration={diceRollDuration}
-                    isHumanTurn={isHumanTurn && phase === 'ROLLING'}
-                    diceValue={diceValue}
-                    playerName={currentPlayerDetails.name}
-                />
-            )}
-        </div>
 
           <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <PopoverTrigger asChild>
@@ -419,7 +396,6 @@ export function ClassicGameLayout({
                       onRollStart={onRollStart}
                       onDiceRoll={onDiceRoll}
                       diceValue={diceValue}
-      
                       phase={phase}
                       showNotifications={showNotifications}
                     />
