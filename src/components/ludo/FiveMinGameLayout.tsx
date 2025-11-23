@@ -77,15 +77,12 @@ function PlayerPod({
   showNotifications,
   score
 }: PlayerPodProps) {
-  const isHumanTurn = isCurrentTurn && player.type === "human";
 
   if (player.type === 'none') {
     return <div className="relative flex h-full min-h-28 w-full max-w-48 flex-col items-center justify-center p-2 rounded-lg" />;
   }
 
-  const isExpanded = isCurrentTurn && (phase === 'ROLLING' || phase === 'MOVING' || phase === 'AI_THINKING');
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
-
 
   return (
     <div className={cn(
@@ -94,22 +91,28 @@ function PlayerPod({
     )}>
         <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
-        <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
-            <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{isCurrentTurn && diceValue ? diceValue : score}</span>
-        </div>
+        {isCurrentTurn ? (
+           <Dice3D
+             rolling={isRolling && isCurrentTurn}
+             onRollStart={onRollStart}
+             onRollEnd={onDiceRoll}
+             color={color}
+             duration={diceRollDuration}
+             isHumanTurn={isHumanTurnAndRollingPhase}
+             diceValue={isCurrentTurn ? diceValue : null}
+             playerName={player.name}
+           />
+        ) : (
+            <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
+                <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
+                    <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{score}</span>
+                </div>
+                <div className="text-center h-8" />
+            </div>
+        )}
 
-        <div className="w-full space-y-1 z-10 h-10 flex flex-col items-center justify-center text-center">
-            {isCurrentTurn && isHumanTurn && !isRolling && diceValue === null && phase === 'ROLLING' && (
-                <button onClick={onRollStart} className={cn("font-bold text-sm animate-pulse", scoreTextColor[color])}>
-                    Click to Roll
-                </button>
-            )}
-            {isCurrentTurn && diceValue !== null && (
-                <p className={cn("text-xs font-semibold capitalize", scoreTextColor[color])}>
-                    {player.name} rolled: {diceValue}
-                </p>
-            )}
-            {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && showNotifications && (
+        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+             {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
                 <p className="text-xs font-semibold capitalize text-center">
                     Select a pawn to move.
                 </p>
@@ -522,6 +525,8 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
 
