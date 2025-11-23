@@ -197,8 +197,8 @@ export function GameBoard({
         )}
       >
         {gameMode === '5-min' ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn("text-5xl font-bold opacity-80", YARD_SCORE_TEXT_COLORS[color])}>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <span className={cn("text-5xl font-bold opacity-80 text-shadow-lg", YARD_SCORE_TEXT_COLORS[color])} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
               {scores[color]}
             </span>
           </div>
