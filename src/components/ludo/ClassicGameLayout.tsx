@@ -365,10 +365,9 @@ export function ClassicGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
-            {/* Top Pods on Mobile, Left on Desktop */}
-            <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
-                <PlayerPod
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr]">
+            <div className="w-full md:w-auto md:col-start-1 md:row-start-1 flex justify-center items-center">
+                 <PlayerPod
                   player={redPlayer}
                   color="red"
                   isCurrentTurn={currentTurn === 'red'}
@@ -380,6 +379,8 @@ export function ClassicGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                 />
+            </div>
+             <div className="w-full md:w-auto md:col-start-3 md:row-start-1 flex justify-center items-center">
                 <PlayerPod
                   player={greenPlayer}
                   color="green"
@@ -395,12 +396,11 @@ export function ClassicGameLayout({
             </div>
 
             {/* Game Board */}
-            <div className="w-full max-w-[90vw] md:max-w-[80vh] aspect-square">
+            <div className="w-full max-w-[90vw] md:max-w-[80vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
                 {children}
             </div>
 
-            {/* Bottom Pods on Mobile, Right on Desktop */}
-            <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
+            <div className="w-full md:w-auto md:col-start-1 md:row-start-3 flex justify-center items-center">
                  <PlayerPod
                   player={bluePlayer}
                   color="blue"
@@ -413,6 +413,8 @@ export function ClassicGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                 />
+            </div>
+            <div className="w-full md:w-auto md:col-start-3 md:row-start-3 flex justify-center items-center">
                 <PlayerPod
                   player={yellowPlayer}
                   color="yellow"
