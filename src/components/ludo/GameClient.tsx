@@ -38,7 +38,7 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
-import { generateAIMove } from '@/ai/flows/ai-opponent';
+import { chooseMove as chooseAiMove, computeRanking } from '@/lib/ludo-ai';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -125,6 +125,7 @@ export default function GameClient() {
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
   const [glassWalls, setGlassWalls] = useState<Record<PlayerColor, boolean>>({red: true, green: true, blue: true, yellow: true});
+  const [endGameSummary, setEndGameSummary] = useState<{ title: string; ranking: { playerId: PlayerColor; name: string; score: string; }[] } | null>(null);
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,16 +134,23 @@ export default function GameClient() {
   const glassBreakAudioRef = useRef<HTMLAudioElement>(null);
 
   const SAFE_ZONES = useMemo(() => {
+    const primarySafes = [
+      START_POSITIONS.red,
+      START_POSITIONS.green,
+      START_POSITIONS.yellow,
+      START_POSITIONS.blue,
+    ];
+
     if (addSecondarySafePoints) {
       return [
-        ...PRIMARY_SAFE_ZONES,
+        ...primarySafes,
         SECONDARY_RED_SAFE_ZONE,
         SECONDARY_GREEN_SAFE_ZONE,
         SECONDARY_BLUE_SAFE_ZONE,
         SECONDARY_YELLOW_SAFE_ZONE,
       ];
     }
-    return PRIMARY_SAFE_ZONES;
+    return primarySafes;
   }, [addSecondarySafePoints]);
 
   const players = useMemo(() => {
@@ -268,12 +276,7 @@ export default function GameClient() {
             description: 'You need at least two players to start a game.',
         });
         setPhase('SETUP');
-        // If we are in quick/5-min mode, we need to reset the gameSetup so the form doesn't disappear
-        if (gameMode === 'quick' || gameMode === '5-min' || gameMode === 'classic') {
-            setGameSetup(setup);
-        } else {
-             setGameSetup(null);
-        }
+        setGameSetup(setup);
         return;
     }
 
@@ -301,30 +304,55 @@ export default function GameClient() {
     setWinner(null);
     setDiceValue(null);
     setPhase('ROLLING');
+    setEndGameSummary(null);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
     if (gameMode === '5-min') {
       setGameTimer(gameTimerDuration);
     }
   };
 
-  useEffect(() => {
-    if (winner && showNotifications) {
-      let description = `${players[winner]?.name} has won the game by getting all their pawns home!`;
-       if (gameMode === 'quick' || gameMode === 'classic') {
-            description = `${players[winner].name} has won the game by getting all their pawns home!`;
+  const handleEndGame = () => {
+    const finalPawns = pawns;
+    const finalScores = scores;
+    let finalWinner = winner;
+
+    if (gameMode === '5-min' && !finalWinner) {
+      let bestScore = -1;
+      let winningPlayer: PlayerColor | null = null;
+      for (const color of playerOrder) {
+        if (finalScores[color] > bestScore) {
+          bestScore = finalScores[color];
+          winningPlayer = color;
         }
-      if (gameMode === '5-min') {
-          description = `${players[winner].name} wins with the highest score: ${scores[winner]}!`
       }
-      addMessage('System', description);
-      toast({
-        title: 'Game Over!',
-        description,
-        duration: 5000,
-      });
-      localStorage.removeItem(LUDO_GAME_STATE_KEY);
+      finalWinner = winningPlayer;
+      setWinner(winningPlayer);
     }
-  }, [winner, players, showNotifications, toast, scores, gameMode]);
+    
+    if (!finalWinner) return;
+
+    const ranking = computeRanking(finalPawns, playerOrder, finalScores, gameMode);
+    
+    const summary = {
+      title: `Winner: ${players[finalWinner]?.name || 'Unknown'}`,
+      ranking: ranking.map(r => ({
+        playerId: r.playerId,
+        name: players[r.playerId]?.name || 'Unknown',
+        score: gameMode === '5-min' ? `${r.score}` : `${r.finishedPawns} / 4`,
+      }))
+    };
+
+    setEndGameSummary(summary);
+    setPhase('GAME_OVER');
+    localStorage.removeItem(LUDO_GAME_STATE_KEY);
+  };
+
+
+  useEffect(() => {
+    if (winner) {
+      handleEndGame();
+    }
+  }, [winner]);
 
   const nextTurn = () => {
     setPhase('ROLLING');
@@ -366,22 +394,6 @@ export default function GameClient() {
 
   }, [currentTurn, phase, winner, gameMode, turnTimerDuration]);
   
-  const calculateWinnerByScore = () => {
-    let bestScore = -Infinity;
-    let currentWinner: PlayerColor | null = null;
-    
-    (playerOrder).forEach(color => {
-      if (scores[color] > bestScore) {
-        bestScore = scores[color];
-        currentWinner = color;
-      }
-    });
-
-    if (currentWinner) {
-      setWinner(currentWinner);
-    }
-  };
-
   useEffect(() => {
     if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER') {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
@@ -394,7 +406,7 @@ export default function GameClient() {
                 clearInterval(gameTimerRef.current!);
                 addMessage("System", "5-minute game has ended!");
                 setPhase('GAME_OVER');
-                calculateWinnerByScore();
+                handleEndGame();
                 return 0;
             }
             return prev - 1000;
@@ -415,8 +427,21 @@ export default function GameClient() {
   
     // Pawns on the board can always move
     playerPawns.forEach((pawn) => {
-      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min')) return;
-  
+      if (pawn.isHome) return;
+
+      if (pawn.position === -1) {
+        if (roll === 6 && gameMode !== '5-min') {
+           const startPos = START_POSITIONS[player];
+           const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+           if (!isClassic && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+             // Blockade, can't move out
+           } else {
+             moves.push({ pawn, newPosition: startPos });
+           }
+        }
+        return;
+      }
+      
       const currentPath = PATHS[player];
       let currentPathIndex = currentPath.indexOf(pawn.position);
   
@@ -448,22 +473,6 @@ export default function GameClient() {
       }
     });
   
-    // A 6 allows moving a pawn from the yard
-    if (roll === 6 && gameMode !== '5-min') {
-      const pawnsInYard = playerPawns.filter((p) => p.position === -1);
-      if (pawnsInYard.length > 0) {
-        const startPos = START_POSITIONS[player];
-        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-        
-        // Non-classic modes: you can't enter on a blockade
-        if (!isClassic && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-          // blockade, cannot move out
-        } else {
-          pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
-        }
-      }
-    }
-  
     return moves;
   };
 
@@ -479,7 +488,7 @@ export default function GameClient() {
     if (possibleMoves.length === 0) {
       addMessage('System', `${players[currentTurn].name} has no possible moves.`);
       setTimeout(() => {
-        if (value !== 6) {
+        if (value !== 6 || winner) {
           nextTurn();
         } else {
           setPhase('ROLLING'); // Roll again
@@ -494,7 +503,7 @@ export default function GameClient() {
 
       if (isHumanTurn) {
         if (possibleMoves.length === 1) {
-          setTimeout(() => handlePawnMove(possibleMoves[0].pawn), 1000);
+          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition), 1000);
         }
       } else if (isAITurn) {
         setPhase('AI_THINKING');
@@ -512,64 +521,28 @@ export default function GameClient() {
     setDiceValue(null);
   };
 
-  const handleAiMove = async (roll: number) => {
-    const boardState = JSON.stringify(pawns, null, 2);
-    try {
-      const aiResponse = await generateAIMove({
-        boardState,
-        currentPlayer: currentTurn,
-        diceRoll: roll,
-      });
+  const handleAiMove = (roll: number) => {
+      const aiGameState = {
+        pawns: pawns,
+        players: gameSetup?.players || [],
+        safeZones: SAFE_ZONES,
+        gameMode: gameMode,
+      };
 
-      console.log('AI Response:', aiResponse);
-      addMessage(`AI (${players[currentTurn].name})`, aiResponse.reasoning, currentTurn);
+      const move = chooseAiMove(aiGameState, currentTurn, roll);
       
-      const moveRegex = /pawn:(\d+|null),from:(-?\d+|null),to:(-?\d+|null)/;
-      const match = aiResponse.move.match(moveRegex);
-
-      if (match) {
-        if (match[1] === 'null') {
-          // AI indicates no valid move
+      if (move && move.pawn) {
+        performMove(move.pawn, move.newPosition);
+      } else {
+        // AI has no move, which should be handled by the logic inside chooseAiMove
+        // But as a fallback, we check what handleDiceRollEnd would do.
+        if (roll !== 6) {
           nextTurn();
-          return;
-        }
-
-        const pawnId = parseInt(match[1], 10);
-        const newPosition = parseInt(match[3], 10);
-        
-        const pawnToMove = pawns[currentTurn].find(p => p.id === pawnId);
-        
-        if (pawnToMove) {
-          const possibleMoves = getPossibleMoves(currentTurn, roll);
-          const isValidMove = possibleMoves.some(m => m.pawn.id === pawnToMove.id && m.newPosition === newPosition);
-
-          if (isValidMove) {
-            performMove(pawnToMove, newPosition);
-          } else {
-             addMessage('System', `AI for ${currentTurn} chose an invalid move. Taking first valid move.`);
-             const fallbackMove = possibleMoves[0];
-             if(fallbackMove) {
-                performMove(fallbackMove.pawn, fallbackMove.newPosition);
-             } else {
-                nextTurn(); // Should have been caught earlier, but just in case
-             }
-          }
         } else {
-          throw new Error('AI chose a non-existent pawn.');
+          setPhase('ROLLING');
+          setDiceValue(null);
         }
-      } else {
-        throw new Error('AI response move format is incorrect.');
       }
-    } catch (error) {
-      console.error("AI move failed, performing fallback move:", error);
-      addMessage('System', `AI for ${currentTurn} failed. Taking first valid move.`);
-      const possibleMoves = getPossibleMoves(currentTurn, roll);
-       if (possibleMoves.length > 0) {
-        performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition);
-      } else {
-        nextTurn();
-      }
-    }
   };
 
   const handlePawnMove = (pawnToMove: Pawn) => {
@@ -577,14 +550,6 @@ export default function GameClient() {
       return;
     }
     
-    if (pawnToMove.position === -1) {
-        if (diceValue === 6 && gameMode !== '5-min') {
-             const startPos = START_POSITIONS[currentTurn];
-             performMove(pawnToMove, startPos);
-             return;
-        }
-    }
-
     const possibleMoves = getPossibleMoves(currentTurn, diceValue);
     const selectedMove = possibleMoves.find(
       (m) =>
@@ -634,24 +599,32 @@ export default function GameClient() {
       const originalPawnPosition = pawnsOfPlayer[pawnIndex].position;
       pawnsOfPlayer[pawnIndex].position = newPosition;
 
-      if (!SAFE_ZONES.includes(newPosition)) {
+      // Check if pawn reached home run
+      const currentPath = PATHS[currentTurn];
+      const homeRunStartIndex = 51; 
+      const newPathIndex = currentPath.indexOf(newPosition);
+
+      if (newPathIndex >= homeRunStartIndex) {
+        if(newPathIndex === currentPath.length - 1) { // Final home spot
+            pawnsOfPlayer[pawnIndex].isHome = true;
+            addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
+            pawnReachedHome = true;
+
+            if (gameMode === '5-min') {
+                setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
+            }
+        }
+      } else if (!SAFE_ZONES.includes(newPosition)) {
         (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
-          if (color !== currentTurn) {
-            let opponentPawnsAtPos = newPawns[color]?.filter(
+          if (color !== currentTurn && newPawns[color]) {
+            let opponentPawnsAtPos = newPawns[color].filter(
               (p: Pawn) => p.position === newPosition
             );
 
             // In classic mode, you can capture a single pawn.
-            if (gameMode === 'classic' && opponentPawnsAtPos?.length === 1) {
+            if (opponentPawnsAtPos?.length > 0 && opponentPawnsAtPos?.length < 2) {
                 capturedPawn = true;
-            }
-            // In other modes, you can capture if it's not a blockade.
-            else if (gameMode !== 'classic' && opponentPawnsAtPos?.length === 1 && !SAFE_ZONES.includes(newPosition)) {
-                 capturedPawn = true;
-            }
-
-            if (capturedPawn) {
-                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
+                addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                  newPawns[color] = newPawns[color].map((p: Pawn) => {
                     if (p.position === newPosition) {
                         if (gameMode === 'quick' && glassWalls[currentTurn]) {
@@ -676,21 +649,10 @@ export default function GameClient() {
         });
       }
 
-      const currentPath = PATHS[currentTurn];
-      if (currentPath.indexOf(newPosition) >= 51) { 
-        pawnsOfPlayer[pawnIndex].isHome = true;
-        addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
-        pawnReachedHome = true;
-
-        if (gameMode === '5-min') {
-            setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
-        }
-      }
-
       newPawns[currentTurn] = pawnsOfPlayer;
 
       const allPawnsHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-      if (allPawnsHome && gameMode !== '5-min') {
+      if (allPawnsHome) {
           setWinner(currentTurn);
       }
 
@@ -707,6 +669,7 @@ export default function GameClient() {
       nextTurn();
     } else {
       setPhase('GAME_OVER');
+      handleEndGame();
     }
   };
 
@@ -853,36 +816,32 @@ export default function GameClient() {
   return (
     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col">
        <Dialog
-        open={!!winner}
+        open={phase === 'GAME_OVER' && !!endGameSummary}
         onOpenChange={(open) => {
             if (!open) {
-              localStorage.removeItem(LUDO_GAME_STATE_KEY);
-              window.location.reload();
+              handleGameSetup(gameSetup!);
             }
         }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">
-              Game Over!
+             <DialogTitle className="text-2xl font-bold text-center">
+              {endGameSummary?.title || 'Game Over!'}
             </DialogTitle>
-            {winner && (
-              <DialogDescription className="text-center">
-                <span className={`font-semibold capitalize text-${winner}-500`}>
-                  {players[winner]?.name}
-                </span>{' '}
-                {gameMode === '5-min' ? `wins with the highest score: ${scores[winner]}!` : 'has won the game!'}
-              </DialogDescription>
-            )}
+             <DialogDescription className="text-center pt-2">
+                Final Rankings:
+            </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-center items-center p-4">
-            <EndLogo className="h-20 w-20" />
+          <div className="flex flex-col gap-2">
+            {endGameSummary?.ranking.map((player, index) => (
+                <div key={player.playerId} className="flex justify-between items-center p-2 rounded-md bg-muted">
+                    <span className="font-semibold">{index + 1}. {player.name}</span>
+                    <span className="font-bold">{player.score}</span>
+                </div>
+            ))}
           </div>
           <DialogFooter className="sm:justify-center">
-            <Button onClick={() => {
-              localStorage.removeItem(LUDO_GAME_STATE_KEY);
-              window.location.reload();
-            }}>Play Again</Button>
+            <Button onClick={() => handleGameSetup(gameSetup!)}>Play Again</Button>
             <Button variant="secondary" asChild>
               <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
             </Button>
@@ -970,3 +929,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
