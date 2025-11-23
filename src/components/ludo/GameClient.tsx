@@ -86,7 +86,7 @@ const quickPlaySetup: GameSetup = {
       players: [
         { color: 'red', name: 'Red Player', type: 'human' },
         { color: 'green', name: 'Green Player', type: 'human' },
-        { color: 'yellow', name: 'Yellow Player', type: 'human' },
+        { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
         { color: 'blue', name: 'Blue Player', type: 'human' },
       ],
       turnOrder: ['red', 'green', 'yellow', 'blue'],
