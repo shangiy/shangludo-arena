@@ -91,7 +91,7 @@ function PlayerPod({
         ) : (
            <div className="flex flex-col items-center justify-center gap-2 h-full">
                <button className="w-24 h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                    <Image src="/dice-placeholder.png" alt="Waiting for turn" width={96} height={96} />
+                    <EndLogo className="w-24 h-24" />
                </button>
            </div>
         )}

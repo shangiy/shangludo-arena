@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 import Image from "next/image";
 import { useTheme } from "@/hooks/use-theme";
+import { EndLogo } from "../icons/EndLogo";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -92,7 +93,7 @@ function PlayerPod({
         ) : (
             <div className="flex flex-col items-center justify-center gap-2 h-full">
                 <button className="w-24 h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                    <Image src="/dice-placeholder.png" alt="Waiting for turn" width={96} height={96} />
+                    <EndLogo className="w-24 h-24" />
                 </button>
             </div>
         )}
@@ -480,6 +481,7 @@ export function FiveMinGameLayout({
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
+  
                   onDiceRoll={onDiceRoll}
                   diceValue={diceValue}
                   phase={phase}
