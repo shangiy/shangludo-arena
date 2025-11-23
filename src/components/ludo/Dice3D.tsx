@@ -20,11 +20,11 @@ type DiceProps = {
 const getTransformFromFace = (face: number): string => {
     switch (face) {
         case 1: return 'rotateX(0deg) rotateY(0deg)';
-        case 2: return 'rotateX(90deg)'; // Top face
-        case 3: return 'rotateY(90deg)'; // Left face from perspective
-        case 4: return 'rotateY(-90deg)';// Right face
-        case 5: return 'rotateX(-90deg)';// Bottom face
-        case 6: return 'rotateX(180deg)';// Back face
+        case 2: return 'rotateX(-90deg)';
+        case 3: return 'rotateY(90deg)';
+        case 4: return 'rotateY(-90deg)';
+        case 5: return 'rotateX(90deg)';
+        case 6: return 'rotateX(180deg)';
         default: return '';
     }
 };
@@ -150,12 +150,14 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 transition: { duration: 0.3 }
             });
         }
-    }, [rolling, diceValue]);
+    }, [rolling]);
 
      useEffect(() => {
-        // Set initial face without animation
-        controls.set({ transform: getTransformFromFace(visualFace) });
-    }, [visualFace, controls]);
+        if (diceValue) {
+            setVisualFace(diceValue);
+            controls.set({ transform: getTransformFromFace(diceValue) });
+        }
+    }, [diceValue, controls]);
 
     if (!isClient) {
         return <div className="w-12 h-12" />; // Placeholder for SSR
@@ -177,6 +179,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const currentTurnColorClass = turnTextColor[color];
     const currentDotColorClass = dotColor[color];
+    const faceStyle = "absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
 
     return (
         <div className="flex flex-col items-center justify-center gap-2">
@@ -188,27 +191,27 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
                     {/* Face 1 (Front) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'translateZ(1.5rem)' }}>
                         <DiceFace face={1} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 6 (Back) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'rotateX(180deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(180deg) translateZ(1.5rem)' }}>
                          <DiceFace face={6} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 2 (Top) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'rotateX(90deg) translateZ(1.5rem)' }}>
-                         <DiceFace face={2} colorClass={currentDotColorClass} />
-                    </div>
-                    {/* Face 5 (Bottom) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'rotateX(-90deg) translateZ(1.5rem)' }}>
+                    {/* Face 5 (Top) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(1.5rem)' }}>
                          <DiceFace face={5} colorClass={currentDotColorClass} />
                     </div>
+                    {/* Face 2 (Bottom) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(1.5rem)' }}>
+                         <DiceFace face={2} colorClass={currentDotColorClass} />
+                    </div>
                     {/* Face 4 (Right from perspective) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'rotateY(-90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(1.5rem)' }}>
                          <DiceFace face={4} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 3 (Left from perspective) */}
-                    <div className={cn("absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1")} style={{ transform: 'rotateY(90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(1.5rem)' }}>
                          <DiceFace face={3} colorClass={currentDotColorClass} />
                     </div>
                 </motion.div>
