@@ -47,20 +47,20 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
             </div>
         ),
         2: (
-            <div className="grid grid-cols-2 grid-rows-2 h-full gap-2 p-1">
-                <DiceDot colorClass={colorClass} className="col-start-1 row-start-1" />
-                <DiceDot colorClass={colorClass} className="col-start-2 row-start-2" />
+             <div className="flex flex-col justify-between h-full p-1">
+                <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
+                <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         3: (
-            <div className="grid grid-cols-3 grid-rows-3 h-full p-1">
-                <DiceDot colorClass={colorClass} className="col-start-1 row-start-1" />
-                <DiceDot colorClass={colorClass} className="col-start-2 row-start-2" />
-                <DiceDot colorClass={colorClass} className="col-start-3 row-start-3" />
+            <div className="flex flex-col justify-between h-full p-1">
+                <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
+                <div className="flex justify-center"><DiceDot colorClass={colorClass} /></div>
+                <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         4: (
-            <div className="grid grid-cols-2 grid-rows-2 h-full gap-2 p-1">
+            <div className="grid grid-cols-2 grid-rows-2 h-full gap-1 p-1">
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
@@ -152,11 +152,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
      useEffect(() => {
         if (diceValue) {
+            setLocalDiceValue(diceValue);
             controls.start({
                 transform: getTransformFromFace(diceValue),
                 transition: { type: "spring", stiffness: 300, damping: 20 }
             });
-            setLocalDiceValue(diceValue);
         } else {
              controls.set({ transform: getTransformFromFace(1) });
              setLocalDiceValue(null);
