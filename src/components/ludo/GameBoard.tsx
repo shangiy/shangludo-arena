@@ -165,7 +165,9 @@ export function GameBoard({
       
       const currentPos = p(x,y);
       if (x === 7 && y === 6) bgColor = HOME_RUN_BGS.green;
+      if (x === 8 && y === 6) bgColor = HOME_RUN_BGS.green; // Make cell at (8,6) green
       if (x === 6 && y === 7) bgColor = HOME_RUN_BGS.red;
+      if (x === 6 && y === 8) bgColor = HOME_RUN_BGS.red; // Make cell at (6,8) red
       if (x === 7 && y === 8) bgColor = HOME_RUN_BGS.blue;
       if (x === 8 && y === 7) bgColor = HOME_RUN_BGS.yellow;
 
