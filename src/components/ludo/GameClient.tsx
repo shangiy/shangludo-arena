@@ -38,7 +38,7 @@ import {
   DialogFooter,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
-import { chooseMove as chooseAiMove, computeRanking } from '@/lib/ludo-ai';
+import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -529,7 +529,7 @@ export default function GameClient() {
         gameMode: gameMode,
       };
 
-      const move = chooseAiMove(aiGameState, currentTurn, roll);
+      const move = chooseMove(aiGameState, currentTurn, roll);
       
       if (move && move.pawn) {
         performMove(move.pawn, move.newPosition);
@@ -882,7 +882,7 @@ export default function GameClient() {
                       phase={phase}
                       scores={scores}
                     >
-                        <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
+                        <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={{red: false, green: false, blue: false, yellow: false}}>
                             {renderPawns()}
                         </GameBoard>
                     </FiveMinGameLayout>
@@ -929,5 +929,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
