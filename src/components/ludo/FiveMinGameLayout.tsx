@@ -379,7 +379,13 @@ export function FiveMinGameLayout({
             </AlertDialogContent>
           </AlertDialog>
           
-          <GameTimer remaining={gameTimer} />
+          <div className="flex flex-col items-center">
+            <GameTimer remaining={gameTimer} />
+            <div className="text-center">
+              <p className="text-xs font-semibold text-muted-foreground leading-tight">5-Minutes</p>
+              <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
+            </div>
+          </div>
 
           <div className="flex items-center gap-2">
             <Sheet>
