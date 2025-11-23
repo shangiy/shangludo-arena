@@ -128,9 +128,11 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
               const percentage = (homeCount / 4) * 100;
 
               return (
-                <div key={color} className="flex flex-col items-center justify-center gap-1 text-sm p-1">
-                    <span className="font-semibold capitalize truncate text-white">{player.name}</span>
-                    <span className="font-bold text-base text-black">{percentage}%</span>
+                <div key={color} className="flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1">
+                        <span className="font-semibold capitalize truncate text-white">{player.name}</span>
+                        <span className="font-bold text-base text-black">{percentage}%</span>
+                    </div>
                 </div>
               );
             }
@@ -408,7 +410,7 @@ export function ClassicGameLayout({
                     </TooltipProvider>
                   </ScrollArea>
                   <div className="p-4 border-t">
-                      <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes &amp; Play</Button>
+                      <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes & Play</Button>
                   </div>
                 </div>
               </PopoverContent>
@@ -485,3 +487,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    

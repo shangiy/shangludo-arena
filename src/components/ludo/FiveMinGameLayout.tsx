@@ -143,9 +143,11 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
               if (!player) return <div key={color} />;
               
               return (
-                <div key={color} className="flex flex-col items-center justify-center gap-1 text-sm p-1">
-                    <span className="font-semibold capitalize truncate text-white">{player.name}</span>
-                    <span className="font-bold text-base text-black">{scores[color]}</span>
+                <div key={color} className="flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1">
+                        <span className="font-semibold capitalize truncate text-white">{player.name}</span>
+                        <span className="font-bold text-base text-black">{scores[color]}</span>
+                    </div>
                 </div>
               );
             }
@@ -558,3 +560,5 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
