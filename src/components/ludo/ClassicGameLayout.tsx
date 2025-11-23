@@ -103,7 +103,7 @@ function PlayerPod({
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
-          <Dice3D
+          <Dice
             rolling={isRolling}
             onRollStart={onRollStart}
             onRollEnd={onDiceRoll}

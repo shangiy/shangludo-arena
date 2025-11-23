@@ -882,7 +882,46 @@ export default function GameClient() {
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
-      {gameMode === '5-min' ? (
+      {gameMode === 'classic' ? (
+          <div className="flex flex-col flex-1 h-screen">
+          <main className="flex-1 flex flex-col">
+            {gameSetup && (
+              <ClassicGameLayout
+                gameSetup={gameSetup}
+                pawns={pawns}
+                onGameSetupChange={handleGameSetup}
+                currentTurn={currentTurn}
+                turnTimer={turnTimer}
+                turnTimerDuration={turnTimerDuration}
+                onTurnTimerDurationChange={handleTurnTimerDurationChange}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onDiceRollDurationChange={handleDiceRollDurationChange}
+                onRollStart={startRoll}
+                onDiceRoll={handleDiceRollEnd}
+                diceValue={diceValue}
+                onResetAndGoHome={handleResetAndGoHome}
+                muteSound={muteSound}
+                onToggleMuteSound={() => setMuteSound(prev => !prev)}
+                showNotifications={showNotifications}
+                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+                addSecondarySafePoints={addSecondarySafePoints}
+                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+                phase={phase}
+              >
+                  <GameBoard 
+                    showSecondarySafes={addSecondarySafePoints} 
+                    scores={{red:0, green:0, blue:0, yellow:0}} 
+                    gameMode={gameMode} 
+                    glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+                  >
+                      {renderPawns()}
+                  </GameBoard>
+              </ClassicGameLayout>
+            )}
+          </main>
+        </div>
+      ) : (
         <div className="flex flex-col flex-1 h-screen">
             <main className="flex-1 flex flex-col">
                 {gameSetup && (
@@ -923,45 +962,6 @@ export default function GameClient() {
                     </FiveMinGameLayout>
                 )}
             </main>
-        </div>
-      ) : (
-        <div className="flex flex-col flex-1 h-screen">
-          <main className="flex-1 flex flex-col">
-            {gameSetup && (
-              <ClassicGameLayout
-                gameSetup={gameSetup}
-                pawns={pawns}
-                onGameSetupChange={handleGameSetup}
-                currentTurn={currentTurn}
-                turnTimer={turnTimer}
-                turnTimerDuration={turnTimerDuration}
-                onTurnTimerDurationChange={handleTurnTimerDurationChange}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onDiceRollDurationChange={handleDiceRollDurationChange}
-                onRollStart={startRoll}
-                onDiceRoll={handleDiceRollEnd}
-                diceValue={diceValue}
-                onResetAndGoHome={handleResetAndGoHome}
-                muteSound={muteSound}
-                onToggleMuteSound={() => setMuteSound(prev => !prev)}
-                showNotifications={showNotifications}
-                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-                addSecondarySafePoints={addSecondarySafePoints}
-                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-                phase={phase}
-              >
-                  <GameBoard 
-                    showSecondarySafes={addSecondarySafePoints} 
-                    scores={{red:0, green:0, blue:0, yellow:0}} 
-                    gameMode={gameMode} 
-                    glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
-                  >
-                      {renderPawns()}
-                  </GameBoard>
-              </ClassicGameLayout>
-            )}
-          </main>
         </div>
       )}
       <GameFooter />
