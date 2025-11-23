@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, PanInfo } from 'framer-motion';
 
 type DiceProps = {
   rolling: boolean;
@@ -29,11 +29,11 @@ const getTransformFromFace = (face: number): string => {
     }
 };
 
-const getRandomRotation = () => {
-    const x = Math.floor(Math.random() * 8) * 90;
-    const y = Math.floor(Math.random() * 8) * 90;
-    return `rotateX(${x}deg) rotateY(${y}deg)`;
-}
+const getRandomTorque = () => ({
+    x: Math.random() * 800 - 400,
+    y: Math.random() * 800 - 400,
+    z: Math.random() * 800 - 400
+});
 
 const DiceDot = ({ colorClass, className }: { colorClass: string, className?: string }) => (
     <div className={cn("w-2 h-2 md:w-3 md:h-3 rounded-full", colorClass, className)} />
@@ -48,15 +48,15 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
         ),
         2: (
              <div className="flex flex-col justify-between h-full p-1.5">
-                <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
-                <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
+                <div className="self-start"><DiceDot colorClass={colorClass} /></div>
+                <div className="self-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         3: (
             <div className="flex flex-col justify-between h-full p-1.5">
-                <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
-                <div className="flex justify-center"><DiceDot colorClass={colorClass} /></div>
-                <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
+                <div className="self-start"><DiceDot colorClass={colorClass} /></div>
+                <div className="self-center"><DiceDot colorClass={colorClass} /></div>
+                <div className="self-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         4: (
@@ -116,28 +116,24 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         setLocalDiceValue(null);
         onRollStart();
 
-        const rollStartTime = Date.now();
-        
-        const rollAnimation = async () => {
-            if (Date.now() - rollStartTime < duration) {
-                await controls.start({
-                    transform: getRandomRotation(),
-                    transition: { type: 'spring', stiffness: 200, damping: 15 }
-                });
-                requestAnimationFrame(rollAnimation);
-            } else {
-                await controls.start({
-                    transform: getTransformFromFace(finalRoll),
-                    transition: { type: 'spring', stiffness: 300, damping: 20 }
-                });
-                setLocalDiceValue(finalRoll);
-                setIsRollingInternal(false);
-                isRollingRef.current = false;
-                onRollEnd(finalRoll);
-            }
-        };
-        
-        rollAnimation();
+        const torque = getRandomTorque();
+        await controls.start({
+            rotateX: torque.x,
+            rotateY: torque.y,
+            rotateZ: torque.z,
+            transition: { type: 'spring', velocity: 1500, damping: 20, stiffness: 200 }
+        });
+
+        setTimeout(async () => {
+            await controls.start({
+                transform: getTransformFromFace(finalRoll),
+                transition: { type: 'spring', stiffness: 300, damping: 20 }
+            });
+            setLocalDiceValue(finalRoll);
+            setIsRollingInternal(false);
+            isRollingRef.current = false;
+            onRollEnd(finalRoll);
+        }, duration);
     };
 
     useEffect(() => {
@@ -145,6 +141,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             const finalRoll = Math.floor(Math.random() * 6) + 1;
             startRollingProcess(finalRoll);
         } else if (!rolling && isRollingRef.current) {
+            // This case handles external interruptions, just in case
+            controls.stop();
             isRollingRef.current = false;
             setIsRollingInternal(false);
         }
@@ -158,6 +156,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 transition: { type: "spring", stiffness: 300, damping: 20 }
             });
         } else {
+             // Reset to a neutral state without animation
              controls.set({ transform: getTransformFromFace(1) });
              setLocalDiceValue(null);
         }
@@ -257,3 +256,5 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         </div>
     );
 }
+
+    
