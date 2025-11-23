@@ -546,9 +546,8 @@ export default function GameClient() {
     if (phase !== 'ROLLING' || isRolling) return;
     if (turnTimerRef.current) clearInterval(turnTimerRef.current);
     
-    const finalValue = Math.floor(Math.random() * 6) + 1;
-    setDiceValue(finalValue);
     setIsRolling(true);
+    setDiceValue(null);
   };
 
   const handleAiMove = (roll: number) => {

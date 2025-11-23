@@ -48,6 +48,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const [isClient, setIsClient] = useState(false);
     const controls = useAnimation();
     const isAnimatingRef = useRef(false);
+    const [finalValue, setFinalValue] = useState<number | null>(diceValue);
 
     useEffect(() => {
         setIsClient(true);
@@ -57,30 +58,35 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         if (isAnimatingRef.current || !isHumanTurn) return;
         onRollStart(); 
     };
-
+    
     useEffect(() => {
-        if (rolling && diceValue && !isAnimatingRef.current) {
+        if (rolling && !isAnimatingRef.current) {
             isAnimatingRef.current = true;
+            const newFinalValue = Math.floor(Math.random() * 6) + 1;
+            setFinalValue(newFinalValue);
             
             controls.start({
-                rotateX: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[diceValue].x],
-                rotateY: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[diceValue].y],
+                rotateX: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[newFinalValue].x],
+                rotateY: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[newFinalValue].y],
                 transition: { duration: duration / 1000, ease: "circOut" },
             }).then(() => {
                 isAnimatingRef.current = false;
-                onRollEnd(diceValue);
+                onRollEnd(newFinalValue);
             });
         }
-    }, [rolling, diceValue, controls, duration, onRollEnd]);
+    }, [rolling, controls, duration, onRollEnd]);
     
     useEffect(() => {
+        // When not rolling, snap to the last known diceValue from props
         if (!rolling && diceValue) {
+            setFinalValue(diceValue);
             controls.set({
                 rotateX: rotations[diceValue].x,
                 rotateY: rotations[diceValue].y,
             });
         }
     }, [diceValue, rolling, controls]);
+
 
     if (!isClient) {
         return <div className="w-16 h-16 md:w-24 md:h-24" />;
@@ -94,7 +100,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     };
     const currentTurnColorClass = turnTextColor[color];
 
-    const showRollResult = !rolling && diceValue !== null;
+    const showRollResult = !rolling && finalValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full">
@@ -121,7 +127,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
                 {showRollResult && (
                 <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
-                    {playerName} Rolled: {diceValue}
+                    {playerName} Rolled: {finalValue}
                 </p>
                 )}
             </div>

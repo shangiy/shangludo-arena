@@ -53,22 +53,7 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
 
   const handleRoll = () => {
     if (isRollingRef.current || !isHumanTurn) return;
-    
-    isRollingRef.current = true;
     onRollStart();
-
-    const finalValue = Math.floor(Math.random() * 6) + 1;
-    const startTime = Date.now();
-
-    rollIntervalRef.current = setInterval(() => {
-        setInterimValue(Math.floor(Math.random() * 6) + 1);
-    }, 50);
-
-    setTimeout(() => {
-      if (rollIntervalRef.current) clearInterval(rollIntervalRef.current);
-      isRollingRef.current = false;
-      onRollEnd(finalValue);
-    }, duration);
   };
   
   useEffect(() => {
