@@ -86,10 +86,10 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex h-full w-full max-w-48 flex-col items-center justify-start p-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300",
+        "relative flex flex-col items-center justify-start p-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[7rem] h-full select-none",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <h3 className="text-sm font-bold truncate capitalize">{player.name}</h3>
+        <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
             <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{isExpanded && diceValue ? diceValue : score}</span>
@@ -254,7 +254,7 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
-      <header className="w-full max-w-4xl mx-auto flex justify-between items-center px-2 z-20 mb-4">
+      <header className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 z-20 mb-4">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" size="icon">
@@ -444,9 +444,9 @@ export function FiveMinGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex items-center justify-center">
-            <div className="flex items-center justify-center gap-4 w-full max-w-6xl">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-center gap-4 w-full max-w-7xl">
                 {/* Left Pods */}
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 justify-between h-full">
                     <PlayerPod
                       player={yellowPlayer}
                       color="yellow"
@@ -476,12 +476,12 @@ export function FiveMinGameLayout({
                 </div>
 
                 {/* Game Board */}
-                <div className="flex-1 w-full h-full flex items-center justify-center max-w-[80vh] aspect-square">
+                <div className="w-full h-full flex items-center justify-center max-w-[80vh] aspect-square">
                     {children}
                 </div>
 
                 {/* Right Pods */}
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 justify-between h-full">
                     <PlayerPod
                       player={greenPlayer}
                       color="green"
@@ -503,6 +503,7 @@ export function FiveMinGameLayout({
                       diceRollDuration={diceRollDuration}
                       onRollStart={onRollStart}
                       onDiceRoll={onDiceRoll}
+      
                       diceValue={diceValue}
                       phase={phase}
                       showNotifications={showNotifications}
@@ -514,3 +515,5 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
