@@ -176,7 +176,7 @@ export function GameControls({
           </AlertDialogContent>
         </AlertDialog>
 
-       <div className="w-48 h-48 relative flex items-center justify-center">
+       <div className="w-48 h-24 relative flex items-center justify-center">
             {gameMode !== '5-min' && currentPlayerDetails && (
                 <Dice3D
                     rolling={isRolling}

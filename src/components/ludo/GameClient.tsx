@@ -8,7 +8,7 @@ import {
   GameBoard,
   Pawn as PawnComponent,
 } from '@/components/ludo/GameBoard';
-import { GameControls } from '@/components/ludo/GameControls';
+import { ClassicGameLayout } from '@/components/ludo/ClassicGameLayout';
 import { FiveMinGameLayout } from '@/components/ludo/FiveMinGameLayout';
 import {
   PLAYER_COLORS,
@@ -216,7 +216,7 @@ export default function GameClient() {
         toast({ title: "Game Resumed", description: "Your previous game has been restored." });
         setShowResumeToast(false);
     }
-}, [isMounted, showResumeToast, toast]);
+  }, [isMounted, showResumeToast, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
@@ -920,47 +920,41 @@ export default function GameClient() {
             </main>
         </div>
       ) : (
-        <>
-            <header className="w-full flex justify-center items-center py-4">
-                <GameControls
-                  currentTurn={currentTurn}
-                  phase={phase}
-                  diceValue={diceValue}
-                  addSecondarySafePoints={addSecondarySafePoints}
-                  onToggleSecondarySafePoints={() =>
-                    setAddSecondarySafePoints((prev) => !prev)
-                  }
-                  isHumanTurn={players[currentTurn]?.type === 'human'}
-                  showNotifications={showNotifications}
-                  onToggleShowNotifications={() =>
-                    setShowNotifications((prev) => !prev)
-                  }
-                  muteSound={muteSound}
-                  onToggleMuteSound={() => setMuteSound((prev) => !prev)}
-                  diceRollDuration={diceRollDuration}
-                  onDiceRollDurationChange={setDiceRollDuration}
-                  gameMode={gameMode}
-                  gameSetup={gameSetup}
-                  onGameSetupChange={handleGameSetupChange}
-                  onApplyGameSetupChanges={applyGameSetupChanges}
-                  nextPlayerColor={nextPlayerColor}
-                  onRollStart={startRoll}
-                  onDiceRoll={handleDiceRollEnd}
-                  onResetAndGoHome={handleResetAndGoHome}
-                />
-            </header>
-            <main className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center flex-1 gap-8 mb-8">
-                <div className="w-full max-w-2xl relative">
-                  <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}>
-                    {renderPawns()}
+        <div className="flex flex-col flex-1 h-screen">
+          <main className="flex-1 flex flex-col">
+            {gameSetup && (
+              <ClassicGameLayout
+                gameSetup={gameSetup}
+                onGameSetupChange={handleGameSetup}
+                currentTurn={currentTurn}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onDiceRollDurationChange={handleDiceRollDurationChange}
+                onRollStart={startRoll}
+                onDiceRoll={handleDiceRollEnd}
+                diceValue={diceValue}
+                onResetAndGoHome={handleResetAndGoHome}
+                muteSound={muteSound}
+                onToggleMuteSound={() => setMuteSound(prev => !prev)}
+                showNotifications={showNotifications}
+                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+                addSecondarySafePoints={addSecondarySafePoints}
+                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+                phase={phase}
+              >
+                  <GameBoard 
+                    showSecondarySafes={addSecondarySafePoints} 
+                    scores={{red:0, green:0, blue:0, yellow:0}} 
+                    gameMode={gameMode} 
+                    glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+                  >
+                      {renderPawns()}
                   </GameBoard>
-                </div>
-            </main>
-            <GameFooter />
-        </>
+              </ClassicGameLayout>
+            )}
+          </main>
+        </div>
       )}
     </div>
   );
 }
-
-    
