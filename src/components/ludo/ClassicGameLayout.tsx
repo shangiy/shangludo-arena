@@ -115,12 +115,17 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
     }
 
     const playerMap = new Map(activePlayers.map(p => [p.color, p]));
-    const displayOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
+    const displayOrder: {color: PlayerColor, justify: string, items: string}[] = [
+        { color: 'red', justify: 'justify-start', items: 'items-start' },
+        { color: 'green', justify: 'justify-end', items: 'items-start' },
+        { color: 'blue', justify: 'justify-start', items: 'items-end' },
+        { color: 'yellow', justify: 'justify-end', items: 'items-end' },
+    ];
   
     return (
       <div className="absolute inset-0 w-full h-full p-2 pointer-events-none">
-        <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
-          {displayOrder.map((color) => {
+        <div className="grid grid-cols-2 grid-rows-2 h-full w-full">
+          {displayOrder.map(({ color, justify, items }) => {
               const player = playerMap.get(color);
               if (!player) return <div key={color} />;
               
@@ -128,8 +133,8 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
               const percentage = (homeCount / 4) * 100;
 
               return (
-                <div key={color} className="flex items-center justify-center">
-                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1">
+                <div key={color} className={cn("flex p-2", justify, items)}>
+                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1 text-center">
                         <span className="font-semibold capitalize truncate text-white">{player.name}</span>
                         <span className="font-bold text-base text-black">{percentage}%</span>
                     </div>
