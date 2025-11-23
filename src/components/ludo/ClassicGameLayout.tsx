@@ -128,14 +128,15 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
         <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
           {displayOrder.map((color) => {
               const player = playerMap.get(color);
-              if (!player) return <div key={color} />; // Render an empty div if player not active
+              if (!player) return <div key={color} />;
               
               const homeCount = getHomeCount(color);
+              const percentage = (homeCount / 4) * 100;
 
               return (
                 <div key={color} className="flex flex-col items-center justify-center gap-2 text-sm p-1">
                     <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{player.name}</span>
-                    <span className="font-bold text-base">{homeCount} / 4 Home</span>
+                    <span className="font-bold text-base">{percentage}%</span>
                 </div>
               );
             }
