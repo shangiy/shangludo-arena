@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 import { EndLogo } from "../icons/EndLogo";
+import Image from "next/image";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -70,10 +71,10 @@ function PlayerPod({
   
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start p-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[7rem] h-full select-none",
+        "relative flex flex-col items-center justify-start p-4 gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
+        <h3 className="text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
           <Dice3D
@@ -87,12 +88,11 @@ function PlayerPod({
             playerName={player.name}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
-              <button className="w-16 h-12 flex items-center justify-center rounded-md border text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                  <EndLogo className="h-10 w-10" />
-              </button>
-              <div className="text-center h-8" />
-          </div>
+           <div className="flex flex-col items-center justify-center gap-2 h-full">
+               <button className="w-24 h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                    <Image src="/dice-placeholder.png" alt="Waiting for turn" width={96} height={96} />
+               </button>
+           </div>
         )}
 
         <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
@@ -209,7 +209,7 @@ export function ClassicGameLayout({
 
   return (
     <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
-      <header className="w-full max-w-6xl mx-auto flex justify-between items-center px-2 z-20 mb-4">
+      <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-4 left-1/2 -translate-x-1/2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" size="icon">
@@ -365,8 +365,8 @@ export function ClassicGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr]">
-            <div className="w-full md:w-auto md:col-start-1 md:row-start-1 flex justify-center items-center">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto">
+            <div className="md:col-start-1 md:row-start-1 flex justify-center items-end">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -380,7 +380,7 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
             </div>
-             <div className="w-full md:w-auto md:col-start-3 md:row-start-1 flex justify-center items-center">
+             <div className="md:col-start-3 md:row-start-1 flex justify-center items-end">
                 <PlayerPod
                   player={greenPlayer}
                   color="green"
@@ -396,11 +396,11 @@ export function ClassicGameLayout({
             </div>
 
             {/* Game Board */}
-            <div className="w-full max-w-[90vw] md:max-w-[80vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
+            <div className="w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
                 {children}
             </div>
 
-            <div className="w-full md:w-auto md:col-start-1 md:row-start-3 flex justify-center items-center">
+            <div className="md:col-start-1 md:row-start-3 flex justify-center items-start">
                  <PlayerPod
                   player={bluePlayer}
                   color="blue"
@@ -414,7 +414,7 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
             </div>
-            <div className="w-full md:w-auto md:col-start-3 md:row-start-3 flex justify-center items-center">
+            <div className="md:col-start-3 md:row-start-3 flex justify-center items-start">
                 <PlayerPod
                   player={yellowPlayer}
                   color="yellow"

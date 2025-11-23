@@ -36,17 +36,17 @@ const getRandomRotation = () => {
 }
 
 const DiceDot = ({ colorClass, className }: { colorClass: string, className?: string }) => (
-    <div className={cn("w-2 h-2 rounded-full", colorClass, className)} />
+    <div className={cn("w-3 h-3 rounded-full", colorClass, className)} />
 );
 
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
-        2: "flex justify-between p-1",
-        3: "flex flex-col items-center justify-between p-1",
-        4: "grid grid-cols-2 grid-rows-2 gap-1 p-1",
-        5: "grid grid-cols-3 grid-rows-3 gap-0.5 p-1",
-        6: "grid grid-cols-2 grid-rows-3 gap-1 p-1",
+        2: "flex flex-col justify-between p-2",
+        3: "flex flex-col justify-between p-2",
+        4: "grid grid-cols-2 grid-rows-2 gap-2 p-2",
+        5: "grid grid-cols-3 grid-rows-3 gap-1 p-2",
+        6: "grid grid-cols-2 grid-rows-3 gap-y-1 p-2",
     };
 
     const dots: Record<number, React.ReactNode[]> = {
@@ -89,13 +89,14 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
 
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
     const [isClient, setIsClient] = useState(false);
+    const [localDiceValue, setLocalDiceValue] = useState<number | null>(diceValue);
     const isRollingRef = useRef(false);
     const controls = useAnimation();
     
     useEffect(() => {
         setIsClient(true);
     }, []);
-
+    
     const handleHumanRoll = () => {
         if (isRollingRef.current || !isHumanTurn) return;
         const finalRoll = Math.floor(Math.random() * 6) + 1;
@@ -105,6 +106,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const startRollingProcess = async (finalRoll: number) => {
         if (isRollingRef.current) return;
         isRollingRef.current = true;
+        setLocalDiceValue(null); // Clear previous roll text
         onRollStart();
 
         const rollStartTime = Date.now();
@@ -122,6 +124,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     transition: { type: 'spring', stiffness: 300, damping: 20 }
                 });
                 isRollingRef.current = false;
+                setLocalDiceValue(finalRoll);
                 onRollEnd(finalRoll);
             }
         };
@@ -139,13 +142,15 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
      useEffect(() => {
         if (diceValue) {
             controls.set({ transform: getTransformFromFace(diceValue) });
+            setLocalDiceValue(diceValue);
         } else {
              controls.set({ transform: getTransformFromFace(1) });
+             setLocalDiceValue(null);
         }
     }, [diceValue, controls]);
 
     if (!isClient) {
-        return <div className="w-12 h-12" />; // Placeholder for SSR
+        return <div className="w-16 h-16" />; // Placeholder for SSR
     }
 
     const turnTextColor: Record<PlayerColor, string> = {
@@ -164,13 +169,13 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const currentTurnColorClass = turnTextColor[color];
     const currentDotColorClass = dotColor[color];
-    const faceStyle = "absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
+    const faceStyle = "absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
 
-    const showRollResult = !rolling && diceValue !== null;
+    const showRollResult = !rolling && localDiceValue !== null;
 
     return (
-        <div className="flex flex-col items-center justify-center gap-2">
-            <div className="w-12 h-12 perspective-500">
+        <div className="flex flex-col items-center justify-center gap-2 h-full">
+            <div className="w-16 h-16 perspective-500">
                 <motion.div
                     className="w-full h-full relative preserve-3d"
                     animate={controls}
@@ -178,33 +183,33 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
                     {/* Face 1 (Front) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'translateZ(2rem)' }}>
                         <DiceFace face={1} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 6 (Back) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(180deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(180deg) translateZ(2rem)' }}>
                          <DiceFace face={6} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 5 (Top) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(2rem)' }}>
                          <DiceFace face={5} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 2 (Bottom) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(2rem)' }}>
                          <DiceFace face={2} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 4 (Right from perspective) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(2rem)' }}>
                          <DiceFace face={4} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 3 (Left from perspective) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(1.5rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(2rem)' }}>
                          <DiceFace face={3} colorClass={currentDotColorClass} />
                     </div>
                 </motion.div>
             </div>
-            <div className="text-center h-8">
-                {isHumanTurn && !rolling && diceValue === null && (
+            <div className="text-center h-8 flex items-center justify-center">
+                {isHumanTurn && !rolling && localDiceValue === null && (
                      <button
                         onClick={handleHumanRoll}
                         className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
@@ -214,7 +219,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
                  {showRollResult && (
                     <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
-                       {playerName} rolled: {diceValue}
+                       {playerName} Rolled: {localDiceValue}
                     </p>
                 )}
             </div>
