@@ -144,9 +144,16 @@ function PlayerPod({
 function GameTimer({ remaining }: { remaining: number }) {
   const minutes = Math.floor(remaining / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
+  
+  const isLowTime = remaining < 60000;
+  const isUrgent = remaining < 15000;
 
   return (
-    <div className="flex items-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border">
+    <div className={cn(
+      "flex items-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border transition-colors",
+      isLowTime && "text-red-500 border-red-500/50 bg-red-500/10",
+      isUrgent && "animate-pulse"
+    )}>
         <Timer className="h-5 w-5" />
         <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
     </div>
@@ -451,8 +458,7 @@ export function FiveMinGameLayout({
       
       <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 pt-8">
         {/* Top middle cell for Game Timer & Green */}
-        <div className="col-start-2 row-start-1 h-48 w-48 flex flex-col items-center gap-2">
-            <GameTimer remaining={gameTimer} />
+        <div className="col-start-2 row-start-1 h-48 w-48 flex flex-col items-center gap-2 justify-self-center self-end">
              <PlayerPod 
                 player={greenPlayer}
                 color="green"
@@ -469,7 +475,7 @@ export function FiveMinGameLayout({
         </div>
         
         {/* Middle left cell for Red */}
-        <div className="col-start-1 row-start-2 h-48 w-48">
+        <div className="col-start-1 row-start-2 h-48 w-48 justify-self-start self-center">
             <PlayerPod 
                 player={redPlayer}
                 color="red"
@@ -486,12 +492,13 @@ export function FiveMinGameLayout({
         </div>
 
         {/* Center cell for Game Board */}
-        <div className="col-start-2 row-start-2 w-full h-full flex items-center justify-center">
+        <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center gap-2">
+            <GameTimer remaining={gameTimer} />
             {children}
         </div>
         
         {/* Middle right cell for Yellow */}
-        <div className="col-start-3 row-start-2 h-48 w-48">
+        <div className="col-start-3 row-start-2 h-48 w-48 justify-self-end self-center">
             <PlayerPod 
                 player={yellowPlayer}
                 color="yellow"
@@ -508,7 +515,7 @@ export function FiveMinGameLayout({
         </div>
       
         {/* Bottom middle cell for Blue */}
-        <div className="col-start-2 row-start-3 h-48 w-48">
+        <div className="col-start-2 row-start-3 h-48 w-48 justify-self-center self-start">
             <PlayerPod 
                 player={bluePlayer}
                 color="blue"
