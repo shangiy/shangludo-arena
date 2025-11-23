@@ -534,6 +534,29 @@ export function FiveMinGameLayout({
                     score={scores.red}
                     turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
                 />
+                 <PlayerPod
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                  score={scores.blue}
+                  turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                />
+            </div>
+
+            {/* Game Board and Scoreboard Container */}
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square flex flex-col justify-center">
+                {children}
+                <Scoreboard scores={scores} players={gameSetup.players} />
+            </div>
+
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
                 <PlayerPod
                     player={greenPlayer}
                     color="green"
@@ -547,29 +570,6 @@ export function FiveMinGameLayout({
                     showNotifications={showNotifications}
                     score={scores.green}
                     turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
-                />
-            </div>
-
-            {/* Game Board and Scoreboard Container */}
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square flex flex-col justify-center">
-                {children}
-                <Scoreboard scores={scores} players={gameSetup.players} />
-            </div>
-
-            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
-                <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
-                  isRolling={isRolling}
-                  diceRollDuration={diceRollDuration}
-                  onRollStart={onRollStart}
-                  onDiceRoll={onDiceRoll}
-                  diceValue={diceValue}
-                  phase={phase}
-                  showNotifications={showNotifications}
-                  score={scores.blue}
-                  turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
                     player={yellowPlayer}
@@ -595,3 +595,4 @@ export function FiveMinGameLayout({
     
 
     
+

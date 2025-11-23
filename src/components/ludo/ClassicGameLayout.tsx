@@ -82,23 +82,20 @@ function PlayerPod({
     )}>
         {showTimer && (
            <div className="absolute inset-0 pointer-events-none">
-              <div
-                  className={cn(
-                      "absolute inset-0 border-4 rounded-lg transition-colors",
-                      isUrgent ? "border-red-500/50 animate-pulse" : `border-${color}-500/30`
-                  )}
-              />
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <path
-                      d="M50 2.5 A 47.5 47.5 0 0 1 50 97.5 A 47.5 47.5 0 0 1 50 2.5"
-                      fill="none"
-                      className={cn("stroke-current transition-colors", isUrgent ? "text-red-500" : `text-${color}-500`)}
-                      strokeWidth="5"
-                      strokeDasharray="298.45"
-                      strokeDashoffset={298.45 * (1 - turnTimerProgress / 100)}
-                      transform="rotate(90 50 50)"
-                  />
-              </svg>
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path
+                        d="M 50,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 L 2.5,2.5 Z"
+                        fill="none"
+                        className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
+                        strokeWidth="5"
+                        strokeDasharray="380"
+                        strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
+                        style={{
+                            transition: 'stroke-dashoffset 1s linear, stroke 0.3s'
+                        }}
+                    />
+                </svg>
+                {isUrgent && <div className="absolute inset-0 rounded-lg border-4 border-red-500/50 animate-pulse" />}
            </div>
         )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
@@ -470,28 +467,6 @@ export function ClassicGameLayout({
                   turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
                 />
                  <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
-                  isRolling={isRolling}
-                  diceRollDuration={diceRollDuration}
-                  onRollStart={onRollStart}
-                  onDiceRoll={onDiceRoll}
-                  diceValue={diceValue}
-                  phase={phase}
-                  showNotifications={showNotifications}
-                  turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
-                />
-            </div>
-
-            {/* Game Board and Scoreboard Container */}
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
-                {children}
-                <Scoreboard pawns={pawns} players={gameSetup.players} />
-            </div>
-            
-            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
-                <PlayerPod
                   player={bluePlayer}
                   color="blue"
                   isCurrentTurn={currentTurn === 'blue'}
@@ -503,6 +478,28 @@ export function ClassicGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                   turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                />
+            </div>
+
+            {/* Game Board and Scoreboard Container */}
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
+                {children}
+                <Scoreboard pawns={pawns} players={gameSetup.players} />
+            </div>
+            
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
+                <PlayerPod
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                  turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
                   player={yellowPlayer}
@@ -526,3 +523,4 @@ export function ClassicGameLayout({
     
 
     
+

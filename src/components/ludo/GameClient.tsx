@@ -57,7 +57,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === '5-min' ? START_POSITIONS[color] : -1, // -1 is in the yard
+            position: gameMode === '5-min' || gameMode === 'quick' ? START_POSITIONS[color] : -1,
             isHome: false,
         }));
     }
@@ -204,10 +204,12 @@ export default function GameClient() {
           if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
           setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
+          if (gameMode === '5-min' || gameMode === 'classic') {
+             if(savedState.turnTimerDuration !== undefined) setTurnTimerDuration(savedState.turnTimerDuration);
+          }
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
-             if(savedState.turnTimerDuration !== undefined) setTurnTimerDuration(savedState.turnTimerDuration);
              if(savedState.scores !== undefined) setScores(savedState.scores);
           }
           resumed = true;
@@ -251,11 +253,11 @@ export default function GameClient() {
         muteSound,
         diceRollDuration,
         glassWalls,
+        turnTimerDuration,
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
         gameState.gameTimerDuration = gameTimerDuration;
-        gameState.turnTimerDuration = turnTimerDuration;
         gameState.scores = scores;
       }
       localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
@@ -375,7 +377,7 @@ export default function GameClient() {
   };
 
   useEffect(() => {
-      if (gameMode !== '5-min' || phase !== 'ROLLING' || winner) {
+      if ( (gameMode !== '5-min' && gameMode !== 'classic') || phase !== 'ROLLING' || winner) {
           if (turnTimerRef.current) clearInterval(turnTimerRef.current);
           return;
       }
@@ -918,6 +920,8 @@ export default function GameClient() {
                 pawns={pawns}
                 onGameSetupChange={handleGameSetup}
                 currentTurn={currentTurn}
+                turnTimer={turnTimer}
+                turnTimerDuration={turnTimerDuration}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onDiceRollDurationChange={handleDiceRollDurationChange}
