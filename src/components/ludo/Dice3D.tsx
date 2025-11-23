@@ -47,37 +47,33 @@ type Dice3DProps = {
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: Dice3DProps) {
     const [isClient, setIsClient] = useState(false);
     const controls = useAnimation();
-    const isRollingRef = useRef(false);
+    const isAnimatingRef = useRef(false);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     const handleRoll = async () => {
-        if (isRollingRef.current || !isHumanTurn) return;
-        isRollingRef.current = true;
-        onRollStart(); // This will generate a diceValue in the parent
+        if (isAnimatingRef.current || !isHumanTurn) return;
+        onRollStart(); 
     };
 
     useEffect(() => {
-        if (rolling && diceValue && !isRollingRef.current) {
-            isRollingRef.current = true;
+        if (rolling && diceValue && !isAnimatingRef.current) {
+            isAnimatingRef.current = true;
             
             controls.start({
-                rotateX: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[diceValue].x],
-                rotateY: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[diceValue].y],
+                rotateX: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[diceValue].x],
+                rotateY: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[diceValue].y],
                 transition: { duration: duration / 1000, ease: "circOut" },
             }).then(() => {
-                setTimeout(() => {
-                    isRollingRef.current = false;
-                    onRollEnd(diceValue);
-                }, 200);
+                isAnimatingRef.current = false;
+                onRollEnd(diceValue);
             });
         }
     }, [rolling, diceValue, controls, duration, onRollEnd]);
     
     useEffect(() => {
-        // When not rolling but a dice value exists, snap to that face
         if (!rolling && diceValue) {
             controls.set({
                 rotateX: rotations[diceValue].x,
@@ -87,7 +83,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     }, [diceValue, rolling, controls]);
 
     if (!isClient) {
-        return <div className="w-16 h-16 md:w-24 md:h-24" />; // Placeholder for SSR
+        return <div className="w-16 h-16 md:w-24 md:h-24" />;
     }
 
     const turnTextColor: Record<PlayerColor, string> = {
@@ -107,7 +103,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     className="dice" 
                     animate={controls}
                     onClick={handleRoll}
-                    style={{ cursor: isHumanTurn && !isRollingRef.current ? 'pointer' : 'default' }}
+                    style={{ cursor: isHumanTurn && !isAnimatingRef.current ? 'pointer' : 'default' }}
                 >
                     {[1, 2, 3, 4, 5, 6].map(face => (
                         <DiceFace key={face} face={face} colorClass={faceColors[color]} />
