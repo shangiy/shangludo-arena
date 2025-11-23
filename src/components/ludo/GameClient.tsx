@@ -39,6 +39,7 @@ import {
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
+import { cn } from '@/lib/utils';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
@@ -99,6 +100,14 @@ function GameFooter() {
         </footer>
     );
 }
+
+const PLAYER_TEXT_COLORS: Record<PlayerColor, string> = {
+  red: 'text-red-500',
+  green: 'text-green-500',
+  yellow: 'text-yellow-400',
+  blue: 'text-blue-500',
+};
+
 
 export default function GameClient() {
   const searchParams = useSearchParams();
@@ -835,7 +844,9 @@ export default function GameClient() {
           <div className="flex flex-col gap-2">
             {endGameSummary?.ranking.map((player, index) => (
                 <div key={player.playerId} className="flex justify-between items-center p-2 rounded-md bg-muted">
-                    <span className="font-semibold">{index + 1}. {player.name}</span>
+                    <span className={cn("font-semibold", PLAYER_TEXT_COLORS[player.playerId])}>
+                      {index + 1}. {player.name}
+                    </span>
                     <span className="font-bold">{player.score}</span>
                 </div>
             ))}
@@ -882,7 +893,12 @@ export default function GameClient() {
                       phase={phase}
                       scores={scores}
                     >
-                        <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={{red: false, green: false, blue: false, yellow: false}}>
+                        <GameBoard 
+                          showSecondarySafes={addSecondarySafePoints} 
+                          scores={scores} 
+                          gameMode={gameMode} 
+                          glassWalls={{red: false, green: false, blue: false, yellow: false}}
+                        >
                             {renderPawns()}
                         </GameBoard>
                     </FiveMinGameLayout>
