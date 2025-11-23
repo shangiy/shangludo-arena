@@ -325,25 +325,29 @@ export default function GameClient() {
     const finalScores = scores;
     let finalWinner = winner;
 
-    if (gameMode === '5-min' && !finalWinner) {
-      let bestScore = -1;
-      let winningPlayer: PlayerColor | null = null;
-      for (const color of playerOrder) {
-        if (finalScores[color] > bestScore) {
-          bestScore = finalScores[color];
-          winningPlayer = color;
-        }
+    const ranking = computeRanking(finalPawns, playerOrder, finalScores, gameMode);
+    let title = "Game Over!";
+
+    if (ranking.length > 0) {
+      const topScore = ranking[0].score;
+      const winners = ranking.filter(r => r.score === topScore);
+
+      // Handle case where top score is 0 and all have 0
+      const allScoresZero = ranking.every(r => r.score === 0);
+
+      if (allScoresZero) {
+        title = "It's a Draw!";
+      } else if (winners.length > 1) {
+        title = "It's a Draw!";
+      } else {
+        finalWinner = winners[0].playerId;
+        setWinner(finalWinner);
+        title = `Winner: ${players[finalWinner]?.name || 'Unknown'}`;
       }
-      finalWinner = winningPlayer;
-      setWinner(winningPlayer);
     }
     
-    if (!finalWinner) return;
-
-    const ranking = computeRanking(finalPawns, playerOrder, finalScores, gameMode);
-    
     const summary = {
-      title: `Winner: ${players[finalWinner]?.name || 'Unknown'}`,
+      title,
       ranking: ranking.map(r => ({
         playerId: r.playerId,
         name: players[r.playerId]?.name || 'Unknown',
@@ -358,7 +362,7 @@ export default function GameClient() {
 
 
   useEffect(() => {
-    if (winner) {
+    if (winner && phase !== 'GAME_OVER') {
       handleEndGame();
     }
   }, [winner]);
