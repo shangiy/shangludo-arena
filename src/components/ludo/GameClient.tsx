@@ -80,10 +80,10 @@ const quickPlaySetup: GameSetup = {
 const fiveMinSetup: GameSetup = {
     gameMode: 'vs-computer',
     players: [
-      { color: 'red', name: 'Red', type: 'human' },
-      { color: 'green', name: 'Green', type: 'human' },
+      { color: 'red', name: 'Red Player', type: 'human' },
+      { color: 'green', name: 'Green Player', type: 'human' },
       { color: 'yellow', name: 'Yellow AI', type: 'ai' },
-      { color: 'blue', name: 'Blue', type: 'human' },
+      { color: 'blue', name: 'Blue Player', type: 'human' },
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
@@ -116,7 +116,7 @@ export default function GameClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(true);
   const [muteSound, setMuteSound] = useState(true);
   const [diceRollDuration, setDiceRollDuration] = useState(DEFAULT_DICE_ROLL_DURATION);
   const [turnTimer, setTurnTimer] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
@@ -424,7 +424,7 @@ export default function GameClient() {
         }
   
         const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
-  
+
         if (isClassic) {
           moves.push({ pawn, newPosition });
         } else { // Blockade rules for non-classic
@@ -445,7 +445,7 @@ export default function GameClient() {
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
         
         // Non-classic modes: you can't enter on a blockade
-        if (!isClassic && ownPawnsAtStart >= 2) {
+        if (!isClassic && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
           // blockade, cannot move out
         } else {
           pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
@@ -961,3 +961,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    

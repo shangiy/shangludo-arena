@@ -39,6 +39,7 @@ type PlayerPodProps = {
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
   phase: string;
+  showNotifications: boolean;
 };
 
 const strokeColorClasses: Record<PlayerColor, string> = {
@@ -60,22 +61,21 @@ function PlayerPod({
   onRollStart,
   onDiceRoll,
   diceValue,
-  phase
+  phase,
+  showNotifications
 }: PlayerPodProps) {
   const timerPercentage = (timerValue / timerDuration);
   const isHumanTurn = isCurrentTurn && player.type === "human";
 
   if (player.type === 'none') {
-    return <div className="relative flex h-full w-full flex-col items-center justify-center p-4 rounded-lg border-dashed border-2 border-border/50" />;
+    return <div className="relative flex h-full w-full flex-col items-center justify-center p-2 rounded-lg border-dashed border-2 border-border/50" />;
   }
-
+  
   const rectSize = 100;
   const strokeWidth = 4;
   const cornerRadius = 8;
   const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
   const offset = perimeter * (1 - timerPercentage);
-
-  const isGreenPlayer = color === 'green';
 
   return (
     <div className={cn("relative flex h-full w-full items-center justify-between p-2 flex-col")}>
@@ -130,7 +130,7 @@ function PlayerPod({
                 playerName={player.name}
             />
             <div className="w-full space-y-1 z-10 h-8 flex items-center justify-center">
-                 {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && (
+                 {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && showNotifications && (
                     <p className="text-sm font-semibold capitalize text-center">
                        Select a pawn to move.
                     </p>
@@ -482,6 +482,7 @@ export function FiveMinGameLayout({
             onDiceRoll={onDiceRoll}
             diceValue={diceValue}
             phase={phase}
+            showNotifications={showNotifications}
           />
         </div>
 
@@ -500,6 +501,7 @@ export function FiveMinGameLayout({
             onDiceRoll={onDiceRoll}
             diceValue={diceValue}
             phase={phase}
+            showNotifications={showNotifications}
           />
         </div>
 
@@ -520,6 +522,7 @@ export function FiveMinGameLayout({
             onDiceRoll={onDiceRoll}
             diceValue={diceValue}
             phase={phase}
+            showNotifications={showNotifications}
           />
         </div>
 
@@ -538,9 +541,12 @@ export function FiveMinGameLayout({
             onDiceRoll={onDiceRoll}
             diceValue={diceValue}
             phase={phase}
+            showNotifications={showNotifications}
           />
         </div>
       </main>
     </div>
   );
 }
+
+    
