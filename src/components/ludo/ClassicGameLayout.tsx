@@ -17,7 +17,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Dice3D } from "./Dice3D";
 import type { GameSetup, PlayerSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
@@ -31,6 +30,7 @@ import { EndLogo } from "../icons/EndLogo";
 import Image from "next/image";
 import { useTheme } from "@/hooks/use-theme";
 import { Progress } from "../ui/progress";
+import { Dice } from "./Dice";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -101,7 +101,7 @@ function PlayerPod({
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
-          <Dice3D
+          <Dice
             rolling={isRolling}
             onRollStart={onRollStart}
             onRollEnd={onDiceRoll}

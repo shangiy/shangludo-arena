@@ -40,11 +40,13 @@ import {
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 import { cn } from '@/lib/utils';
+import { Dice } from './Dice';
+import { Dice3D } from './Dice3D';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
-const DEFAULT_CLASSIC_TURN_TIMER_DURATION = 15000;
+const DEFAULT_CLASSIC_TURN_TIMER_DURATION = 10000;
 const DEFAULT_FIVEMIN_TURN_TIMER_DURATION = 10000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_DICE_ROLL_DURATION = 1000; // 1 second for AI
@@ -67,30 +69,30 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
 };
 
 const quickPlaySetup: GameSetup = {
-  gameMode: 'multiplayer',
-  players: [
-    { color: 'red', name: 'Red Player', type: 'human' },
-    { color: 'green', name: 'Green Player', type: 'human' },
-    { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
-    { color: 'blue', name: 'Blue Player', type: 'human' },
-  ],
-  turnOrder: ['red', 'green', 'yellow', 'blue'],
-  humanPlayerColor: 'red',
-  diceRollDuration: '1000',
-};
-
-const fiveMinSetup: GameSetup = {
     gameMode: 'multiplayer',
     players: [
       { color: 'red', name: 'Red Player', type: 'human' },
       { color: 'green', name: 'Green Player', type: 'human' },
-      { color: 'yellow', name: 'Yellow Player', type: 'human' },
+      { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
       { color: 'blue', name: 'Blue Player', type: 'human' },
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
-    diceRollDuration: '3000',
+    diceRollDuration: '1000',
   };
+  
+  const fiveMinSetup: GameSetup = {
+      gameMode: 'multiplayer',
+      players: [
+        { color: 'red', name: 'Red Player', type: 'human' },
+        { color: 'green', name: 'Green Player', type: 'human' },
+        { color: 'yellow', name: 'Yellow Player', type: 'human' },
+        { color: 'blue', name: 'Blue Player', type: 'human' },
+      ],
+      turnOrder: ['red', 'green', 'yellow', 'blue'],
+      humanPlayerColor: 'red',
+      diceRollDuration: '3000',
+    };
 
 function GameFooter() {
     return (
