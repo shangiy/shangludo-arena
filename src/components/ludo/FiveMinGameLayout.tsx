@@ -30,6 +30,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import Image from "next/image";
 import { useTheme } from "@/hooks/use-theme";
 import { EndLogo } from "../icons/EndLogo";
+import { Progress } from "../ui/progress";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -127,6 +128,31 @@ function GameTimer({ remaining }: { remaining: number }) {
     </div>
   );
 }
+
+function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, players: PlayerSetup[] }) {
+    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+    const activePlayers = players.filter(p => p.type !== 'none');
+  
+    return (
+      <div className="w-full max-w-2xl mx-auto mt-4 p-4 bg-card rounded-lg border shadow-sm">
+        <div className="grid grid-cols-4 gap-4">
+          {activePlayers.map(({ color, name }) => {
+            const percentage = totalScore > 0 ? (scores[color] / totalScore) * 100 : 0;
+            return (
+              <div key={color} className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                    <div className={cn("w-3 h-3 rounded-full", `bg-${color}-500`)} />
+                    <span className="text-sm font-semibold capitalize truncate">{name}</span>
+                </div>
+                <span className="text-2xl font-bold">{scores[color]}</span>
+                <Progress value={percentage} className="h-2 w-full" indicatorClassName={`bg-${color}-500`} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
 
 type FiveMinGameLayoutProps = {
@@ -491,7 +517,7 @@ export function FiveMinGameLayout({
             </div>
 
             {/* Game Board */}
-            <div className="w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
+            <div className="w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3 flex flex-col justify-center">
                 {children}
             </div>
 
@@ -527,6 +553,7 @@ export function FiveMinGameLayout({
                 />
             </div>
         </main>
+        <Scoreboard scores={scores} players={gameSetup.players} />
       </div>
   );
 }

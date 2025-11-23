@@ -201,13 +201,6 @@ export function GameBoard({
                 <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
             ))}
         </div>
-        {gameMode === '5-min' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 m-2 rounded-md">
-                <span className={cn("text-5xl font-bold opacity-80", color === 'yellow' ? 'text-black' : 'text-white')} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
-                    {scores[color]}
-                </span>
-            </div>
-        )}
       </div>
     );
 

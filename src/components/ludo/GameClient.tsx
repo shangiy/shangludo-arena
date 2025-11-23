@@ -404,7 +404,7 @@ export default function GameClient() {
   
     // Pawns on the board can always move
     playerPawns.forEach((pawn) => {
-      if (pawn.isHome || pawn.position === -1) return;
+      if (pawn.isHome || (pawn.position === -1 && gameMode !== '5-min')) return;
   
       const currentPath = PATHS[player];
       let currentPathIndex = currentPath.indexOf(pawn.position);
@@ -438,7 +438,7 @@ export default function GameClient() {
     });
   
     // A 6 allows moving a pawn from the yard
-    if (roll === 6) {
+    if (roll === 6 && gameMode !== '5-min') {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
@@ -567,7 +567,7 @@ export default function GameClient() {
     }
     
     if (pawnToMove.position === -1) {
-        if (diceValue === 6) {
+        if (diceValue === 6 && gameMode !== '5-min') {
              const startPos = START_POSITIONS[currentTurn];
              performMove(pawnToMove, startPos);
              return;
@@ -679,7 +679,7 @@ export default function GameClient() {
       newPawns[currentTurn] = pawnsOfPlayer;
 
       const allPawnsHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-      if (allPawnsHome) {
+      if (allPawnsHome && gameMode !== '5-min') {
           setWinner(currentTurn);
       }
 
