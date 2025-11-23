@@ -69,7 +69,7 @@ function PlayerPod({
     return <div className="relative flex h-full w-full flex-col items-center justify-center p-4 rounded-lg border-dashed border-2 border-border/50" />;
   }
 
-  const rectSize = 160;
+  const rectSize = 100;
   const strokeWidth = 4;
   const cornerRadius = 8;
   const perimeter = (rectSize - 2 * cornerRadius) * 4 + (2 * Math.PI * cornerRadius);
@@ -78,7 +78,7 @@ function PlayerPod({
   const isGreenPlayer = color === 'green';
 
   return (
-    <div className={cn("relative flex h-full w-full items-center justify-between p-4", isGreenPlayer ? 'flex-col' : 'flex-col')}>
+    <div className={cn("relative flex h-full w-full items-center justify-between p-2", isGreenPlayer ? 'flex-row' : 'flex-col')}>
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
@@ -117,8 +117,8 @@ function PlayerPod({
           />
         </svg>
 
-        <h3 className="text-lg font-bold z-10">{player.name}</h3>
-        <div className={cn("flex-1 flex items-center justify-center z-10 w-full", isGreenPlayer ? 'flex-row gap-4' : 'flex-col')}>
+        <h3 className="text-md font-bold z-10">{player.name}</h3>
+        <div className={cn("flex-1 flex items-center justify-center z-10 w-full", isGreenPlayer ? 'flex-row gap-2' : 'flex-col')}>
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
                 onRollStart={onRollStart}
@@ -129,9 +129,9 @@ function PlayerPod({
                 diceValue={isCurrentTurn ? diceValue : null}
                 playerName={player.name}
             />
-            <div className="w-full space-y-1 z-10 h-10 flex items-center justify-center">
+            <div className="w-full space-y-1 z-10 h-8 flex items-center justify-center">
                  {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && (
-                    <p className="text-lg font-semibold capitalize text-center">
+                    <p className="text-sm font-semibold capitalize text-center">
                        Select a pawn to move.
                     </p>
                 )}
@@ -466,7 +466,7 @@ export function FiveMinGameLayout({
       </header>
       
       <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 pt-8">
-        <div className="col-start-2 row-start-1 flex flex-col items-center justify-end h-full">
+        <div className="col-start-2 row-start-1 h-32 w-48 flex flex-col items-center justify-end">
             <PlayerPod 
                 player={greenPlayer}
                 color="green"
@@ -482,7 +482,7 @@ export function FiveMinGameLayout({
             />
         </div>
         
-        <div className="col-start-1 row-start-2 h-48 w-48 justify-self-start self-center">
+        <div className="col-start-1 row-start-2 h-32 w-32 justify-self-start self-center">
             <PlayerPod 
                 player={redPlayer}
                 color="red"
@@ -503,7 +503,7 @@ export function FiveMinGameLayout({
             {children}
         </div>
         
-        <div className="col-start-3 row-start-2 h-48 w-48 justify-self-end self-center">
+        <div className="col-start-3 row-start-2 h-32 w-32 justify-self-end self-center">
             <PlayerPod 
                 player={yellowPlayer}
                 color="yellow"
@@ -519,7 +519,7 @@ export function FiveMinGameLayout({
             />
         </div>
       
-        <div className="col-start-2 row-start-3 h-48 w-48 justify-self-center self-start">
+        <div className="col-start-2 row-start-3 h-32 w-32 justify-self-center self-start">
             <PlayerPod 
                 player={bluePlayer}
                 color="blue"

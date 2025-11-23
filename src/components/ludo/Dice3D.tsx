@@ -80,7 +80,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     }, [rolling, diceValue]);
 
     if (!isClient) {
-        return <div className="w-24 h-24" />; // Placeholder for SSR
+        return <div className="w-16 h-16" />; // Placeholder for SSR
     }
 
     const turnTextColor: Record<PlayerColor, string> = {
@@ -93,8 +93,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const currentTurnColorClass = turnTextColor[color];
 
     return (
-        <div className="flex flex-col items-center justify-center gap-4">
-            <div className="w-24 h-24 perspective-500">
+        <div className="flex flex-col items-center justify-center gap-2">
+            <div className="w-16 h-16 perspective-500">
                 <motion.div
                     className="w-full h-full relative preserve-3d"
                     animate={{ transform: getTransformFromFrontFace(visualFace) }}
@@ -103,42 +103,42 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
                     {/* Face 1 (Front) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'translateZ(3rem)' }}>
-                        <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>1</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'translateZ(2rem)' }}>
+                        <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>1</span>
                     </div>
                     {/* Face 6 (Back) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(180deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>6</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(180deg) translateZ(2rem)' }}>
+                         <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>6</span>
                     </div>
                     {/* Face 2 (Top) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>2</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(90deg) translateZ(2rem)' }}>
+                         <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>2</span>
                     </div>
                     {/* Face 5 (Bottom) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(-90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>5</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateX(-90deg) translateZ(2rem)' }}>
+                         <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>5</span>
                     </div>
                     {/* Face 3 (Right) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(-90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>3</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(-90deg) translateZ(2rem)' }}>
+                         <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>3</span>
                     </div>
                     {/* Face 4 (Left) */}
-                    <div className={cn("absolute w-24 h-24 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(90deg) translateZ(3rem)' }}>
-                         <span className={cn("text-5xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>4</span>
+                    <div className={cn("absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white")} style={{ transform: 'rotateY(90deg) translateZ(2rem)' }}>
+                         <span className={cn("text-3xl font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.2)]", currentTurnColorClass)}>4</span>
                     </div>
                 </motion.div>
             </div>
-            <div className="text-center h-10">
+            <div className="text-center h-8">
                 {isHumanTurn && !rolling && diceValue === null && (
                      <button
                         onClick={handleHumanRoll}
-                        className={cn("font-bold text-lg animate-pulse", currentTurnColorClass)}
+                        className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
                      >
                          Click to Roll
                      </button>
                 )}
                  {showRollResult && (
-                    <p className="text-lg font-semibold">
+                    <p className="text-sm font-semibold">
                        <span className={cn(currentTurnColorClass, 'capitalize')}>{playerName}</span> rolled: {diceValue}
                     </p>
                 )}
