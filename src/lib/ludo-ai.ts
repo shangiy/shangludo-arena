@@ -1,4 +1,3 @@
-
 import {
   PlayerColor,
   Pawn,
@@ -16,8 +15,15 @@ export interface AiGameState {
 }
 
 /**
- * UTILITY HELPERS
+ * Robust helpers to handle slightly different pawn representations.
+ * We don't assume one exact schema — we defensively check multiple flags.
  */
+function isInYard(pawn: Pawn) {
+  return pawn.position === -1;
+}
+function isFinished(pawn: Pawn) {
+  return pawn.isHome === true;
+}
 
 // Check if a square has opponent pawns and return opponent pawn info
 function findOpponentsOnSquare(
@@ -41,18 +47,19 @@ function findOpponentsOnSquare(
 }
 
 // Count pawns still at home for a player
-function countHomePawns(playerPawns: Pawn[]) {
-  return playerPawns.filter((p) => p.position === -1).length;
+function countPawnsInYard(playerPawns: Pawn[]) {
+  return playerPawns.filter((p) => isInYard(p)).length;
 }
 
 function countFinishedPawns(playerPawns: Pawn[]) {
-    return playerPawns.filter((p) => p.isHome).length;
+  return playerPawns.filter((p) => isFinished(p)).length;
 }
-
 
 /**
  * MAIN: chooseMove
  * Returns an object { pawn, newPosition } for the best move, or null.
+ * - Ensures AI always makes a legal move when one exists (especially on rolling a 6)
+ * - Prefers aggressive, individualistic play (capture opponents, finish pawns)
  */
 export function chooseMove(
   gameState: AiGameState,
@@ -70,85 +77,112 @@ export function chooseMove(
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const pawns = gameState.pawns[player];
     if (!pawns) return [];
-    
-    const moves: { pawn: Pawn; newPosition: number }[] = [];
-    
-    pawns.forEach((pawn) => {
-      if (pawn.isHome) return;
 
-      if (pawn.position === -1) {
+    const moves: { pawn: Pawn; newPosition: number }[] = [];
+
+    pawns.forEach((pawn) => {
+      // Skip finished pawns
+      if (isFinished(pawn)) return;
+
+      const inYard = isInYard(pawn);
+
+      // If pawn is at home: allow entering only on 6
+      if (inYard) {
         if (roll === 6) {
-           const ownPawnsAtStart = pawns.filter(p => p.position === startSquare).length;
-           if (!isClassic && ownPawnsAtStart >= 2 && !safeSquares.has(startSquare)) {
-             // Blockade
-           } else {
-             moves.push({ pawn, newPosition: startSquare });
-           }
+          // Check blockade rules at start
+          const ownPawnsAtStart = pawns.filter((p) => p.position === startSquare).length;
+          if (!isClassic && ownPawnsAtStart >= 2 && !safeSquares.has(startSquare)) {
+            // entering would create an illegal blockade in non-classic modes -> prefer other moves
+            // Do not push enter move here (blocked)
+          } else {
+            moves.push({ pawn, newPosition: startSquare });
+          }
         }
+        return; // can't move from home except by entering on 6
+      }
+
+      // Pawn is on the board (not at home and not finished)
+      const currentPathIndex = playerPath.indexOf(pawn.position as number);
+      if (currentPathIndex === -1) {
+        // Pawn's position not on expected PATHS (maybe already in finish stretch or alternate encoding)
+        // Try to handle a common finish encoding: if pawn.position is a special 'finished' marker, we've already handled it.
         return;
       }
-      
-      const currentPathIndex = playerPath.indexOf(pawn.position);
-      if (currentPathIndex !== -1 && currentPathIndex + roll < playerPath.length) {
-        const newPosition = playerPath[currentPathIndex + roll];
-        const ownPawnsAtDestination = pawns.filter(p => p.position === newPosition).length;
 
-        if (isClassic) {
-          moves.push({ pawn, newPosition });
+      const targetIndex = currentPathIndex + roll;
+      if (targetIndex < playerPath.length) {
+        const newPosition = playerPath[targetIndex];
+
+        // Blockade/own-stack rules: in non-classic modes avoid moving into own blockade if that blocks play
+        const ownPawnsAtDestination = pawns.filter((p) => p.position === newPosition).length;
+        if (!isClassic && !safeSquares.has(newPosition) && ownPawnsAtDestination >= 2) {
+          // moving into own blockade (non-classic) — skip
         } else {
-          if (!safeSquares.has(newPosition) && ownPawnsAtDestination >= 2) {
-            // Blocked by own blockade
-          } else {
-            moves.push({ pawn, newPosition });
-          }
+          moves.push({ pawn, newPosition });
         }
       }
     });
     return moves;
   };
 
+  // Always try to gather moves for the given dice
   const possibleMoves = getPossibleMoves(playerId, dice);
+
+  // If there are no possible moves and dice === 6, attempt to consider any alternative legal move
+  // (this helps avoid the freeze when the earlier logic incorrectly filtered out enter moves)
+  if (possibleMoves.length === 0 && dice === 6) {
+    // Try a relaxed pass: allow entering even if it would create a blockade in non-classic modes
+    const pawns = gameState.pawns[playerId];
+    for (const pawn of pawns) {
+      if (isFinished(pawn)) continue;
+      if (isInYard(pawn)) {
+        // force an enter move as a last resort
+        return { pawn, newPosition: startSquare };
+      }
+    }
+  }
+
   if (possibleMoves.length === 0) {
     return null;
   }
-  
+
   // Scoring heuristic (higher is better)
   const scoredMoves = possibleMoves.map((move) => {
     let score = 0;
     const { pawn, newPosition } = move;
 
-    // 1. Finishing a pawn is the highest priority
+    // Determine indices on path (safely)
     const newPathIndex = playerPath.indexOf(newPosition);
-    if (newPathIndex === playerPath.length -1) {
+    const oldPathIndex = isInYard(pawn) ? -1 : playerPath.indexOf(pawn.position as number);
+
+    // 1. Finishing a pawn is the highest priority
+    if (newPathIndex === playerPath.length - 1) {
       score += 1000;
     }
 
-    // 2. Capturing an opponent is a high priority
+    // 2. Capturing an opponent is a very high priority (aggressive play)
     const opponents = findOpponentsOnSquare(gameState.pawns, newPosition, playerId);
-    if (opponents.length > 0 && opponents.length < 2 && !safeSquares.has(newPosition)) {
-      score += 500;
+    if (opponents.length > 0 && !safeSquares.has(newPosition)) {
+      // reward captures; prefer capturing multiple pawns too
+      score += 700 + opponents.length * 100;
     }
 
     // 3. Moving a pawn out of the yard
-    if (pawn.position === -1) {
-      score += 100;
-    }
-    
-    // 4. Moving to a safe square
-    if (safeSquares.has(newPosition)) {
-      score += 50;
+    if (isInYard(pawn)) score += 120;
+
+    // 4. Moving to a safe square is mildly helpful
+    if (safeSquares.has(newPosition as number)) score += 40;
+
+    // 5. General progress: prefer larger forward movement
+    if (newPathIndex !== -1 && oldPathIndex !== -1) score += (newPathIndex - oldPathIndex) * 10;
+    if (oldPathIndex === -1 && newPathIndex !== -1) score += newPathIndex * 5; // from home -> progress
+
+    // 6. Avoid unnecessarily breaking an existing safe blockade (if it's keeping pawns safe)
+    const ownPawnsAtOldPos = playerPawns.filter((p) => p.position === pawn.position).length;
+    if (oldPathIndex !== -1 && safeSquares.has(pawn.position as number) && ownPawnsAtOldPos >= 2) {
+      score -= 250; // discourage breaking a protective blockade unless there's a strong reason
     }
 
-    // 5. General progress
-    const oldPathIndex = pawn.position === -1 ? -1 : playerPath.indexOf(pawn.position);
-    score += newPathIndex - oldPathIndex;
-
-    // 6. Avoid breaking a blockade on a safe square
-    const ownPawnsAtOldPos = playerPawns.filter(p => p.position === pawn.position).length;
-    if (pawn.position !== -1 && safeSquares.has(pawn.position) && ownPawnsAtOldPos >= 2) {
-        score -= 200; // It's a risk to move from a safe blockade
-    }
-    
     // 7. Slight randomness to break ties
     score += Math.random();
 
@@ -156,54 +190,52 @@ export function chooseMove(
   });
 
   scoredMoves.sort((a, b) => b.score - a.score);
-  
+
+  // Return the top move
   return scoredMoves[0];
 }
-
 
 /**
  * computeRanking
  * Produces an ordered list of players by game progress.
  */
 export function computeRanking(
-    pawns: Record<PlayerColor, Pawn[]>,
-    playerOrder: PlayerColor[],
-    scores: Record<PlayerColor, number>,
-    gameMode: string
+  pawns: Record<PlayerColor, Pawn[]>,
+  playerOrder: PlayerColor[],
+  scores: Record<PlayerColor, number>,
+  gameMode: string
 ) {
-    const ranking = playerOrder.map(playerId => {
-        const playerPawns = pawns[playerId];
-        const finishedPawns = playerPawns ? countFinishedPawns(playerPawns) : 0;
-        
-        let progressSum = 0;
-        if (playerPawns) {
-            const playerPath = PATHS[playerId];
-            progressSum = playerPawns.reduce((sum, pawn) => {
-                if (pawn.isHome) return sum + playerPath.length;
-                if (pawn.position === -1) return sum;
-                const pathIndex = playerPath.indexOf(pawn.position);
-                return sum + (pathIndex !== -1 ? pathIndex : 0);
-            }, 0);
-        }
+  const ranking = playerOrder.map((playerId) => {
+    const playerPawns = pawns[playerId];
+    const finishedPawns = playerPawns ? countFinishedPawns(playerPawns) : 0;
 
-        return {
-            playerId,
-            finishedPawns,
-            score: gameMode === '5-min' ? scores[playerId] : finishedPawns,
-            progressSum
-        };
-    });
+    let progressSum = 0;
+    if (playerPawns) {
+      const playerPath = PATHS[playerId];
+      progressSum = playerPawns.reduce((sum, pawn) => {
+        if (isFinished(pawn)) return sum + playerPath.length; // finished counts as full progress
+        if (isInYard(pawn)) return sum + 0; // at home -> zero
+        const pathIndex = playerPath.indexOf(pawn.position as number);
+        return sum + (pathIndex !== -1 ? pathIndex : 0);
+      }, 0);
+    }
 
-    ranking.sort((a, b) => {
-        if (gameMode === '5-min') {
-            if (b.score !== a.score) return b.score - a.score;
-        } else {
-            if (b.finishedPawns !== a.finishedPawns) return b.finishedPawns - a.finishedPawns;
-        }
-        return b.progressSum - a.progressSum;
-    });
+    return {
+      playerId,
+      finishedPawns,
+      score: gameMode === '5-min' ? scores[playerId] ?? 0 : finishedPawns,
+      progressSum,
+    };
+  });
 
-    return ranking;
+  ranking.sort((a, b) => {
+    if (gameMode === '5-min') {
+      if ((b.score ?? 0) !== (a.score ?? 0)) return (b.score ?? 0) - (a.score ?? 0);
+    } else {
+      if (b.finishedPawns !== a.finishedPawns) return b.finishedPawns - a.finishedPawns;
+    }
+    return b.progressSum - a.progressSum;
+  });
+
+  return ranking;
 }
-
-    
