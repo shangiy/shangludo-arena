@@ -491,8 +491,8 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
-            <div className="flex w-full justify-around md:flex-col md:justify-start md:col-start-1 md:row-start-1 md:row-span-3 md:items-end md:gap-4">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto] max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
+            <div className="flex w-full justify-around md:justify-end md:col-start-1 md:row-start-1 md:items-end md:gap-4 transition-all duration-500">
                 <PlayerPod
                     player={redPlayer}
                     color="red"
@@ -523,12 +523,12 @@ export function FiveMinGameLayout({
             </div>
 
             {/* Game Board and Scoreboard Container */}
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3 flex flex-col justify-center">
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-2 flex flex-col justify-center">
                 {children}
                 <Scoreboard scores={scores} players={gameSetup.players} />
             </div>
 
-            <div className="flex w-full justify-around md:flex-col md:justify-end md:col-start-3 md:row-start-1 md:row-span-3 md:items-start md:gap-4">
+            <div className="flex w-full justify-around md:justify-start md:col-start-3 md:row-start-2 md:items-start md:gap-4 transition-all duration-500">
                  <PlayerPod
                     player={bluePlayer}
                     color="blue"
