@@ -525,10 +525,16 @@ export default function GameClient() {
       console.log('AI Response:', aiResponse);
       addMessage(`AI (${players[currentTurn].name})`, aiResponse.reasoning, currentTurn);
       
-      const moveRegex = /pawn:(\d+),from:(-?\d+),to:(-?\d+)/;
+      const moveRegex = /pawn:(\d+|null),from:(-?\d+|null),to:(-?\d+|null)/;
       const match = aiResponse.move.match(moveRegex);
 
       if (match) {
+        if (match[1] === 'null') {
+          // AI indicates no valid move
+          nextTurn();
+          return;
+        }
+
         const pawnId = parseInt(match[1], 10);
         const newPosition = parseInt(match[3], 10);
         
@@ -834,15 +840,17 @@ export default function GameClient() {
 
   if (phase === 'SETUP' && gameMode !== 'quick' && gameMode !== '5-min') {
       return (
-          <div className="min-h-screen bg-background text-foreground flex flex-col">
-               <Suspense fallback={<div>Loading...</div>}>
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 m-8">
-                      <GameSetupForm onSetupComplete={handleGameSetup} />
-                  </div>
-               </Suspense>
-               <div className="flex-1 bg-gray-100" />
-               <GameFooter />
-          </div>
+        <div className="relative min-h-screen bg-gray-100 flex flex-col">
+            <div className="flex-grow">
+                {/* This div will be blurred */}
+            </div>
+            <Suspense fallback={<div />}>
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+                    <GameSetupForm onSetupComplete={handleGameSetup} />
+                </div>
+            </Suspense>
+            <GameFooter />
+        </div>
       );
   }
 
