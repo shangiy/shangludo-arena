@@ -86,7 +86,7 @@ function PlayerPod({
            <div className="absolute inset-0 pointer-events-none">
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path
-                        d="M 50,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 L 2.5,2.5 Z"
+                        d="M 2.5,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 Z"
                         fill="none"
                         className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
                         strokeWidth="2.5"
@@ -592,5 +592,6 @@ export function FiveMinGameLayout({
     
 
     
+
 
 

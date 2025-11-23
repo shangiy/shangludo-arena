@@ -44,7 +44,8 @@ import { cn } from '@/lib/utils';
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
-const DEFAULT_TURN_TIMER_DURATION = 15000;
+const DEFAULT_CLASSIC_TURN_TIMER_DURATION = 15000;
+const DEFAULT_FIVEMIN_TURN_TIMER_DURATION = 10000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_DICE_ROLL_DURATION = 1000; // 1 second for AI
 
@@ -128,8 +129,8 @@ export default function GameClient() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [muteSound, setMuteSound] = useState(true);
   const [diceRollDuration, setDiceRollDuration] = useState(DEFAULT_DICE_ROLL_DURATION);
-  const [turnTimer, setTurnTimer] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
-  const [turnTimerDuration, setTurnTimerDuration] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
+  const [turnTimer, setTurnTimer] = useState<number>(DEFAULT_CLASSIC_TURN_TIMER_DURATION);
+  const [turnTimerDuration, setTurnTimerDuration] = useState<number>(DEFAULT_CLASSIC_TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
@@ -205,7 +206,12 @@ export default function GameClient() {
           setDiceRollDuration(savedState.diceRollDuration);
           setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
           if (gameMode === '5-min' || gameMode === 'classic') {
-             if(savedState.turnTimerDuration !== undefined) setTurnTimerDuration(savedState.turnTimerDuration);
+             const defaultDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
+             if(savedState.turnTimerDuration !== undefined) {
+                setTurnTimerDuration(savedState.turnTimerDuration);
+             } else {
+                setTurnTimerDuration(defaultDuration);
+             }
           }
           if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
@@ -317,6 +323,11 @@ export default function GameClient() {
     setPhase('ROLLING');
     setEndGameSummary(null);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
+
+    const newTurnDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
+    setTurnTimerDuration(newTurnDuration);
+    setTurnTimer(newTurnDuration);
+
     if (gameMode === '5-min') {
       setGameTimer(gameTimerDuration);
     }
