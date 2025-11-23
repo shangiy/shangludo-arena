@@ -47,20 +47,20 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
             </div>
         ),
         2: (
-             <div className="flex flex-col justify-between h-full p-1">
+             <div className="flex flex-col justify-between h-full p-1.5">
                 <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
                 <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         3: (
-            <div className="flex flex-col justify-between h-full p-1">
+            <div className="flex flex-col justify-between h-full p-1.5">
                 <div className="flex justify-start"><DiceDot colorClass={colorClass} /></div>
                 <div className="flex justify-center"><DiceDot colorClass={colorClass} /></div>
                 <div className="flex justify-end"><DiceDot colorClass={colorClass} /></div>
             </div>
         ),
         4: (
-            <div className="grid grid-cols-2 grid-rows-2 h-full gap-1 p-1">
+            <div className="grid grid-cols-2 grid-rows-2 h-full gap-2 p-1.5">
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
@@ -68,7 +68,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
             </div>
         ),
         5: (
-             <div className="grid grid-cols-3 grid-rows-3 h-full p-1">
+             <div className="grid grid-cols-3 grid-rows-3 h-full p-1.5">
                 <DiceDot colorClass={colorClass} className="col-start-1 row-start-1" />
                 <DiceDot colorClass={colorClass} className="col-start-3 row-start-1" />
                 <DiceDot colorClass={colorClass} className="col-start-2 row-start-2" />
@@ -77,7 +77,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
             </div>
         ),
         6: (
-            <div className="grid grid-cols-2 h-full gap-x-2 gap-y-1 p-1">
+            <div className="grid grid-cols-2 h-full gap-x-2 gap-y-1.5 p-1.5">
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
                 <DiceDot colorClass={colorClass} />
@@ -183,7 +183,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const currentTurnColorClass = turnTextColor[color];
     const currentDotColorClass = dotColor[color];
-    const faceStyle = "absolute w-12 h-12 md:w-16 md:h-16 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
+    const faceStyle = "absolute w-12 h-12 md:w-16 md:h-16 border border-black/50 flex items-center justify-center bg-white rounded-lg";
     const diceSize = 'w-12 h-12 md:w-16 md:h-16';
     const transformZ = '2rem';
     const mobileTransformZ = '1.5rem';
