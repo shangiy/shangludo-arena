@@ -231,7 +231,7 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-full w-full flex flex-col items-center justify-center p-1 bg-background">
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-2 h-full">
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-2 h-full">
         {/* Header */}
         <header className="w-full flex justify-between items-center p-2 z-20">
           <AlertDialog>
@@ -422,8 +422,8 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 relative grid grid-cols-3 grid-rows-3 items-center justify-center gap-2">
-            <div className="col-start-1 row-start-1 h-full w-full p-2">
+        <main className="w-full flex-1 relative flex items-center justify-center gap-2">
+           <div className="w-1/4 h-full flex flex-col justify-around">
                <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
@@ -436,8 +436,25 @@ export function FiveMinGameLayout({
                 phase={phase}
                 showNotifications={showNotifications}
               />
+               <PlayerPod
+                player={bluePlayer}
+                color="blue"
+                isCurrentTurn={currentTurn === 'blue'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+              />
+           </div>
+           
+            <div className="w-1/2 h-full flex items-center justify-center">
+                {children}
             </div>
-            <div className="col-start-3 row-start-1 h-full w-full p-2">
+
+            <div className="w-1/4 h-full flex flex-col justify-around">
                 <PlayerPod
                     player={greenPlayer}
                     color="green"
@@ -450,27 +467,6 @@ export function FiveMinGameLayout({
                     phase={phase}
                     showNotifications={showNotifications}
                 />
-            </div>
-            
-            <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center max-w-[70vh] mx-auto">
-                {children}
-            </div>
-
-            <div className="col-start-1 row-start-3 h-full w-full p-2">
-              <PlayerPod
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-              />
-            </div>
-            <div className="col-start-3 row-start-3 h-full w-full p-2">
                <PlayerPod
                 player={redPlayer}
                 color="red"
