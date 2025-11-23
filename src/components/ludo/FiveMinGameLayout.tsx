@@ -130,29 +130,24 @@ function GameTimer({ remaining }: { remaining: number }) {
 }
 
 function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, players: PlayerSetup[] }) {
-    const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const activePlayers = players.filter(p => p.type !== 'none');
   
     return (
-      <div className="w-full max-w-2xl mx-auto mt-4 p-4 bg-card rounded-lg border shadow-sm">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="w-full max-w-md mx-auto p-2 bg-background/80 rounded-lg border shadow-sm">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
           {activePlayers.map(({ color, name }) => {
-            const percentage = totalScore > 0 ? (scores[color] / totalScore) * 100 : 0;
             return (
-              <div key={color} className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2">
-                    <div className={cn("w-3 h-3 rounded-full", `bg-${color}-500`)} />
-                    <span className="text-sm font-semibold capitalize truncate">{name}</span>
-                </div>
-                <span className="text-2xl font-bold">{scores[color]}</span>
-                <Progress value={percentage} className="h-2 w-full" indicatorClassName={`bg-${color}-500`} />
+              <div key={color} className="flex items-center justify-center gap-2 text-sm p-1 rounded">
+                <div className={cn("w-3 h-3 rounded-full", `bg-${color}-500`)} />
+                <span className="font-semibold capitalize truncate hidden sm:inline">{name}</span>
+                <span className="font-bold text-base">{scores[color]}</span>
               </div>
             );
           })}
         </div>
       </div>
     );
-  }
+}
 
 
 type FiveMinGameLayoutProps = {
