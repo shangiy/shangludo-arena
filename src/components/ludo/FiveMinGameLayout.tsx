@@ -487,7 +487,7 @@ export function FiveMinGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
-            <div className="md:col-start-1 md:row-start-1 flex justify-center items-end pt-12">
+            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-1 md:items-end md:pt-12">
                  <PlayerPod
                     player={redPlayer}
                     color="red"
@@ -502,7 +502,7 @@ export function FiveMinGameLayout({
                     score={scores.red}
                 />
             </div>
-            <div className="md:col-start-3 md:row-start-1 flex justify-center items-end pt-12">
+            <div className="hidden md:flex md:w-full md:justify-center md:col-start-3 md:row-start-1 md:items-end md:pt-12">
                 <PlayerPod
                   player={greenPlayer}
                   color="green"
@@ -524,7 +524,7 @@ export function FiveMinGameLayout({
                 {children}
             </div>
 
-            <div className="md:col-start-1 md:row-start-3 flex justify-center items-start">
+            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-3 md:items-start">
                  <PlayerPod
                     player={bluePlayer}
                     color="blue"
@@ -539,7 +539,7 @@ export function FiveMinGameLayout({
                     score={scores.blue}
                 />
             </div>
-            <div className="md:col-start-3 md:row-start-3 flex justify-center items-start">
+            <div className="flex w-full justify-around md:justify-center md:col-start-3 md:row-start-3 md:items-start">
                 <PlayerPod
                     player={yellowPlayer}
                     color="yellow"
@@ -560,5 +560,3 @@ export function FiveMinGameLayout({
       </div>
   );
 }
-
-    
