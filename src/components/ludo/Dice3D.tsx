@@ -42,23 +42,23 @@ const DiceDot = ({ colorClass, className }: { colorClass: string, className?: st
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
-        2: "grid grid-cols-2 grid-rows-2 p-2",
-        3: "grid grid-cols-3 grid-rows-3 p-2",
-        4: "grid grid-cols-2 grid-rows-2 gap-2 p-2",
-        5: "grid grid-cols-3 grid-rows-3 gap-1 p-2",
-        6: "grid grid-cols-2 grid-rows-3 gap-y-1 p-2",
+        2: "flex justify-between items-start p-2",
+        3: "flex flex-col justify-between items-center p-2 h-full",
+        4: "grid grid-cols-2 grid-rows-2 p-2 gap-2.5",
+        5: "grid grid-cols-3 grid-rows-3 p-2 gap-1",
+        6: "grid grid-cols-2 grid-rows-3 p-2 gap-x-2.5 gap-y-1",
     };
 
     const dots: Record<number, React.ReactNode[]> = {
         1: [<DiceDot key="1" colorClass={colorClass} />],
         2: [
-            <DiceDot key="1" colorClass={colorClass} className="col-start-1 row-start-1" />,
-            <DiceDot key="2" colorClass={colorClass} className="col-start-2 row-start-2" />,
+            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
+            <DiceDot key="2" colorClass={colorClass} className="self-end" />,
         ],
         3: [
-            <DiceDot key="1" colorClass={colorClass} className="col-start-1 row-start-1" />,
-            <DiceDot key="2" colorClass={colorClass} className="col-start-2 row-start-2" />,
-            <DiceDot key="3" colorClass={colorClass} className="col-start-3 row-start-3" />,
+            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
+            <DiceDot key="2" colorClass={colorClass} className="self-center" />,
+            <DiceDot key="3" colorClass={colorClass} className="self-end" />,
         ],
         4: [
             <DiceDot key="1" colorClass={colorClass} />,
