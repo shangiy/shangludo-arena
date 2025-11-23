@@ -95,7 +95,7 @@ function PlayerPod({
         <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
-            <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{isExpanded && diceValue ? diceValue : score}</span>
+            <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{isCurrentTurn && diceValue ? diceValue : score}</span>
         </div>
 
         <div className="w-full space-y-1 z-10 h-10 flex flex-col items-center justify-center text-center">
@@ -522,5 +522,7 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
