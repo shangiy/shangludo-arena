@@ -942,6 +942,7 @@ export default function GameClient() {
           </main>
         </div>
       )}
+      <GameFooter />
     </div>
   );
 }

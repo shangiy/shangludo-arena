@@ -246,7 +246,7 @@ export function ClassicGameLayout({
     const currentPlayerDetails = gameSetup.players.find(p => p.color === currentTurn);
 
   return (
-    <div className="relative h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
       <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-4 left-1/2 -translate-x-1/2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
