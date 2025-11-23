@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { ScrollArea } from "../ui/scroll-area";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -225,125 +226,129 @@ export function ClassicGameLayout({
                 <Settings />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 animated-border">
+            <PopoverContent className="w-80 animated-border flex flex-col p-0">
               <div className="absolute inset-0.5 bg-popover rounded-md z-0" />
-              <div className="relative z-10">
-                <TooltipProvider>
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium leading-none">Settings</h4>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
-                      <div className="space-y-2 rounded-lg border p-2">
-                        {allPlayers.map(p => {
-                          const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
-                          const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
-                          return (
-                            <div key={p.color} className="flex items-center justify-between gap-2">
-                              {type === 'human' ? (
-                                <Input
-                                  value={currentPlayerConfig?.name || ''}
-                                  onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
-                                  className="h-8 flex-1"
-                                />
-                              ) : (
-                                <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
-                                  <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
-                                  {p.color}
-                                </Label>
-                              )}
-                              <Select
-                                value={type}
-                                onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
-                              >
-                                <SelectTrigger className="w-32 h-8">
-                                  <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="human">Human</SelectItem>
-                                  <SelectItem value="ai">AI</SelectItem>
-                                  <SelectItem value="none">No One</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )
-                        })}
+              <div className="relative z-10 flex flex-col h-[60vh] max-h-[500px]">
+                <div className="p-4 border-b">
+                  <h4 className="font-medium leading-none">Settings</h4>
+                </div>
+                <ScrollArea className="flex-1">
+                  <TooltipProvider>
+                    <div className="grid gap-4 p-4">
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                        <div className="space-y-2 rounded-lg border p-2">
+                          {allPlayers.map(p => {
+                            const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
+                            const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
+                            return (
+                              <div key={p.color} className="flex items-center justify-between gap-2">
+                                {type === 'human' ? (
+                                  <Input
+                                    value={currentPlayerConfig?.name || ''}
+                                    onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                    className="h-8 flex-1"
+                                  />
+                                ) : (
+                                  <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                    <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                    {p.color}
+                                  </Label>
+                                )}
+                                <Select
+                                  value={type}
+                                  onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
+                                >
+                                  <SelectTrigger className="w-32 h-8">
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="human">Human</SelectItem>
+                                    <SelectItem value="ai">AI</SelectItem>
+                                    <SelectItem value="none">No One</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="mute-sound" className="flex items-center gap-2">
-                          {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                          Mute Sound
-                        </Label>
-                        <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-notifications" className="flex items-center gap-2">
-                          {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-                          Show Notifications
-                        </Label>
-                        <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
-                          <Star className="h-4 w-4" />
-                          Secondary Safe Points
-                        </Label>
-                        <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
-                          <Dice5 className="h-4 w-4" />
-                          Dice Rolling Time (s)
+                      <div className="grid gap-2">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="mute-sound" className="flex items-center gap-2">
+                            {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                            Mute Sound
+                          </Label>
+                          <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="show-notifications" className="flex items-center gap-2">
+                            {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                            Show Notifications
+                          </Label>
+                          <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
+                            <Star className="h-4 w-4" />
+                            Secondary Safe Points
+                          </Label>
+                          <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
+                            <Dice5 className="h-4 w-4" />
+                            Dice Rolling Time (s)
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Max time in seconds for the dice animation.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </Label>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  id="dice-timer"
+                                  type="number"
+                                  min="1"
+                                  max="9"
+                                  step="1"
+                                  className="w-20"
+                                  value={newDiceRollDuration}
+                                  onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
+                                />
+                              </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Max time in seconds for the dice animation.</p>
+                              <p>admin only level</p>
                             </TooltipContent>
                           </Tooltip>
-                        </Label>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                id="dice-timer"
-                                type="number"
-                                min="1"
-                                max="9"
-                                step="1"
-                                className="w-20"
-                                value={newDiceRollDuration}
-                                onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
-                              />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>admin only level</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Number of Dice</Label>
-                        <RadioGroup
-                          defaultValue="1"
-                          className="grid grid-cols-4 gap-2"
-                        >
-                          {[1, 2, 3, 4].map(num => (
-                            <div key={num} className="flex items-center space-x-2">
-                              <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
-                              <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Number of Dice</Label>
+                          <RadioGroup
+                            defaultValue="1"
+                            className="grid grid-cols-4 gap-2"
+                          >
+                            {[1, 2, 3, 4].map(num => (
+                              <div key={num} className="flex items-center space-x-2">
+                                <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
+                                <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
                       </div>
                     </div>
+                  </TooltipProvider>
+                </ScrollArea>
+                 <div className="p-4 border-t">
                     <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes &amp; Play</Button>
-                  </div>
-                </TooltipProvider>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
