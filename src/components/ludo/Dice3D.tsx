@@ -19,12 +19,12 @@ type DiceProps = {
 
 const getTransformFromFace = (face: number): string => {
     switch (face) {
-        case 1: return 'rotateX(0deg) rotateY(0deg)'; // Front
-        case 2: return 'rotateX(90deg)'; // Bottom from perspective
-        case 3: return 'rotateY(-90deg)'; // Right from perspective
-        case 4: return 'rotateY(90deg)'; // Left from perspective
-        case 5: return 'rotateX(-90deg)'; // Top from perspective
-        case 6: return 'rotateX(180deg)'; // Back
+        case 1: return 'rotateX(0deg) rotateY(0deg)';
+        case 2: return 'rotateY(-90deg)';
+        case 3: return 'rotateX(90deg)';
+        case 4: return 'rotateX(-90deg)';
+        case 5: return 'rotateY(90deg)';
+        case 6: return 'rotateX(180deg)';
         default: return '';
     }
 };
@@ -152,7 +152,10 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
      useEffect(() => {
         if (diceValue) {
-            controls.set({ transform: getTransformFromFace(diceValue) });
+            controls.start({
+                transform: getTransformFromFace(diceValue),
+                transition: { type: "spring", stiffness: 300, damping: 20 }
+            });
             setLocalDiceValue(diceValue);
         } else {
              controls.set({ transform: getTransformFromFace(1) });
@@ -197,20 +200,20 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     <div className={cn(faceStyle)} style={{ transform: 'translateZ(2rem)' }}>
                         <DiceFace face={1} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 2 (Bottom) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(2rem)' }}>
+                    {/* Face 2 (Right) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(2rem)' }}>
                          <DiceFace face={2} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 3 (Right) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(2rem)' }}>
+                    {/* Face 3 (Top) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(2rem)' }}>
                          <DiceFace face={3} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 4 (Left) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(2rem)' }}>
+                    {/* Face 4 (Bottom) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(2rem)' }}>
                          <DiceFace face={4} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 5 (Top) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(2rem)' }}>
+                    {/* Face 5 (Left) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(2rem)' }}>
                          <DiceFace face={5} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 6 (Back) */}
