@@ -398,73 +398,61 @@ export default function GameClient() {
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
     if (!playerPawns) return [];
-
+  
     const moves: { pawn: Pawn; newPosition: number }[] = [];
     const isClassic = gameMode === 'classic';
-
+  
+    // Pawns on the board can always move
+    playerPawns.forEach((pawn) => {
+      if (pawn.isHome || pawn.position === -1) return;
+  
+      const currentPath = PATHS[player];
+      let currentPathIndex = currentPath.indexOf(pawn.position);
+  
+      if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
+        const newPosition = currentPath[currentPathIndex + roll];
+  
+        // Glass wall check for quick mode
+        if (gameMode === 'quick') {
+          const wallPosition = GLASS_WALL_POSITIONS[player];
+          if (glassWalls[player] && wallPosition) {
+            const wallIndexOnPath = currentPath.indexOf(wallPosition);
+            if (wallIndexOnPath !== -1 && currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
+              return; // Invalid move, blocked by wall
+            }
+          }
+        }
+  
+        const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
+  
+        if (isClassic) {
+          moves.push({ pawn, newPosition });
+        } else { // Blockade rules for non-classic
+          if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+            // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+          } else {
+            moves.push({ pawn, newPosition });
+          }
+        }
+      }
+    });
+  
+    // A 6 allows moving a pawn from the yard
     if (roll === 6) {
       const pawnsInYard = playerPawns.filter((p) => p.position === -1);
       if (pawnsInYard.length > 0) {
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-        const canMoveToStart = isClassic || !SAFE_ZONES.includes(startPos);
         
-        if (canMoveToStart && ownPawnsAtStart < 2) {
-            pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
-        } else if (ownPawnsAtStart < 2) { // for non-classic modes
-            pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
+        // Non-classic modes: you can't enter on a blockade
+        if (!isClassic && ownPawnsAtStart >= 2) {
+          // blockade, cannot move out
+        } else {
+          pawnsInYard.forEach((pawn) => moves.push({ pawn, newPosition: startPos }));
         }
       }
     }
-
-    playerPawns.forEach((pawn) => {
-      if (pawn.isHome || (pawn.position === -1 && roll !== 6)) return;
-
-      const currentPath = PATHS[player];
-      let currentPathIndex = currentPath.indexOf(pawn.position);
-
-       if (pawn.position === -1 && roll === 6) {
-           const newPosition = START_POSITIONS[player];
-           const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
-           if ((isClassic || !SAFE_ZONES.includes(newPosition)) && ownPawnsAtDestination >= 2) {
-               // Blockade rule for non-classic
-           } else if (ownPawnsAtDestination >= 2 && !isClassic) {
-               // Blockade rule for non-classic
-           }
-           else {
-               moves.push({ pawn, newPosition });
-           }
-           return;
-       }
-
-
-      if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
-        const newPosition = currentPath[currentPathIndex + roll];
-
-        // Glass wall check for quick mode
-        if (gameMode === 'quick') {
-            const wallPosition = GLASS_WALL_POSITIONS[player];
-            if(glassWalls[player] && wallPosition) {
-                const wallIndexOnPath = currentPath.indexOf(wallPosition);
-                if (wallIndexOnPath !== -1 && currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
-                    return; // Invalid move, blocked by wall
-                }
-            }
-        }
-        
-        const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
-        
-        if (isClassic) {
-            moves.push({ pawn, newPosition });
-        } else { // Blockade rules for non-classic
-            if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-              // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
-            } else {
-              moves.push({ pawn, newPosition });
-            }
-        }
-      }
-    });
+  
     return moves;
   };
 
@@ -841,14 +829,11 @@ export default function GameClient() {
   if (phase === 'SETUP' && gameMode !== 'quick' && gameMode !== '5-min') {
       return (
         <div className="relative min-h-screen bg-gray-100 flex flex-col">
-            <div className="flex-grow">
-                {/* This div will be blurred */}
-            </div>
-            <Suspense fallback={<div />}>
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+            <main className="flex-1 flex items-center justify-center p-4">
+                <Suspense fallback={<div />}>
                     <GameSetupForm onSetupComplete={handleGameSetup} />
-                </div>
-            </Suspense>
+                </Suspense>
+            </main>
             <GameFooter />
         </div>
       );
