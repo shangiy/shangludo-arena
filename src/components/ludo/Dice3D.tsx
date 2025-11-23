@@ -89,7 +89,6 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
 
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
     const [isClient, setIsClient] = useState(false);
-    const [showRollResult, setShowRollResult] = useState(false);
     const isRollingRef = useRef(false);
     const controls = useAnimation();
     
@@ -97,14 +96,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         setIsClient(true);
     }, []);
 
-    useEffect(() => {
-        if (!rolling && diceValue !== null) {
-          setShowRollResult(true);
-        } else {
-          setShowRollResult(false);
-        }
-      }, [rolling, diceValue]);
-    
     const handleHumanRoll = () => {
         if (isRollingRef.current || !isHumanTurn) return;
         startRollingProcess();
@@ -114,7 +105,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         if (isRollingRef.current) return;
         isRollingRef.current = true;
         onRollStart();
-        setShowRollResult(false);
 
         const rollStartTime = Date.now();
         const finalRoll = Math.floor(Math.random() * 6) + 1;
@@ -148,7 +138,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 transition: { duration: 0.3 }
             });
         }
-    }, [rolling]);
+    }, [rolling, diceValue]); // Reacting to external state changes
 
      useEffect(() => {
         if (diceValue) {
@@ -179,6 +169,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const currentTurnColorClass = turnTextColor[color];
     const currentDotColorClass = dotColor[color];
     const faceStyle = "absolute w-12 h-12 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
+
+    const showRollResult = !rolling && diceValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2">
@@ -233,6 +225,3 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         </div>
     );
 }
-
-    
-    
