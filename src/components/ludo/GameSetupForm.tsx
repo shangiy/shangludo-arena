@@ -46,7 +46,11 @@ export type PlayerSetup = z.infer<typeof playerSchema>;
 
 const setupSchema = z.object({
   gameMode: z.enum(["vs-computer", "multiplayer"]),
-  players: z.array(playerSchema).min(2, "At least 2 players required"),
+  players: z.array(playerSchema)
+    .min(2, "At least 2 players required")
+    .refine(players => players.some(p => p.type === 'human'), {
+        message: "At least one human player is required.",
+    }),
   turnOrder: z.array(z.enum(["red", "green", "yellow", "blue"])),
   humanPlayerColor: z.enum(["red", "green", "yellow", "blue"]),
   diceRollDuration: z.enum(["1000", "2000", "3000", "5000"]),
@@ -122,6 +126,10 @@ export function GameSetupForm({
     if (activePlayers.length < 2) {
         form.setError("players", { type: "manual", message: "You need at least two players to start a game." });
         return;
+    }
+    if (!activePlayers.some(p => p.type === 'human')) {
+      form.setError("players", { type: "manual", message: "At least one human player is required." });
+      return;
     }
     const playerColors = activePlayers.map((p) => p.color);
     const selectedFirstPlayer = data.turnOrder[0];
@@ -321,7 +329,7 @@ export function GameSetupForm({
             />
             
             {form.formState.errors.players && (
-                <p className="text-sm font-medium text-destructive">{form.formState.errors.players.message}</p>
+                <p className="text-sm font-medium text-destructive">{form.formState.errors.players.message || form.formState.errors.players.root?.message}</p>
             )}
 
             <Button type="submit" className="w-full">

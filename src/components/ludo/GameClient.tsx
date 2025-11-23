@@ -277,6 +277,17 @@ export default function GameClient() {
         return;
     }
 
+    if (!activePlayers.some(p => p.type === 'human')) {
+      toast({
+          variant: 'destructive',
+          title: 'No Human Players',
+          description: 'At least one human player is required to start a game.',
+      });
+      setPhase('SETUP');
+      setGameSetup(setup);
+      return;
+    }
+
     const turnOrder = setup.turnOrder.filter(color => activePlayers.some(p => p.color === color));
     const finalSetup = { ...setup, players: activePlayers, turnOrder: turnOrder.length > 0 ? turnOrder : activePlayers.map(p => p.color) };
     
