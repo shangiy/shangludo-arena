@@ -92,7 +92,9 @@ export function GameControls({
       let newPlayers: PlayerSetup[];
       const playerExists = currentPlayers.some(p => p.color === color);
 
-      if (playerExists) {
+      if (type === 'none') {
+        newPlayers = currentPlayers.filter(p => p.color !== color);
+      } else if (playerExists) {
         newPlayers = currentPlayers.map(p => {
           if (p.color === color) {
             const colorName = color.charAt(0).toUpperCase() + color.slice(1);
@@ -303,7 +305,7 @@ export function GameControls({
             </div>
             
             <Button size="sm" className="w-full mt-2" onClick={handleApplyAllChanges}>
-                Apply Changes & Restart
+                Apply Changes & Play
             </Button>
 
             <Separator />
@@ -330,4 +332,5 @@ export function GameControls({
   );
 }
 
+    
     
