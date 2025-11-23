@@ -3,7 +3,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun } from "lucide-react";
-import { PlayerColor, type Pawn } from "@/lib/ludo-constants";
+import { PlayerColor, type Pawn, PATHS } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -110,12 +110,42 @@ function PlayerPod({
   );
 }
 
-function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[] }) {
+function Scoreboard({ pawns, players, gameMode, scores }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[], gameMode: string, scores: Record<PlayerColor, number> }) {
     const activePlayers = players.filter(p => p.type !== 'none');
     
-    const getHomeCount = (color: PlayerColor) => {
-        return pawns[color]?.filter(p => p.isHome).length || 0;
-    }
+    const getProgressPercentage = (color: PlayerColor) => {
+        const playerPawns = pawns[color];
+        if (!playerPawns) return 0;
+        
+        if (gameMode !== 'quick') {
+            const homeCount = playerPawns.filter(p => p.isHome).length;
+            return (homeCount / 4) * 100;
+        }
+
+        const path = PATHS[color];
+        const totalPathLength = path.length -1;
+        const maxProgress = 4 * totalPathLength;
+
+        let currentProgress = 0;
+        playerPawns.forEach(pawn => {
+            if (pawn.isHome) {
+                currentProgress += totalPathLength;
+            } else if (pawn.position !== -1) {
+                const pathIndex = path.indexOf(pawn.position);
+                if (pathIndex !== -1) {
+                    currentProgress += pathIndex;
+                }
+            }
+        });
+        
+        // Add score for captures in quick mode
+        currentProgress += (scores[color] || 0);
+
+        const theoreticalMax = maxProgress + (activePlayers.length - 1) * 4 * 10; // rough estimate of max score
+        const percentage = Math.min(100, (currentProgress / theoreticalMax) * 100 * 2.5); // Adjust multiplier for better feel
+        
+        return Math.floor(percentage);
+    };
 
     const playerMap = new Map(activePlayers.map(p => [p.color, p]));
     const displayOrder: {color: PlayerColor, justify: string, items: string}[] = [
@@ -132,8 +162,7 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
               const player = playerMap.get(color);
               if (!player) return <div key={color} />;
               
-              const homeCount = getHomeCount(color);
-              const percentage = (homeCount / 4) * 100;
+              const percentage = getProgressPercentage(color);
 
               return (
                 <div key={color} className={cn("flex p-2", justify, items)}>
@@ -154,6 +183,7 @@ type ClassicGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
   pawns: Record<PlayerColor, Pawn[]>;
+  scores: Record<PlayerColor, number>;
   onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
   isRolling: boolean;
@@ -176,6 +206,7 @@ export function ClassicGameLayout({
   children,
   gameSetup,
   pawns,
+  scores,
   onGameSetupChange,
   currentTurn,
   isRolling,
@@ -535,7 +566,7 @@ export function ClassicGameLayout({
             {/* Game Board and Scoreboard Container */}
             <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
                 {children}
-                <Scoreboard pawns={pawns} players={gameSetup.players} />
+                <Scoreboard pawns={pawns} players={gameSetup.players} gameMode={gameSetup.gameMode} scores={scores} />
             </div>
             
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">

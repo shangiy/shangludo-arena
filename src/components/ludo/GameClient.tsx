@@ -207,6 +207,8 @@ export default function GameClient() {
           if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
           setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
+          if(savedState.scores !== undefined) setScores(savedState.scores);
+
           if (gameMode === '5-min') {
              const defaultDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
              if(savedState.turnTimerDuration !== undefined) {
@@ -216,7 +218,6 @@ export default function GameClient() {
              }
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
-             if(savedState.scores !== undefined) setScores(savedState.scores);
           }
           resumed = true;
           setShowResumeToast(true);
@@ -260,12 +261,11 @@ export default function GameClient() {
         diceRollDuration,
         glassWalls,
         turnTimerDuration,
+        scores,
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
         gameState.gameTimerDuration = gameTimerDuration;
-        gameState.scores = scores;
-        gameState.turnTimerDuration = turnTimerDuration;
       }
       localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
     } catch (error) {
@@ -549,7 +549,7 @@ export default function GameClient() {
       clearInterval(turnTimerRef.current);
     }
     
-    // The Dice3D component now handles the random number generation.
+    // The Dice3D/Dice component now handles the random number generation.
     // We just trigger the animation here.
     setIsRolling(true);
   };
@@ -608,7 +608,7 @@ export default function GameClient() {
     let capturedPawn = false;
     let pawnReachedHome = false;
 
-    if (gameMode === '5-min') {
+    if (gameMode === '5-min' || gameMode === 'quick') {
         const path = PATHS[currentTurn];
         const oldIndex = pawnToMove.position === -1 ? -1 : path.indexOf(pawnToMove.position);
         const newIndex = path.indexOf(newPosition);
@@ -641,7 +641,7 @@ export default function GameClient() {
             addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
             pawnReachedHome = true;
 
-            if (gameMode === '5-min') {
+            if (gameMode === '5-min' || gameMode === 'quick') {
                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
             }
         }
@@ -652,8 +652,10 @@ export default function GameClient() {
               (p: Pawn) => p.position === newPosition
             );
 
-            // In classic mode, you can capture a single pawn.
-            if (opponentPawnsAtPos?.length > 0 && opponentPawnsAtPos?.length < 2) {
+            // Special rule for quick/5-min mode: roll of 1 captures all
+            const isSpecialCapture = (gameMode === 'quick' || gameMode === '5-min') && rollValue === 1;
+
+            if (opponentPawnsAtPos.length > 0 && (opponentPawnsAtPos.length < 2 || isSpecialCapture)) {
                 capturedPawn = true;
                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                  newPawns[color] = newPawns[color].map((p: Pawn) => {
@@ -668,7 +670,7 @@ export default function GameClient() {
                                 toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
                             }
                         }
-                        if (gameMode === '5-min') {
+                        if (gameMode === '5-min' || gameMode === 'quick') {
                            setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                         }
                         return { ...p, position: -1 };
@@ -681,9 +683,15 @@ export default function GameClient() {
       }
 
       newPawns[currentTurn] = pawnsOfPlayer;
+      
+      const winningConditionMet = () => {
+        if (gameMode === 'quick') {
+            return newPawns[currentTurn].some((p: Pawn) => p.isHome);
+        }
+        return newPawns[currentTurn].every((p: Pawn) => p.isHome);
+      };
 
-      const allPawnsHome = newPawns[currentTurn].every((p: Pawn) => p.isHome);
-      if (allPawnsHome) {
+      if (winningConditionMet()) {
           setWinner(currentTurn);
       }
 
@@ -892,6 +900,7 @@ export default function GameClient() {
               <ClassicGameLayout
                 gameSetup={gameSetup}
                 pawns={pawns}
+                scores={scores}
                 onGameSetupChange={handleGameSetup}
                 currentTurn={currentTurn}
                 isRolling={isRolling}
@@ -911,7 +920,7 @@ export default function GameClient() {
               >
                   <GameBoard 
                     showSecondarySafes={addSecondarySafePoints} 
-                    scores={{red:0, green:0, blue:0, yellow:0}} 
+                    scores={scores} 
                     gameMode={gameMode} 
                     glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
                   >
