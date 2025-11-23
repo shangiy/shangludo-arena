@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -58,7 +59,7 @@ Provide your reasoning for the move in the 'reasoning' field. If there are no va
 const generateAIMoveFlow = ai.defineFlow(
   {
     name: 'generateAIMoveFlow',
-    inputSchema: GenerateAIMo_veInputSchema,
+    inputSchema: GenerateAIMoveInputSchema,
     outputSchema: GenerateAIMoveOutputSchema,
   },
   async input => {
