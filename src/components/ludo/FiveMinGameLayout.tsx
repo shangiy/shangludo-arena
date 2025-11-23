@@ -68,7 +68,7 @@ function PlayerPod({
   const isHumanTurn = isCurrentTurn && player.type === "human";
 
   if (player.type === 'none') {
-    return <div className="relative flex h-full w-full flex-col items-center justify-center p-2 rounded-lg border-dashed border-2 border-border/50" />;
+    return <div className="relative flex h-full w-full flex-col items-center justify-center p-1 rounded-lg border-dashed border-2 border-border/50" />;
   }
   
   const rectSize = 100;
@@ -78,7 +78,7 @@ function PlayerPod({
   const offset = perimeter * (1 - timerPercentage);
 
   return (
-    <div className={cn("relative flex h-full w-full items-center justify-between p-2 flex-col")}>
+    <div className={cn("relative flex h-full w-full items-center justify-between p-1 flex-col")}>
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${rectSize + strokeWidth} ${rectSize + strokeWidth}`}
@@ -117,7 +117,7 @@ function PlayerPod({
           />
         </svg>
 
-        <h3 className="text-md font-bold z-10">{player.name}</h3>
+        <h3 className="text-sm font-bold z-10 truncate">{player.name}</h3>
         <div className={cn("flex-1 flex items-center justify-center z-10 w-full flex-col")}>
             <Dice3D
                 rolling={isCurrentTurn && isRolling}
@@ -131,7 +131,7 @@ function PlayerPod({
             />
             <div className="w-full space-y-1 z-10 h-8 flex items-center justify-center">
                  {isCurrentTurn && !isRolling && diceValue !== null && phase === 'MOVING' && player.type === 'human' && showNotifications && (
-                    <p className="text-sm font-semibold capitalize text-center">
+                    <p className="text-xs font-semibold capitalize text-center">
                        Select a pawn to move.
                     </p>
                 )}
@@ -277,276 +277,273 @@ export function FiveMinGameLayout({
 
   return (
     <div className="relative h-full w-full flex flex-col items-center justify-center p-2 bg-background">
-      <header className="absolute top-2 left-2 right-2 flex justify-between items-center z-20">
-        <div className="flex items-center gap-2">
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="icon">
-                    <Home />
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                    Your current game progress will be lost. You will be returned to the main lobby.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
-                </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-             <GameTimer remaining={gameTimer} />
-        </div>
-        <div className="flex items-center gap-2">
-            <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+      <div className="w-full max-w-7xl mx-auto flex flex-col items-center gap-2">
+        {/* Header */}
+        <header className="w-full flex justify-between items-center p-2 z-20">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Home />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Your current game progress will be lost. You will be returned to the main lobby.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          
+          <GameTimer remaining={gameTimer} />
+
+          <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon">
                 <Settings />
-                </Button>
+              </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 animated-border">
-                <div className="absolute inset-0.5 bg-popover rounded-md z-0" />
-                <div className="relative z-10">
-            <TooltipProvider>
-                <div className="grid gap-4">
-                <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Settings</h4>
-                </div>
-
-                <div className="space-y-2">
-                    <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
-                    <div className="space-y-2 rounded-lg border p-2">
-                    {allPlayers.map(p => {
-                        const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
-                        const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
-                        return (
-                        <div key={p.color} className="flex items-center justify-between gap-2">
-                            {type === 'human' ? (
-                                    <Input
-                                        value={currentPlayerConfig?.name || ''}
-                                        onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
-                                        className="h-8 flex-1"
-                                    />
-                            ) : (
-                                <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
-                                    <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
-                                    {p.color}
-                                </Label>
-                            )}
-                            <Select
-                                value={type}
-                                onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
-                            >
-                                <SelectTrigger className="w-32 h-8">
-                                    <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="human">Human</SelectItem>
-                                    <SelectItem value="ai">AI</SelectItem>
-                                    <SelectItem value="none">No One</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    )})}
-                    </div>
-                </div>
-
-                <div className="grid gap-2">
-                    <div className="flex items-center justify-between">
-                    <Label htmlFor="mute-sound" className="flex items-center gap-2">
-                        {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                        Mute Sound
-                    </Label>
-                    <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
-                    </div>
-                    <div className="flex items-center justify-between">
-                    <Label htmlFor="show-notifications" className="flex items-center gap-2">
-                        {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-                        Show Notifications
-                    </Label>
-                    <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
-                    </div>
-                    <div className="flex items-center justify-between">
-                    <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
-                        <Star className="h-4 w-4" />
-                        Secondary Safe Points
-                    </Label>
-                    <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                    <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
-                        <Timer className="h-4 w-4" />
-                        Game Time (min)
-                    </Label>
-                    <div className="flex items-center gap-2">
-                        <Input 
-                        id="game-timer"
-                        type="number"
-                        min="1"
-                        max="60"
-                        className="w-20"
-                        value={newGameTimerDuration}
-                        onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
-                        />
-                    </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                    <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
-                        <Timer className="h-4 w-4" />
-                        Turn Time Limit (s)
-                    </Label>
-                    <div className="flex items-center gap-2">
-                        <Input 
-                        id="turn-timer"
-                        type="number"
-                        min="5"
-                        max="60"
-                        step="5"
-                        className="w-20"
-                        value={newTurnTimerDuration}
-                        onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
-                        />
-                    </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                    <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
-                        <Dice5 className="h-4 w-4" />
-                        Dice Rolling Time (s)
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                            <p>Max time in seconds for the dice animation.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </Label>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <div className="flex items-center gap-2">
-                            <Input
-                            id="dice-timer"
-                            type="number"
-                            min="1"
-                            max="9"
-                            step="1"
-                            className="w-20"
-                            value={newDiceRollDuration}
-                            onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
-                            />
-                        </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>admin only level</p>
-                        </TooltipContent>
-                    </Tooltip>
+              <div className="absolute inset-0.5 bg-popover rounded-md z-0" />
+              <div className="relative z-10">
+                <TooltipProvider>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Settings</h4>
                     </div>
                     <div className="space-y-2">
-                    <Label>Number of Dice</Label>
-                    <RadioGroup
-                        defaultValue="1"
-                        className="grid grid-cols-4 gap-2"
-                    >
-                        {[1, 2, 3, 4].map(num => (
-                            <div key={num} className="flex items-center space-x-2">
-                                <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
-                                <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                      <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                      <div className="space-y-2 rounded-lg border p-2">
+                        {allPlayers.map(p => {
+                          const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
+                          const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
+                          return (
+                            <div key={p.color} className="flex items-center justify-between gap-2">
+                              {type === 'human' ? (
+                                <Input
+                                  value={currentPlayerConfig?.name || ''}
+                                  onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                  className="h-8 flex-1"
+                                />
+                              ) : (
+                                <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                  <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                  {p.color}
+                                </Label>
+                              )}
+                              <Select
+                                value={type}
+                                onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
+                              >
+                                <SelectTrigger className="w-32 h-8">
+                                  <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="human">Human</SelectItem>
+                                  <SelectItem value="ai">AI</SelectItem>
+                                  <SelectItem value="none">No One</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
-                        ))}
-                    </RadioGroup>
-                </div>
-                </div>
-                <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes &amp; Play</Button>
-                </div>
-            </TooltipProvider>
-            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="mute-sound" className="flex items-center gap-2">
+                          {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                          Mute Sound
+                        </Label>
+                        <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-notifications" className="flex items-center gap-2">
+                          {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                          Show Notifications
+                        </Label>
+                        <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
+                          <Star className="h-4 w-4" />
+                          Secondary Safe Points
+                        </Label>
+                        <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
+                          <Timer className="h-4 w-4" />
+                          Game Time (min)
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="game-timer"
+                            type="number"
+                            min="1"
+                            max="60"
+                            className="w-20"
+                            value={newGameTimerDuration}
+                            onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
+                          <Timer className="h-4 w-4" />
+                          Turn Time Limit (s)
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="turn-timer"
+                            type="number"
+                            min="5"
+                            max="60"
+                            step="5"
+                            className="w-20"
+                            value={newTurnTimerDuration}
+                            onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
+                          <Dice5 className="h-4 w-4" />
+                          Dice Rolling Time (s)
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Max time in seconds for the dice animation.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </Label>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                id="dice-timer"
+                                type="number"
+                                min="1"
+                                max="9"
+                                step="1"
+                                className="w-20"
+                                value={newDiceRollDuration}
+                                onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>admin only level</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Number of Dice</Label>
+                        <RadioGroup
+                          defaultValue="1"
+                          className="grid grid-cols-4 gap-2"
+                        >
+                          {[1, 2, 3, 4].map(num => (
+                            <div key={num} className="flex items-center space-x-2">
+                              <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
+                              <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                    </div>
+                    <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes &amp; Play</Button>
+                  </div>
+                </TooltipProvider>
+              </div>
             </PopoverContent>
-            </Popover>
-        </div>
-      </header>
-      
-       <main className="w-full flex-1 relative grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-1 p-8">
-        <div className="col-start-1 row-start-1 h-24 w-24 justify-self-start self-start">
-          <PlayerPod
-            player={redPlayer}
-            color="red"
-            isCurrentTurn={currentTurn === 'red'}
-            timerValue={currentTurn === 'red' ? turnTimer : turnTimerDuration}
-            timerDuration={turnTimerDuration}
-            isRolling={isRolling}
-            diceRollDuration={diceRollDuration}
-            onRollStart={onRollStart}
-            onDiceRoll={onDiceRoll}
-            diceValue={diceValue}
-            phase={phase}
-            showNotifications={showNotifications}
-          />
-        </div>
+          </Popover>
+        </header>
 
-        <div className="col-start-3 row-start-1 h-24 w-24 justify-self-end self-start">
-          <PlayerPod
-            player={greenPlayer}
-            color="green"
-            isCurrentTurn={currentTurn === 'green'}
-            timerValue={
-              currentTurn === 'green' ? turnTimer : turnTimerDuration
-            }
-            timerDuration={turnTimerDuration}
-            isRolling={isRolling}
-            diceRollDuration={diceRollDuration}
-            onRollStart={onRollStart}
-            onDiceRoll={onDiceRoll}
-            diceValue={diceValue}
-            phase={phase}
-            showNotifications={showNotifications}
-          />
-        </div>
+        {/* Main Game Area */}
+        <main className="w-full flex-1 relative flex items-center justify-center gap-2">
+          <div className="flex flex-col justify-around h-full gap-4">
+            <div className="h-28 w-28">
+              <PlayerPod
+                player={yellowPlayer}
+                color="yellow"
+                isCurrentTurn={currentTurn === 'yellow'}
+                timerValue={currentTurn === 'yellow' ? turnTimer : turnTimerDuration}
+                timerDuration={turnTimerDuration}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+              />
+            </div>
+            <div className="h-28 w-28">
+              <PlayerPod
+                player={greenPlayer}
+                color="green"
+                isCurrentTurn={currentTurn === 'green'}
+                timerValue={currentTurn === 'green' ? turnTimer : turnTimerDuration}
+                timerDuration={turnTimerDuration}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+              />
+            </div>
+          </div>
 
-        <div className="col-start-2 row-start-2 w-full h-full flex flex-col items-center justify-center">
-          {children}
-        </div>
+          <div className="w-full h-full flex flex-col items-center justify-center max-w-[70vh]">
+            {children}
+          </div>
 
-        <div className="col-start-1 row-start-3 h-24 w-24 justify-self-start self-end">
-          <PlayerPod
-            player={bluePlayer}
-            color="blue"
-            isCurrentTurn={currentTurn === 'blue'}
-            timerValue={currentTurn === 'blue' ? turnTimer : turnTimerDuration}
-            timerDuration={turnTimerDuration}
-            isRolling={isRolling}
-            diceRollDuration={diceRollDuration}
-            onRollStart={onRollStart}
-            onDiceRoll={onDiceRoll}
-            diceValue={diceValue}
-            phase={phase}
-            showNotifications={showNotifications}
-          />
-        </div>
-
-        <div className="col-start-3 row-start-3 h-24 w-24 justify-self-end self-end">
-          <PlayerPod
-            player={yellowPlayer}
-            color="yellow"
-            isCurrentTurn={currentTurn === 'yellow'}
-            timerValue={
-              currentTurn === 'yellow' ? turnTimer : turnTimerDuration
-            }
-            timerDuration={turnTimerDuration}
-            isRolling={isRolling}
-            diceRollDuration={diceRollDuration}
-            onRollStart={onRollStart}
-            onDiceRoll={onDiceRoll}
-            diceValue={diceValue}
-            phase={phase}
-            showNotifications={showNotifications}
-          />
-        </div>
-      </main>
+          <div className="flex flex-col justify-around h-full gap-4">
+            <div className="h-28 w-28">
+              <PlayerPod
+                player={bluePlayer}
+                color="blue"
+                isCurrentTurn={currentTurn === 'blue'}
+                timerValue={currentTurn === 'blue' ? turnTimer : turnTimerDuration}
+                timerDuration={turnTimerDuration}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+              />
+            </div>
+            <div className="h-28 w-28">
+              <PlayerPod
+                player={redPlayer}
+                color="red"
+                isCurrentTurn={currentTurn === 'red'}
+                timerValue={currentTurn === 'red' ? turnTimer : turnTimerDuration}
+                timerDuration={turnTimerDuration}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+              />
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
-
-    
