@@ -50,6 +50,7 @@ Your output for the move is extremely important. It MUST be ONLY in the followin
 For example, a valid move output is: "pawn:2,from:15,to:21"
 
 Do NOT include any other text, explanation, or formatting in the 'move' field of your response.
+If there are no valid moves, you must return "pawn:null,from:null,to:null" in the 'move' field.
 Provide your reasoning for the move in the 'reasoning' field. If there are no valid moves, you must state that in the reasoning.
 `,
 });
@@ -57,7 +58,7 @@ Provide your reasoning for the move in the 'reasoning' field. If there are no va
 const generateAIMoveFlow = ai.defineFlow(
   {
     name: 'generateAIMoveFlow',
-    inputSchema: GenerateAIMoveInputSchema,
+    inputSchema: GenerateAIMo_veInputSchema,
     outputSchema: GenerateAIMoveOutputSchema,
   },
   async input => {
