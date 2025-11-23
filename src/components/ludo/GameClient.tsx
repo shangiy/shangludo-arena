@@ -509,7 +509,7 @@ export default function GameClient() {
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.play();
     }
-    setDiceValue(value);
+    // setDiceValue(value); // Value is already set by startRoll
     
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
@@ -545,8 +545,10 @@ export default function GameClient() {
   const startRoll = () => {
     if (phase !== 'ROLLING' || isRolling) return;
     if (turnTimerRef.current) clearInterval(turnTimerRef.current);
+    
+    const finalValue = Math.floor(Math.random() * 6) + 1;
+    setDiceValue(finalValue);
     setIsRolling(true);
-    setDiceValue(null);
   };
 
   const handleAiMove = (roll: number) => {
@@ -935,6 +937,7 @@ export default function GameClient() {
                 currentTurn={currentTurn}
                 turnTimer={turnTimer}
                 turnTimerDuration={turnTimerDuration}
+                onTurnTimerDurationChange={handleTurnTimerDurationChange}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onDiceRollDurationChange={handleDiceRollDurationChange}

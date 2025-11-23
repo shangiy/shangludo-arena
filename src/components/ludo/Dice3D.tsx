@@ -55,51 +55,36 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const handleRoll = async () => {
         if (isRollingRef.current || !isHumanTurn) return;
-        
         isRollingRef.current = true;
-        onRollStart();
-
-        const finalValue = Math.floor(Math.random() * 6) + 1;
-
-        // Tumbling animation
-        await controls.start({
-            rotateX: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[finalValue].x],
-            rotateY: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[finalValue].y],
-            transition: { duration: duration / 1000, ease: "circOut" },
-        });
-        
-        setTimeout(() => {
-            isRollingRef.current = false;
-            onRollEnd(finalValue);
-        }, 200);
+        onRollStart(); // This will generate a diceValue in the parent
     };
 
     useEffect(() => {
-        if (rolling && !isRollingRef.current) {
+        if (rolling && diceValue && !isRollingRef.current) {
             isRollingRef.current = true;
-            const finalValue = Math.floor(Math.random() * 6) + 1;
             
             controls.start({
-                rotateX: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[finalValue].x],
-                rotateY: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[finalValue].y],
+                rotateX: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[diceValue].x],
+                rotateY: [null, Math.random() * 720 - 360, Math.random() * 720 - 360, rotations[diceValue].y],
                 transition: { duration: duration / 1000, ease: "circOut" },
             }).then(() => {
                 setTimeout(() => {
                     isRollingRef.current = false;
-                    onRollEnd(finalValue);
+                    onRollEnd(diceValue);
                 }, 200);
             });
         }
-    }, [rolling, controls, duration, onRollEnd]);
+    }, [rolling, diceValue, controls, duration, onRollEnd]);
     
     useEffect(() => {
-        if (diceValue) {
+        // When not rolling but a dice value exists, snap to that face
+        if (!rolling && diceValue) {
             controls.set({
                 rotateX: rotations[diceValue].x,
                 rotateY: rotations[diceValue].y,
             });
         }
-    }, [diceValue, controls]);
+    }, [diceValue, rolling, controls]);
 
     if (!isClient) {
         return <div className="w-16 h-16 md:w-24 md:h-24" />; // Placeholder for SSR
