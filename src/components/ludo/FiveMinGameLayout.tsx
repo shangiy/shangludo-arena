@@ -453,81 +453,73 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex items-center justify-center">
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center justify-center gap-4 w-full max-w-7xl">
-                {/* Left Pods */}
-                <div className="flex flex-col gap-8 justify-between h-full">
-                    <PlayerPod
-                      player={yellowPlayer}
-                      color="yellow"
-                      isCurrentTurn={currentTurn === 'yellow'}
-                      isRolling={isRolling}
-                      diceRollDuration={diceRollDuration}
-                      onRollStart={onRollStart}
-                      onDiceRoll={onDiceRoll}
-                      diceValue={diceValue}
-                      phase={phase}
-                      showNotifications={showNotifications}
-                      score={scores.yellow}
-                    />
-                    <PlayerPod
-                      player={bluePlayer}
-                      color="blue"
-                      isCurrentTurn={currentTurn === 'blue'}
-                      isRolling={isRolling}
-                      diceRollDuration={diceRollDuration}
-                      onRollStart={onRollStart}
-                      onDiceRoll={onDiceRoll}
-                      diceValue={diceValue}
-                      phase={phase}
-                      showNotifications={showNotifications}
-                      score={scores.blue}
-                    />
-                </div>
+        <main className="w-full flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
+            {/* Top Pods on Mobile, Left on Desktop */}
+            <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
+                <PlayerPod
+                    player={yellowPlayer}
+                    color="yellow"
+                    isCurrentTurn={currentTurn === 'yellow'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.yellow}
+                />
+                <PlayerPod
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.blue}
+                />
+            </div>
 
-                {/* Game Board */}
-                <div className="w-full h-full flex items-center justify-center max-w-[80vh] aspect-square">
-                    {children}
-                </div>
+            {/* Game Board */}
+            <div className="w-full max-w-[90vw] md:max-w-[80vh] aspect-square">
+                {children}
+            </div>
 
-                {/* Right Pods */}
-                <div className="flex flex-col gap-8 justify-between h-full">
-                    <PlayerPod
-                      player={greenPlayer}
-                      color="green"
-                      isCurrentTurn={currentTurn === 'green'}
-                      isRolling={isRolling}
-                      diceRollDuration={diceRollDuration}
-                      onRollStart={onRollStart}
-                      onDiceRoll={onDiceRoll}
-                      diceValue={diceValue}
-                      phase={phase}
-                      showNotifications={showNotifications}
-                      score={scores.green}
-                    />
-                    <PlayerPod
-                      player={redPlayer}
-                      color="red"
-                      isCurrentTurn={currentTurn === 'red'}
-                      isRolling={isRolling}
-                      diceRollDuration={diceRollDuration}
-                      onRollStart={onRollStart}
-                      onDiceRoll={onDiceRoll}
+            {/* Bottom Pods on Mobile, Right on Desktop */}
+            <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
+                 <PlayerPod
+                    player={greenPlayer}
+                    color="green"
+                    isCurrentTurn={currentTurn === 'green'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.green}
+                />
+                <PlayerPod
+                    player={redPlayer}
+                    color="red"
+                    isCurrentTurn={currentTurn === 'red'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
       
-                      diceValue={diceValue}
-                      phase={phase}
-                      showNotifications={showNotifications}
-                      score={scores.red}
-                    />
-                </div>
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.red}
+                />
             </div>
         </main>
       </div>
   );
 }
-
-    
-
-    
-
-    
