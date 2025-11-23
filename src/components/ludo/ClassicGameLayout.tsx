@@ -383,7 +383,7 @@ export function ClassicGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
             <div className="md:col-start-1 md:row-start-1 flex justify-center items-end">
                  <PlayerPod
                   player={redPlayer}
@@ -450,3 +450,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    

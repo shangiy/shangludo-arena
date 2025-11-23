@@ -141,14 +141,13 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
     return (
       <div className="w-full max-w-md mx-auto p-2">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-          {activePlayers.map(({ color, name }) => {
-            return (
+          {activePlayers.map(({ color, name }) => (
               <div key={color} className="flex items-center justify-center gap-2 text-sm p-1 rounded bg-background/80 border">
-                <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{name}</span>
-                <span className="font-bold text-base">{scores[color]}</span>
+                  <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{name}</span>
+                  <span className="font-bold text-base">{scores[color]}</span>
               </div>
-            );
-          })}
+            )
+          )}
         </div>
       </div>
     );
@@ -483,7 +482,7 @@ export function FiveMinGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
             <div className="md:col-start-1 md:row-start-1 flex justify-center items-end">
                  <PlayerPod
                     player={redPlayer}
@@ -557,6 +556,8 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
 
