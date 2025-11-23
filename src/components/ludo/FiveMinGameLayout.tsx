@@ -131,13 +131,7 @@ function GameTimer({ remaining }: { remaining: number }) {
 
 function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, players: PlayerSetup[] }) {
     const activePlayers = players.filter(p => p.type !== 'none');
-    const colorClasses: Record<PlayerColor, string> = {
-        red: 'text-red-500',
-        green: 'text-green-500',
-        yellow: 'text-yellow-400',
-        blue: 'text-blue-500',
-    };
-
+    
     const playerMap = new Map(activePlayers.map(p => [p.color, p]));
     const displayOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
   
@@ -146,11 +140,12 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
         <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
           {displayOrder.map((color) => {
               const player = playerMap.get(color);
-              if (!player) return <div key={color} />; // Render an empty div if player not active
+              if (!player) return <div key={color} />;
+              
               return (
-                <div key={color} className="flex flex-col items-center justify-center gap-2 text-sm p-1 aspect-square">
-                    <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{player.name}</span>
-                    <span className="font-bold text-base">{scores[color]}</span>
+                <div key={color} className="flex flex-col items-center justify-center gap-1 text-sm p-1">
+                    <span className="font-semibold capitalize truncate text-white">{player.name}</span>
+                    <span className="font-bold text-base text-black">{scores[color]}</span>
                 </div>
               );
             }
@@ -563,15 +558,3 @@ export function FiveMinGameLayout({
       </div>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    

@@ -109,13 +109,7 @@ function PlayerPod({
 
 function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[] }) {
     const activePlayers = players.filter(p => p.type !== 'none');
-    const colorClasses: Record<PlayerColor, string> = {
-        red: 'text-red-500',
-        green: 'text-green-500',
-        yellow: 'text-yellow-400',
-        blue: 'text-blue-500',
-    };
-
+    
     const getHomeCount = (color: PlayerColor) => {
         return pawns[color]?.filter(p => p.isHome).length || 0;
     }
@@ -134,9 +128,9 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
               const percentage = (homeCount / 4) * 100;
 
               return (
-                <div key={color} className="flex flex-col items-center justify-center gap-2 text-sm p-1">
-                    <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{player.name}</span>
-                    <span className="font-bold text-base">{percentage}%</span>
+                <div key={color} className="flex flex-col items-center justify-center gap-1 text-sm p-1">
+                    <span className="font-semibold capitalize truncate text-white">{player.name}</span>
+                    <span className="font-bold text-base text-black">{percentage}%</span>
                 </div>
               );
             }
