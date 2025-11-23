@@ -13,7 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import type { GameSetup, PlayerSetup } from './GameSetupForm';
 import { Input } from '../ui/input';
-import { Dice3D } from './Dice3D';
+import { Dice } from './Dice';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -178,7 +178,7 @@ export function GameControls({
 
        <div className="w-48 h-24 relative flex items-center justify-center">
             {gameMode !== '5-min' && currentPlayerDetails && (
-                <Dice3D
+                <Dice
                     rolling={isRolling}
                     onRollStart={onRollStart}
                     onRollEnd={onDiceRoll}
@@ -332,3 +332,5 @@ export function GameControls({
     </div>
   );
 }
+
+    

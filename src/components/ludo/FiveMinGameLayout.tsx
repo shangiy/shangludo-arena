@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Dice3D } from "./Dice3D";
+import { Dice } from "./Dice";
 import type { GameSetup, PlayerSetup } from "./GameSetupForm";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
@@ -81,7 +81,7 @@ function PlayerPod({
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
-           <Dice3D
+           <Dice
              rolling={isRolling && isCurrentTurn}
              onRollStart={onRollStart}
              onRollEnd={onDiceRoll}
@@ -561,3 +561,5 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
