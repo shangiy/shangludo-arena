@@ -425,7 +425,7 @@ export function ClassicGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
-            <div className="flex w-full justify-around md:flex-col md:justify-center md:items-end md:gap-4 transition-all duration-500">
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -439,9 +439,9 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
                  <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -458,11 +458,11 @@ export function ClassicGameLayout({
                 <Scoreboard pawns={pawns} players={gameSetup.players} />
             </div>
             
-            <div className="flex w-full justify-around md:flex-col md:justify-center md:items-start md:gap-4 transition-all duration-500">
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
                 <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -488,5 +488,7 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    
 
     

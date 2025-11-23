@@ -492,7 +492,7 @@ export function FiveMinGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
-            <div className="flex w-full justify-around md:flex-col md:justify-center md:items-end md:gap-4 transition-all duration-500">
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
                 <PlayerPod
                     player={redPlayer}
                     color="red"
@@ -507,6 +507,28 @@ export function FiveMinGameLayout({
                     score={scores.red}
                 />
                 <PlayerPod
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.blue}
+                />
+            </div>
+
+            {/* Game Board and Scoreboard Container */}
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square flex flex-col justify-center">
+                {children}
+                <Scoreboard scores={scores} players={gameSetup.players} />
+            </div>
+
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
+                <PlayerPod
                   player={greenPlayer}
                   color="green"
                   isCurrentTurn={currentTurn === 'green'}
@@ -519,28 +541,6 @@ export function FiveMinGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                   score={scores.green}
-                />
-            </div>
-
-            {/* Game Board and Scoreboard Container */}
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square flex flex-col justify-center">
-                {children}
-                <Scoreboard scores={scores} players={gameSetup.players} />
-            </div>
-
-            <div className="flex w-full justify-around md:flex-col md:justify-center md:items-start md:gap-4 transition-all duration-500">
-                 <PlayerPod
-                    player={bluePlayer}
-                    color="blue"
-                    isCurrentTurn={currentTurn === 'blue'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    score={scores.blue}
                 />
                 <PlayerPod
                     player={yellowPlayer}
@@ -561,5 +561,7 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
