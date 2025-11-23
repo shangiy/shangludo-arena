@@ -105,9 +105,9 @@ function PlayerPod({
            />
         ) : (
             <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
-                <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border text-xl font-bold", scoreTextColor[color])}>
-                    {score}
-                </div>
+                <button className="w-16 h-12 flex items-center justify-center rounded-md border text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                    <EndLogo className="h-10 w-10" />
+                </button>
                 <div className="text-center h-8" />
             </div>
         )}
@@ -471,17 +471,17 @@ export function FiveMinGameLayout({
                     score={scores.red}
                 />
                 <PlayerPod
-                    player={bluePlayer}
-                    color="blue"
-                    isCurrentTurn={currentTurn === 'blue'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    score={scores.blue}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                  score={scores.green}
                 />
             </div>
 
@@ -493,9 +493,9 @@ export function FiveMinGameLayout({
             {/* Bottom Pods on Mobile, Right on Desktop */}
             <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
                  <PlayerPod
-                    player={greenPlayer}
-                    color="green"
-                    isCurrentTurn={currentTurn === 'green'}
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -503,7 +503,7 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.green}
+                    score={scores.blue}
                 />
                 <PlayerPod
                     player={yellowPlayer}

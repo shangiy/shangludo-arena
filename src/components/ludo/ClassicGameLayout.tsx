@@ -27,6 +27,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
+import { EndLogo } from "../icons/EndLogo";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -74,16 +75,25 @@ function PlayerPod({
     )}>
         <h3 className="text-sm font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
-        <Dice3D
-          rolling={isRolling && isCurrentTurn}
-          onRollStart={onRollStart}
-          onRollEnd={onDiceRoll}
-          color={color}
-          duration={diceRollDuration}
-          isHumanTurn={isHumanTurnAndRollingPhase}
-          diceValue={isCurrentTurn ? diceValue : null}
-          playerName={player.name}
-        />
+        {isCurrentTurn ? (
+          <Dice3D
+            rolling={isRolling && isCurrentTurn}
+            onRollStart={onRollStart}
+            onRollEnd={onDiceRoll}
+            color={color}
+            duration={diceRollDuration}
+            isHumanTurn={isHumanTurnAndRollingPhase}
+            diceValue={isCurrentTurn ? diceValue : null}
+            playerName={player.name}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
+              <button className="w-16 h-12 flex items-center justify-center rounded-md border text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                  <EndLogo className="h-10 w-10" />
+              </button>
+              <div className="text-center h-8" />
+          </div>
+        )}
 
         <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
              {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
@@ -371,9 +381,9 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
                 <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -392,9 +402,9 @@ export function ClassicGameLayout({
             {/* Bottom Pods on Mobile, Right on Desktop */}
             <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
                  <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
