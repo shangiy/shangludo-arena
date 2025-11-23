@@ -229,14 +229,23 @@ export function FiveMinGameLayout({
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
         setPlayerConfig(prev => {
             const playerExists = prev.some(p => p.color === color);
+            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+
             if (type === 'none') {
                 return prev.filter(p => p.color !== color);
             }
             if (playerExists) {
-                return prev.map(p => p.color === color ? {...p, type} : p);
+                return prev.map(p => {
+                    if (p.color === color) {
+                        const newName = p.type !== type ? (type === 'human' ? `${colorName} Player` : `${colorName} AI`) : p.name;
+                        return {...p, type, name: newName };
+                    }
+                    return p;
+                });
             }
-            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
-            return [...prev, { color, type, name: `${colorName} ${type === 'ai' ? 'AI' : 'Player'}` }];
+            
+            const newName = type === 'human' ? `${colorName} Player` : `${colorName} AI`;
+            return [...prev, { color, type, name: newName }];
         });
     };
 

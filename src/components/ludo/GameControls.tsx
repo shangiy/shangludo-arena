@@ -99,6 +99,7 @@ export function GameControls({
           if (p.color === color) {
             const colorName = color.charAt(0).toUpperCase() + color.slice(1);
             let name = p.name;
+            // Only change name if the type is actually changing to avoid overwriting user input
             if (p.type !== type) {
                name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
             }
@@ -331,6 +332,3 @@ export function GameControls({
     </div>
   );
 }
-
-    
-    
