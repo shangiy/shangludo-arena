@@ -131,6 +131,12 @@ function GameTimer({ remaining }: { remaining: number }) {
 
 function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, players: PlayerSetup[] }) {
     const activePlayers = players.filter(p => p.type !== 'none');
+    const colorClasses: Record<PlayerColor, string> = {
+        red: 'text-red-500',
+        green: 'text-green-500',
+        yellow: 'text-yellow-400',
+        blue: 'text-blue-500',
+    };
   
     return (
       <div className="w-full max-w-md mx-auto p-2">
@@ -138,8 +144,7 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
           {activePlayers.map(({ color, name }) => {
             return (
               <div key={color} className="flex items-center justify-center gap-2 text-sm p-1 rounded bg-background/80 border">
-                <div className={cn("w-3 h-3 rounded-full", `bg-${color}-500`)} />
-                <span className="font-semibold capitalize truncate hidden sm:inline">{name}</span>
+                <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{name}</span>
                 <span className="font-bold text-base">{scores[color]}</span>
               </div>
             );
@@ -552,5 +557,7 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
