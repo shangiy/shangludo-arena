@@ -506,10 +506,11 @@ export default function GameClient() {
 
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
+    setDiceValue(value);
+    
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.play();
     }
-    setDiceValue(value);
     
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
@@ -531,7 +532,7 @@ export default function GameClient() {
 
       if (isHumanTurn) {
         if (possibleMoves.length === 1) {
-          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition), 500);
+          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
         }
       } else if (isAITurn) {
         setPhase('AI_THINKING');
@@ -546,8 +547,8 @@ export default function GameClient() {
     if (phase !== 'ROLLING' || isRolling) return;
     if (turnTimerRef.current) clearInterval(turnTimerRef.current);
     
+    setDiceValue(null); // Clear previous dice value before rolling
     setIsRolling(true);
-    setDiceValue(null);
   };
 
   const handleAiMove = (roll: number) => {
@@ -561,7 +562,7 @@ export default function GameClient() {
       const move = chooseMove(aiGameState, currentTurn, roll);
       
       if (move && move.pawn) {
-        performMove(move.pawn, move.newPosition);
+        performMove(move.pawn, move.newPosition, roll);
       } else {
         // AI has no move, which should be handled by the logic inside chooseAiMove
         // But as a fallback, we check what handleDiceRollEnd would do.
@@ -596,13 +597,11 @@ export default function GameClient() {
       return;
     }
 
-    performMove(pawnToMove, selectedMove.newPosition);
+    performMove(pawnToMove, selectedMove.newPosition, diceValue);
   };
 
-  const performMove = (pawnToMove: Pawn, newPosition: number) => {
-    if (!diceValue) return;
-
-    const rolledSix = diceValue === 6;
+  const performMove = (pawnToMove: Pawn, newPosition: number, rollValue: number) => {
+    const rolledSix = rollValue === 6;
     let capturedPawn = false;
     let pawnReachedHome = false;
 
