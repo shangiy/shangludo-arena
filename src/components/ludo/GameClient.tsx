@@ -836,7 +836,7 @@ export default function GameClient() {
       return (
           <div className="min-h-screen bg-background text-foreground flex flex-col">
                <Suspense fallback={<div>Loading...</div>}>
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4 m-8">
                       <GameSetupForm onSetupComplete={handleGameSetup} />
                   </div>
                </Suspense>
