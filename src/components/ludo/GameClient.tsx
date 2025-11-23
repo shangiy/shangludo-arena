@@ -910,6 +910,7 @@ export default function GameClient() {
                       addSecondarySafePoints={addSecondarySafePoints}
                       onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
                       phase={phase}
+                      scores={scores}
                     >
                         <GameBoard showSecondarySafes={addSecondarySafePoints} scores={scores} gameMode={gameMode} glassWalls={glassWalls}>
                             {renderPawns()}
