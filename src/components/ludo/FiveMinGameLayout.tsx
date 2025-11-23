@@ -216,7 +216,7 @@ export function FiveMinGameLayout({
     const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration / 60000);
     const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
 
     const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
@@ -260,8 +260,8 @@ export function FiveMinGameLayout({
     ];
 
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-between p-4 bg-background">
-      <header className="w-full flex justify-between items-center z-10 px-4 pt-2">
+    <div className="relative h-full w-full flex flex-col items-center justify-center p-4 bg-background">
+      <header className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
         <div className="flex items-center gap-2">
             <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -447,10 +447,13 @@ export function FiveMinGameLayout({
             </PopoverContent>
             </Popover>
         </div>
-        <GameTimer remaining={gameTimer} />
       </header>
       
       <main className="w-full flex-1 grid grid-cols-3 grid-rows-3 items-center justify-items-center gap-2 py-2">
+        <div className="col-start-1 row-start-1 z-10 place-self-start">
+             <GameTimer remaining={gameTimer} />
+        </div>
+        
         {/* Top middle cell for Green */}
         <div className="col-start-2 row-start-1 h-48 w-48">
              <PlayerPod 
