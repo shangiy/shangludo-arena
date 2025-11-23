@@ -89,7 +89,7 @@ function PlayerPod({
                         d="M 50,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 L 2.5,2.5 Z"
                         fill="none"
                         className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
-                        strokeWidth="5"
+                        strokeWidth="2.5"
                         strokeDasharray="380"
                         strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
                         style={{
@@ -97,7 +97,7 @@ function PlayerPod({
                         }}
                     />
                 </svg>
-                {isUrgent && <div className="absolute inset-0 rounded-lg border-4 border-red-500/50 animate-pulse" />}
+                {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
@@ -517,7 +517,7 @@ export function FiveMinGameLayout({
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
-                <PlayerPod
+                 <PlayerPod
                     player={redPlayer}
                     color="red"
                     isCurrentTurn={currentTurn === 'red'}
@@ -592,4 +592,5 @@ export function FiveMinGameLayout({
     
 
     
+
 

@@ -87,7 +87,7 @@ function PlayerPod({
                         d="M 50,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 L 2.5,2.5 Z"
                         fill="none"
                         className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
-                        strokeWidth="5"
+                        strokeWidth="2.5"
                         strokeDasharray="380"
                         strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
                         style={{
@@ -95,7 +95,7 @@ function PlayerPod({
                         }}
                     />
                 </svg>
-                {isUrgent && <div className="absolute inset-0 rounded-lg border-4 border-red-500/50 animate-pulse" />}
+                {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
@@ -523,4 +523,5 @@ export function ClassicGameLayout({
     
 
     
+
 
