@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { cn } from '@/lib/utils';
@@ -48,42 +48,51 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const [isClient, setIsClient] = useState(false);
     const controls = useAnimation();
     const isAnimatingRef = useRef(false);
-    const [finalValue, setFinalValue] = useState<number | null>(diceValue);
+    const [displayValue, setDisplayValue] = useState<number | null>(diceValue);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     const handleRoll = async () => {
-        if (isAnimatingRef.current || !isHumanTurn) return;
+        if (isAnimatingRef.current || !isHumanTurn || rolling) return;
         onRollStart(); 
     };
     
     useEffect(() => {
         if (rolling && !isAnimatingRef.current) {
             isAnimatingRef.current = true;
+            
             const newFinalValue = Math.floor(Math.random() * 6) + 1;
-            setFinalValue(newFinalValue);
+            
+            // Set the display value for the animation endpoint
+            setDisplayValue(newFinalValue);
             
             controls.start({
-                rotateX: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[newFinalValue].x],
-                rotateY: [null, Math.random() * 1080 - 540, Math.random() * 1080 - 540, rotations[newFinalValue].y],
+                rotateX: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].x],
+                rotateY: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].y],
                 transition: { duration: duration / 1000, ease: "circOut" },
             }).then(() => {
                 isAnimatingRef.current = false;
+                // THIS is where we report the final, accurate value.
                 onRollEnd(newFinalValue);
             });
         }
     }, [rolling, controls, duration, onRollEnd]);
     
     useEffect(() => {
-        // When not rolling, snap to the last known diceValue from props
-        if (!rolling && diceValue) {
-            setFinalValue(diceValue);
+        // When not rolling, snap to the last known diceValue from props.
+        // This ensures the dice shows the correct face after the roll is complete.
+        if (!rolling && diceValue !== null) {
+            setDisplayValue(diceValue);
             controls.set({
                 rotateX: rotations[diceValue].x,
                 rotateY: rotations[diceValue].y,
             });
+        }
+         // If we are about to roll (diceValue is null), reset display
+        if (diceValue === null) {
+            setDisplayValue(null);
         }
     }, [diceValue, rolling, controls]);
 
@@ -99,8 +108,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         blue: 'text-blue-500',
     };
     const currentTurnColorClass = turnTextColor[color];
-
-    const showRollResult = !rolling && finalValue !== null;
+    
+    const showRollResult = !rolling && diceValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full">
@@ -109,7 +118,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     className="dice" 
                     animate={controls}
                     onClick={handleRoll}
-                    style={{ cursor: isHumanTurn && !isAnimatingRef.current ? 'pointer' : 'default' }}
+                    style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
                 >
                     {[1, 2, 3, 4, 5, 6].map(face => (
                         <DiceFace key={face} face={face} colorClass={faceColors[color]} />
@@ -127,7 +136,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
                 {showRollResult && (
                 <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
-                    {playerName} Rolled: {finalValue}
+                    {playerName} Rolled: {diceValue}
                 </p>
                 )}
             </div>

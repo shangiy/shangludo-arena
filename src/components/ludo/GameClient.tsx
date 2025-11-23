@@ -49,7 +49,7 @@ const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const DEFAULT_CLASSIC_TURN_TIMER_DURATION = 10000;
 const DEFAULT_FIVEMIN_TURN_TIMER_DURATION = 10000;
 const DEFAULT_FIVE_MIN_GAME_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEFAULT_DICE_ROLL_DURATION = 10000; // 10 seconds for Quick/5-min
+const DEFAULT_DICE_ROLL_DURATION = 2000; // 2 seconds default
 
 const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'green', 'yellow', 'blue']): Record<PlayerColor, Pawn[]> => {
   const pawns: any = {};
@@ -72,26 +72,26 @@ const quickPlaySetup: GameSetup = {
     gameMode: 'quick',
     players: [
       { color: 'red', name: 'Red Player', type: 'human' },
-      { color: 'green', name: 'Green Player', type: 'human' },
-      { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
-      { color: 'blue', name: 'Blue Player', type: 'human' },
+      { color: 'green', name: 'Green AI', type: 'ai' },
+      { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
+      { color: 'blue', name: 'Blue AI', type: 'ai' },
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
     humanPlayerColor: 'red',
-    diceRollDuration: '10000',
+    diceRollDuration: '2000',
   };
   
   const fiveMinSetup: GameSetup = {
       gameMode: '5-min',
       players: [
         { color: 'red', name: 'Red Player', type: 'human' },
-        { color: 'green', name: 'Green Player', type: 'human' },
-        { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
-        { color: 'blue', name: 'Blue Player', type: 'human' },
+        { color: 'green', name: 'Green AI', type: 'ai' },
+        { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
+        { color: 'blue', name: 'Blue AI', type: 'ai' },
       ],
       turnOrder: ['red', 'green', 'yellow', 'blue'],
       humanPlayerColor: 'red',
-      diceRollDuration: '10000',
+      diceRollDuration: '2000',
     };
 
 function GameFooter() {
