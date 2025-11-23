@@ -834,12 +834,13 @@ export default function GameClient() {
 
   if (phase === 'SETUP' && gameMode !== 'quick' && gameMode !== '5-min') {
       return (
-          <div className="min-h-screen bg-gray-100 text-foreground flex flex-col items-center justify-center p-4">
+          <div className="min-h-screen bg-background text-foreground flex flex-col">
                <Suspense fallback={<div>Loading...</div>}>
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
                       <GameSetupForm onSetupComplete={handleGameSetup} />
                   </div>
                </Suspense>
+               <div className="flex-1 bg-gray-100" />
                <GameFooter />
           </div>
       );
