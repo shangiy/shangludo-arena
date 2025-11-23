@@ -42,8 +42,8 @@ const DiceDot = ({ colorClass, className }: { colorClass: string, className?: st
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
-        2: "flex flex-col justify-between p-2",
-        3: "flex flex-col justify-between p-2",
+        2: "grid grid-cols-2 grid-rows-2 p-2",
+        3: "grid grid-cols-3 grid-rows-3 p-2",
         4: "grid grid-cols-2 grid-rows-2 gap-2 p-2",
         5: "grid grid-cols-3 grid-rows-3 gap-1 p-2",
         6: "grid grid-cols-2 grid-rows-3 gap-y-1 p-2",
@@ -52,13 +52,13 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
     const dots: Record<number, React.ReactNode[]> = {
         1: [<DiceDot key="1" colorClass={colorClass} />],
         2: [
-            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
-            <DiceDot key="2" colorClass={colorClass} className="self-end" />,
+            <DiceDot key="1" colorClass={colorClass} className="col-start-1 row-start-1" />,
+            <DiceDot key="2" colorClass={colorClass} className="col-start-2 row-start-2" />,
         ],
         3: [
-            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
-            <DiceDot key="2" colorClass={colorClass} className="self-center" />,
-            <DiceDot key="3" colorClass={colorClass} className="self-end" />,
+            <DiceDot key="1" colorClass={colorClass} className="col-start-1 row-start-1" />,
+            <DiceDot key="2" colorClass={colorClass} className="col-start-2 row-start-2" />,
+            <DiceDot key="3" colorClass={colorClass} className="col-start-3 row-start-3" />,
         ],
         4: [
             <DiceDot key="1" colorClass={colorClass} />,
@@ -90,6 +90,7 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
 export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
     const [isClient, setIsClient] = useState(false);
     const [localDiceValue, setLocalDiceValue] = useState<number | null>(diceValue);
+    const [isRollingInternal, setIsRollingInternal] = useState(false);
     const isRollingRef = useRef(false);
     const controls = useAnimation();
     
@@ -106,7 +107,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const startRollingProcess = async (finalRoll: number) => {
         if (isRollingRef.current) return;
         isRollingRef.current = true;
-        setLocalDiceValue(null); // Clear previous roll text
+        setIsRollingInternal(true);
+        setLocalDiceValue(null);
         onRollStart();
 
         const rollStartTime = Date.now();
@@ -124,6 +126,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     transition: { type: 'spring', stiffness: 300, damping: 20 }
                 });
                 isRollingRef.current = false;
+                setIsRollingInternal(false);
                 setLocalDiceValue(finalRoll);
                 onRollEnd(finalRoll);
             }
@@ -136,6 +139,9 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         if (rolling && !isRollingRef.current) {
             const finalRoll = Math.floor(Math.random() * 6) + 1;
             startRollingProcess(finalRoll);
+        } else if (!rolling && isRollingRef.current) {
+            isRollingRef.current = false;
+            setIsRollingInternal(false);
         }
     }, [rolling]);
 
@@ -171,7 +177,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const currentDotColorClass = dotColor[color];
     const faceStyle = "absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
 
-    const showRollResult = !rolling && localDiceValue !== null;
+    const showRollResult = !isRollingInternal && localDiceValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full">
@@ -180,7 +186,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     className="w-full h-full relative preserve-3d"
                     animate={controls}
                     onClick={handleHumanRoll}
-                    style={{ cursor: isHumanTurn && !rolling ? 'pointer' : 'default' }}
+                    style={{ cursor: isHumanTurn && !isRollingInternal ? 'pointer' : 'default' }}
                 >
                     {/* Face 1 (Front) */}
                     <div className={cn(faceStyle)} style={{ transform: 'translateZ(2rem)' }}>
@@ -209,7 +215,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 </motion.div>
             </div>
             <div className="text-center h-8 flex items-center justify-center">
-                {isHumanTurn && !rolling && localDiceValue === null && (
+                {isHumanTurn && !isRollingInternal && localDiceValue === null && (
                      <button
                         onClick={handleHumanRoll}
                         className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
