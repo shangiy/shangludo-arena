@@ -116,8 +116,8 @@ export default function GameClient() {
   const [isMounted, setIsMounted] = useState(false);
   const [addSecondarySafePoints, setAddSecondarySafePoints] = useState(true);
   const [gameSetup, setGameSetup] = useState<GameSetup | null>(null);
-  const [showNotifications, setShowNotifications] = useState(true);
-  const [muteSound, setMuteSound] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [muteSound, setMuteSound] = useState(false);
   const [diceRollDuration, setDiceRollDuration] = useState(DEFAULT_DICE_ROLL_DURATION);
   const [turnTimer, setTurnTimer] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
   const [turnTimerDuration, setTurnTimerDuration] = useState<number>(DEFAULT_TURN_TIMER_DURATION);
@@ -183,8 +183,8 @@ export default function GameClient() {
           setPhase(savedState.phase);
           setWinner(savedState.winner);
           setAddSecondarySafePoints(savedState.addSecondarySafePoints);
-          setShowNotifications(savedState.showNotifications);
-          setMuteSound(savedState.muteSound);
+          if (savedState.showNotifications !== undefined) setShowNotifications(savedState.showNotifications);
+          if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
           setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
           if (gameMode === '5-min') {
@@ -958,3 +958,4 @@ export default function GameClient() {
     </div>
   );
 }
+
