@@ -27,6 +27,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
+import { EndLogo } from "../icons/EndLogo";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -105,7 +106,7 @@ function PlayerPod({
         ) : (
             <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
                 <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
-                    <span className={cn(scoreTextColor[color], "text-2xl font-bold")}>{score}</span>
+                    <EndLogo className="w-10 h-10" />
                 </div>
                 <div className="text-center h-8" />
             </div>
