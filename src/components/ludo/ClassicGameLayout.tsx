@@ -359,9 +359,9 @@ export function ClassicGameLayout({
             {/* Top Pods on Mobile, Left on Desktop */}
             <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
                 <PlayerPod
-                  player={yellowPlayer}
-                  color="yellow"
-                  isCurrentTurn={currentTurn === 'yellow'}
+                  player={redPlayer}
+                  color="red"
+                  isCurrentTurn={currentTurn === 'red'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -371,9 +371,9 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
                 <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -392,9 +392,9 @@ export function ClassicGameLayout({
             {/* Bottom Pods on Mobile, Right on Desktop */}
             <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
                  <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -404,9 +404,9 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
                 <PlayerPod
-                  player={redPlayer}
-                  color="red"
-                  isCurrentTurn={currentTurn === 'red'}
+                  player={yellowPlayer}
+                  color="yellow"
+                  isCurrentTurn={currentTurn === 'yellow'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}

@@ -105,8 +105,8 @@ function PlayerPod({
            />
         ) : (
             <div className="flex flex-col items-center justify-center gap-2 h-[calc(3rem+2rem)]">
-                <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border")}>
-                    <EndLogo className="w-10 h-10" />
+                <div className={cn(scoreBoxBg[color], "w-16 h-12 flex items-center justify-center rounded-md border text-xl font-bold", scoreTextColor[color])}>
+                    {score}
                 </div>
                 <div className="text-center h-8" />
             </div>
@@ -457,10 +457,10 @@ export function FiveMinGameLayout({
         <main className="w-full flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
             {/* Top Pods on Mobile, Left on Desktop */}
             <div className="flex md:flex-col gap-4 md:gap-8 justify-around md:justify-between w-full md:w-auto md:h-full">
-                <PlayerPod
-                    player={yellowPlayer}
-                    color="yellow"
-                    isCurrentTurn={currentTurn === 'yellow'}
+                 <PlayerPod
+                    player={redPlayer}
+                    color="red"
+                    isCurrentTurn={currentTurn === 'red'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -468,7 +468,7 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.yellow}
+                    score={scores.red}
                 />
                 <PlayerPod
                     player={bluePlayer}
@@ -506,9 +506,9 @@ export function FiveMinGameLayout({
                     score={scores.green}
                 />
                 <PlayerPod
-                    player={redPlayer}
-                    color="red"
-                    isCurrentTurn={currentTurn === 'red'}
+                    player={yellowPlayer}
+                    color="yellow"
+                    isCurrentTurn={currentTurn === 'yellow'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -517,7 +517,7 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.red}
+                    score={scores.yellow}
                 />
             </div>
         </main>
