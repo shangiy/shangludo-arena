@@ -424,8 +424,8 @@ export function ClassicGameLayout({
         </header>
 
         {/* Main Game Area */}
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
-            <div className="flex w-full justify-around md:justify-end md:col-start-1 md:row-start-1 md:items-end md:pt-12 gap-4">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
+            <div className="flex w-full justify-around md:flex-col md:justify-start md:col-start-1 md:row-start-1 md:row-span-3 md:items-end md:gap-4">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -458,7 +458,7 @@ export function ClassicGameLayout({
                 <Scoreboard pawns={pawns} players={gameSetup.players} />
             </div>
 
-            <div className="flex w-full justify-around md:justify-start md:col-start-3 md:row-start-3 md:items-start gap-4">
+            <div className="flex w-full justify-around md:flex-col md:justify-end md:col-start-3 md:row-start-1 md:row-span-3 md:items-start md:gap-4">
                 <PlayerPod
                   player={bluePlayer}
                   color="blue"
