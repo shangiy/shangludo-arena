@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { PlayerColor } from '@/lib/ludo-constants';
 import { Button } from '@/components/ui/button';
-import { Settings, HelpCircle, Home, Users, Star, Bell, BellOff, Volume2, VolumeX } from 'lucide-react';
+import { Settings, HelpCircle, Home, Users, Star, Bell, BellOff, Volume2, VolumeX, Dice5 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -78,7 +78,6 @@ export function GameControls({
   const currentPlayerDetails = gameSetup?.players.find(p => p.color === currentTurn);
   const isRolling = phase === 'AI_THINKING' || (phase === 'ROLLING' && !isHumanTurn);
   
-  const [playerConfig, setPlayerConfig] = useState<PlayerSetup[] | undefined>(gameSetup?.players);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleApplyAllChanges = () => {
@@ -88,7 +87,7 @@ export function GameControls({
 
   const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
       if (!gameSetup) return;
-      const currentPlayers = playerConfig || gameSetup.players;
+      const currentPlayers = gameSetup.players;
       
       let newPlayers: PlayerSetup[];
       const playerExists = currentPlayers.some(p => p.color === color);
@@ -104,32 +103,21 @@ export function GameControls({
             return { ...p, type, name };
           }
           return p;
-        }).filter(p => p.type !== 'none');
+        });
       } else {
         const colorName = color.charAt(0).toUpperCase() + color.slice(1);
         const name = type === 'human' ? `${colorName} Player` : type === 'ai' ? `${colorName} AI` : 'Empty';
         newPlayers = [...currentPlayers, { color, name, type }];
       }
 
-      const allColors: PlayerColor[] = ['red', 'green', 'yellow', 'blue'];
-      const finalPlayerList = allColors.map(c => {
-          const found = newPlayers.find(p => p.color === c);
-          if (found) return found;
-          // If not found, create a 'none' player placeholder for UI consistency
-          return { color: c, type: 'none', name: 'Empty' };
-      }).filter((p, index, self) => index === self.findIndex(t => t.color === p.color));
-
-
-      setPlayerConfig(finalPlayerList);
-      onGameSetupChange({...gameSetup, players: finalPlayerList});
+      onGameSetupChange({...gameSetup, players: newPlayers});
   };
 
   const handlePlayerNameChange = (color: PlayerColor, name: string) => {
       if (!gameSetup) return;
-      const newPlayers = (playerConfig || gameSetup.players).map(p => 
+      const newPlayers = gameSetup.players.map(p => 
         p.color === color ? {...p, name} : p
       );
-      setPlayerConfig(newPlayers);
       onGameSetupChange({...gameSetup, players: newPlayers});
   };
 
@@ -161,7 +149,7 @@ export function GameControls({
       { color: 'blue', name: 'Blue' },
   ];
   
-  const currentPlayersForUI = playerConfig || gameSetup?.players || [];
+  const currentPlayersForUI = gameSetup?.players || [];
 
   return (
     <div className="w-full flex justify-center items-center px-4 relative">
@@ -300,7 +288,7 @@ export function GameControls({
                </div>
                 <Separator />
                 <div className="space-y-2">
-                    <Label>Number of Dice</Label>
+                    <Label className="flex items-center gap-2"><Dice5 className="h-4 w-4" />Number of Dice</Label>
                     <RadioGroup
                         defaultValue="1"
                         className="grid grid-cols-4 gap-2"
@@ -342,3 +330,5 @@ export function GameControls({
     </div>
   );
 }
+
+    
