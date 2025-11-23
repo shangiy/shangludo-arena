@@ -420,7 +420,7 @@ export function ClassicGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
-            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-1 md:items-end md:pt-12 md:col-span-1">
+            <div className="flex w-full justify-around md:justify-end md:col-start-1 md:row-start-1 md:items-end md:pt-12 gap-4">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -433,9 +433,7 @@ export function ClassicGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                 />
-            </div>
-             <div className="flex w-full justify-around md:justify-center md:col-start-3 md:row-start-1 md:items-end md:pt-12">
-                <PlayerPod
+                 <PlayerPod
                   player={greenPlayer}
                   color="green"
                   isCurrentTurn={currentTurn === 'green'}
@@ -455,9 +453,8 @@ export function ClassicGameLayout({
                 <Scoreboard pawns={pawns} players={gameSetup.players} />
             </div>
 
-
-            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-3 md:items-start">
-                 <PlayerPod
+            <div className="flex w-full justify-around md:justify-start md:col-start-3 md:row-start-3 md:items-start gap-4">
+                <PlayerPod
                   player={bluePlayer}
                   color="blue"
                   isCurrentTurn={currentTurn === 'blue'}
@@ -469,8 +466,6 @@ export function ClassicGameLayout({
                   phase={phase}
                   showNotifications={showNotifications}
                 />
-            </div>
-            <div className="flex w-full justify-around md:justify-center md:col-start-3 md:row-start-3 md:items-start">
                 <PlayerPod
                   player={yellowPlayer}
                   color="yellow"
