@@ -42,8 +42,8 @@ const DiceDot = ({ colorClass, className }: { colorClass: string, className?: st
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
-        2: "flex justify-between p-1",
-        3: "flex p-1",
+        2: "flex flex-col justify-between p-1",
+        3: "flex flex-col justify-between p-1",
         4: "grid grid-cols-2 grid-rows-2 gap-1 p-1",
         5: "grid grid-cols-3 grid-rows-3 gap-0.5 p-1",
         6: "grid grid-cols-2 grid-rows-3 gap-1 p-1",
@@ -52,13 +52,13 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
     const dots: Record<number, React.ReactNode[]> = {
         1: [<DiceDot key="1" colorClass={colorClass} />],
         2: [
-            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
-            <DiceDot key="2" colorClass={colorClass} className="self-end" />,
+            <DiceDot key="1" colorClass={colorClass} className="self-end" />,
+            <DiceDot key="2" colorClass={colorClass} className="self-start" />,
         ],
         3: [
-            <DiceDot key="1" colorClass={colorClass} className="self-start" />,
+            <DiceDot key="1" colorClass={colorClass} className="self-end" />,
             <DiceDot key="2" colorClass={colorClass} className="self-center mx-auto" />,
-            <DiceDot key="3" colorClass={colorClass} className="self-end" />,
+            <DiceDot key="3" colorClass={colorClass} className="self-start" />,
         ],
         4: [
             <DiceDot key="1" colorClass={colorClass} />,
@@ -115,6 +115,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         if (isRollingRef.current) return;
         isRollingRef.current = true;
         onRollStart();
+        setShowRollResult(false);
 
         const rollStartTime = Date.now();
         const finalRoll = Math.floor(Math.random() * 6) + 1;
