@@ -59,12 +59,12 @@ const setupSchema = z.object({
 export type GameSetup = z.infer<typeof setupSchema>;
 
 const defaultValues: GameSetup = {
-  gameMode: "vs-computer",
+  gameMode: "multiplayer",
   players: [
     { color: "red", name: "Red Player", type: "human" },
-    { color: "green", name: "Green AI", type: "ai" },
-    { color: "yellow", name: "Yellow AI", type: "ai" },
-    { color: "blue", name: "Blue AI", type: "ai" },
+    { color: "green", name: "Green Player", type: "human" },
+    { color: "yellow", name: "Yellow Player", type: "human" },
+    { color: "blue", name: "Blue Player", type: "human" },
   ],
   turnOrder: ["red", "green", "yellow", "blue"],
   humanPlayerColor: "red",

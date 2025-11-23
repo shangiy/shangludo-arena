@@ -66,12 +66,12 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
 };
 
 const quickPlaySetup: GameSetup = {
-  gameMode: 'vs-computer',
+  gameMode: 'multiplayer',
   players: [
-    { color: 'red', name: 'You', type: 'human' },
-    { color: 'green', name: 'Green AI', type: 'ai' },
-    { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
-    { color: 'blue', name: 'Blue AI', type: 'ai' },
+    { color: 'red', name: 'Red Player', type: 'human' },
+    { color: 'green', name: 'Green Player', type: 'human' },
+    { color: 'yellow', 'name': 'Yellow Player', type: 'human' },
+    { color: 'blue', name: 'Blue Player', type: 'human' },
   ],
   turnOrder: ['red', 'green', 'yellow', 'blue'],
   humanPlayerColor: 'red',
@@ -79,11 +79,11 @@ const quickPlaySetup: GameSetup = {
 };
 
 const fiveMinSetup: GameSetup = {
-    gameMode: 'vs-computer',
+    gameMode: 'multiplayer',
     players: [
       { color: 'red', name: 'Red Player', type: 'human' },
       { color: 'green', name: 'Green Player', type: 'human' },
-      { color: 'yellow', name: 'Yellow AI', type: 'ai' },
+      { color: 'yellow', name: 'Yellow Player', type: 'human' },
       { color: 'blue', name: 'Blue Player', type: 'human' },
     ],
     turnOrder: ['red', 'green', 'yellow', 'blue'],
