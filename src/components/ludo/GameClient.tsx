@@ -430,7 +430,7 @@ export default function GameClient() {
       if (pawn.isHome) return;
 
       if (pawn.position === -1) {
-        if (roll === 6 && gameMode !== '5-min') {
+        if (roll === 6) {
            const startPos = START_POSITIONS[player];
            const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
            if (!isClassic && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
@@ -503,13 +503,13 @@ export default function GameClient() {
 
       if (isHumanTurn) {
         if (possibleMoves.length === 1) {
-          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition), 1000);
+          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition), 500);
         }
       } else if (isAITurn) {
         setPhase('AI_THINKING');
         setTimeout(() => {
             handleAiMove(value);
-        }, 100);
+        }, 500);
       }
     }
   };

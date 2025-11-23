@@ -42,11 +42,11 @@ const DiceDot = ({ colorClass, className }: { colorClass: string, className?: st
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
     const dotGrid: Record<number, string> = {
         1: "flex items-center justify-center",
-        2: "flex justify-between items-start p-2",
-        3: "flex flex-col justify-between items-center p-2 h-full",
+        2: "flex justify-between p-2",
+        3: "flex flex-col justify-between items-center p-2",
         4: "grid grid-cols-2 grid-rows-2 p-2 gap-2.5",
         5: "grid grid-cols-3 grid-rows-3 p-2 gap-1",
-        6: "grid grid-cols-2 grid-rows-3 p-2 gap-x-2.5 gap-y-1",
+        6: "grid grid-cols-2 grid-rows-3 p-2 gap-y-1 gap-x-3",
     };
 
     const dots: Record<number, React.ReactNode[]> = {
