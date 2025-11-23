@@ -45,7 +45,6 @@ type PlayerPodProps = {
   diceValue: number | null;
   phase: string;
   showNotifications: boolean;
-  turnTimerProgress: number;
 };
 
 const turnIndicatorClasses: Record<PlayerColor, string> = {
@@ -66,7 +65,6 @@ function PlayerPod({
   diceRollDuration,
   onRollStart,
   onDiceRoll,
-  turnTimerProgress,
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
@@ -74,32 +72,12 @@ function PlayerPod({
   }
 
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
-  const showTimer = isCurrentTurn && turnTimerProgress < 100;
-  const isUrgent = turnTimerProgress < 25;
   
   return (
     <div className={cn(
         "relative flex flex-col items-center justify-start p-2 md:p-4 gap-2 md:gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        {showTimer && (
-           <div className="absolute inset-0 pointer-events-none">
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path
-                        d="M 2.5,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 Z"
-                        fill="none"
-                        className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
-                        strokeWidth="2.5"
-                        strokeDasharray="380"
-                        strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
-                        style={{
-                            transition: 'stroke-dashoffset 1s linear, stroke 0.3s'
-                        }}
-                    />
-                </svg>
-                {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
-           </div>
-        )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
@@ -178,9 +156,6 @@ type ClassicGameLayoutProps = {
   pawns: Record<PlayerColor, Pawn[]>;
   onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
-  turnTimer: number;
-  turnTimerDuration: number;
-  onTurnTimerDurationChange: (duration: number) => void;
   isRolling: boolean;
   diceRollDuration: number;
   onDiceRollDurationChange: (duration: number) => void;
@@ -203,9 +178,6 @@ export function ClassicGameLayout({
   pawns,
   onGameSetupChange,
   currentTurn,
-  turnTimer,
-  turnTimerDuration,
-  onTurnTimerDurationChange,
   isRolling,
   diceRollDuration,
   onDiceRollDurationChange,
@@ -228,7 +200,6 @@ export function ClassicGameLayout({
     const bluePlayer = players.find(p => p.color === 'blue') || { color: 'blue', name: 'Empty', type: 'none' };
     const yellowPlayer = players.find(p => p.color === 'yellow') || { color: 'yellow', name: 'Empty', type: 'none' };
     
-    const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration / 1000);
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
@@ -261,7 +232,6 @@ export function ClassicGameLayout({
     };
 
     const handleApplyAllChanges = () => {
-      onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onDiceRollDurationChange(newDiceRollDuration * 1000);
       
       const turnOrder = playerConfig.map(p => p.color);
@@ -280,8 +250,6 @@ export function ClassicGameLayout({
         { color: 'yellow', name: 'Yellow' },
         { color: 'blue', name: 'Blue' },
     ];
-
-    const turnTimerProgress = (turnTimer / turnTimerDuration) * 100;
 
     const classicRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
@@ -476,24 +444,6 @@ export function ClassicGameLayout({
                             <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
-                                <Timer className="h-4 w-4" />
-                                Turn Time Limit (s)
-                            </Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                id="turn-timer"
-                                type="number"
-                                min="5"
-                                max="60"
-                                step="5"
-                                className="w-20"
-                                value={newTurnTimerDuration}
-                                onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
-                                />
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between gap-2">
                             <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
                               <Dice5 className="h-4 w-4" />
                               Dice Rolling Time (s)
@@ -567,7 +517,6 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
                 />
                  <PlayerPod
                   player={bluePlayer}
@@ -580,7 +529,6 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
                 />
             </div>
 
@@ -602,7 +550,6 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
                   player={yellowPlayer}
@@ -615,7 +562,6 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
                 />
             </div>
         </main>

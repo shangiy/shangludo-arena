@@ -207,15 +207,13 @@ export default function GameClient() {
           if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
           setDiceRollDuration(savedState.diceRollDuration);
           setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
-          if (gameMode === '5-min' || gameMode === 'classic') {
-             const defaultDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
+          if (gameMode === '5-min') {
+             const defaultDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
              if(savedState.turnTimerDuration !== undefined) {
                 setTurnTimerDuration(savedState.turnTimerDuration);
              } else {
                 setTurnTimerDuration(defaultDuration);
              }
-          }
-          if (gameMode === '5-min') {
              if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
              if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
              if(savedState.scores !== undefined) setScores(savedState.scores);
@@ -267,6 +265,7 @@ export default function GameClient() {
         gameState.gameTimer = gameTimer;
         gameState.gameTimerDuration = gameTimerDuration;
         gameState.scores = scores;
+        gameState.turnTimerDuration = turnTimerDuration;
       }
       localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
     } catch (error) {
@@ -326,11 +325,10 @@ export default function GameClient() {
     setEndGameSummary(null);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
 
-    const newTurnDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
-    setTurnTimerDuration(newTurnDuration);
-    setTurnTimer(newTurnDuration);
-
     if (gameMode === '5-min') {
+      const newTurnDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
+      setTurnTimerDuration(newTurnDuration);
+      setTurnTimer(newTurnDuration);
       setGameTimer(gameTimerDuration);
     }
   };
@@ -386,11 +384,13 @@ export default function GameClient() {
     setPhase('ROLLING');
     setCurrentTurn(nextPlayerColor);
     setDiceValue(null);
-    setTurnTimer(turnTimerDuration);
+    if (gameMode === '5-min') {
+      setTurnTimer(turnTimerDuration);
+    }
   };
 
   useEffect(() => {
-      if ( (gameMode !== '5-min' && gameMode !== 'classic') || phase !== 'ROLLING' || winner) {
+      if (gameMode !== '5-min' || phase !== 'ROLLING' || winner) {
           if (turnTimerRef.current) clearInterval(turnTimerRef.current);
           return;
       }
@@ -545,9 +545,12 @@ export default function GameClient() {
 
   const startRoll = () => {
     if (phase !== 'ROLLING' || isRolling) return;
-    if (turnTimerRef.current) clearInterval(turnTimerRef.current);
+    if (gameMode === '5-min' && turnTimerRef.current) {
+      clearInterval(turnTimerRef.current);
+    }
     
-    setDiceValue(null); // Clear previous dice value before rolling
+    // The Dice3D component now handles the random number generation.
+    // We just trigger the animation here.
     setIsRolling(true);
   };
 
@@ -882,7 +885,7 @@ export default function GameClient() {
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
-      {gameMode === 'classic' ? (
+      {gameMode === 'classic' || gameMode === 'quick' ? (
           <div className="flex flex-col flex-1 h-screen">
           <main className="flex-1 flex flex-col">
             {gameSetup && (
@@ -891,9 +894,6 @@ export default function GameClient() {
                 pawns={pawns}
                 onGameSetupChange={handleGameSetup}
                 currentTurn={currentTurn}
-                turnTimer={turnTimer}
-                turnTimerDuration={turnTimerDuration}
-                onTurnTimerDurationChange={handleTurnTimerDurationChange}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
                 onDiceRollDurationChange={handleDiceRollDurationChange}
