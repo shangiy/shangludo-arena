@@ -206,7 +206,7 @@ export function GameBoard({
                 </>
             ) : (
                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 m-2 rounded-md">
-                    <span className={cn("text-5xl font-bold opacity-80", YARD_SCORE_TEXT_COLORS[color])} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
+                    <span className={cn("text-5xl font-bold opacity-80", color === 'yellow' ? 'text-black' : 'text-white')} style={{textShadow: '2px 2px 4px rgba(0,0,0,0.5)'}}>
                         {scores[color]}
                     </span>
                 </div>
@@ -350,4 +350,5 @@ export function Pawn({
 }
 
 
+    
     
