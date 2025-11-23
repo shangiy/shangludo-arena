@@ -118,7 +118,7 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
     const displayOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
   
     return (
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[90vw] md:max-w-[70vh] aspect-square mx-auto p-2 pointer-events-none">
+      <div className="absolute inset-0 w-full h-full p-2 pointer-events-none">
         <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
           {displayOrder.map((color) => {
               const player = playerMap.get(color);
@@ -449,10 +449,12 @@ export function ClassicGameLayout({
                 />
             </div>
 
-            {/* Game Board */}
-            <div className="w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
+            {/* Game Board and Scoreboard Container */}
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-1 md:row-span-3">
                 {children}
+                <Scoreboard pawns={pawns} players={gameSetup.players} />
             </div>
+
 
             <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-3 md:items-start">
                  <PlayerPod
@@ -483,7 +485,6 @@ export function ClassicGameLayout({
                 />
             </div>
         </main>
-        <Scoreboard pawns={pawns} players={gameSetup.players} />
       </div>
   );
 }
