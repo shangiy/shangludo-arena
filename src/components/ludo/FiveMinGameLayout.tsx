@@ -139,10 +139,10 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
     };
   
     return (
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full max-w-md mx-auto p-2">
-        <div className="grid grid-cols-2 gap-2">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[90vw] md:max-w-[70vh] aspect-square mx-auto p-2 pointer-events-none">
+        <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
           {activePlayers.map(({ color, name }) => (
-              <div key={color} className="flex items-center justify-center gap-2 text-sm p-1 rounded bg-background/80 border">
+              <div key={color} className="flex flex-col items-center justify-center gap-2 text-sm p-1 rounded bg-background/80 border aspect-square">
                   <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{name}</span>
                   <span className="font-bold text-base">{scores[color]}</span>
               </div>
@@ -556,6 +556,8 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
 
     
 
