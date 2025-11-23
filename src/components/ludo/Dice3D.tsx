@@ -20,10 +20,10 @@ type DiceProps = {
 const getTransformFromFace = (face: number): string => {
     switch (face) {
         case 1: return 'rotateX(0deg) rotateY(0deg)';
-        case 2: return 'rotateY(-90deg)';
-        case 3: return 'rotateX(90deg)';
-        case 4: return 'rotateX(-90deg)';
-        case 5: return 'rotateY(90deg)';
+        case 2: return 'rotateX(-90deg)';
+        case 3: return 'rotateY(90deg)';
+        case 4: return 'rotateY(-90deg)';
+        case 5: return 'rotateX(90deg)';
         case 6: return 'rotateX(180deg)';
         default: return '';
     }
@@ -36,7 +36,7 @@ const getRandomRotation = () => {
 }
 
 const DiceDot = ({ colorClass, className }: { colorClass: string, className?: string }) => (
-    <div className={cn("w-3 h-3 rounded-full", colorClass, className)} />
+    <div className={cn("w-2 h-2 md:w-3 md:h-3 rounded-full", colorClass, className)} />
 );
 
 const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) => {
@@ -47,16 +47,16 @@ const DiceFace = ({ face, colorClass }: { face: number; colorClass: string }) =>
             </div>
         ),
         2: (
-            <div className="flex flex-col justify-between h-full p-1">
-                <DiceDot colorClass={colorClass} className="self-start" />
-                <DiceDot colorClass={colorClass} className="self-end" />
+            <div className="grid grid-cols-2 grid-rows-2 h-full gap-2 p-1">
+                <DiceDot colorClass={colorClass} className="col-start-1 row-start-1" />
+                <DiceDot colorClass={colorClass} className="col-start-2 row-start-2" />
             </div>
         ),
         3: (
-            <div className="flex flex-col justify-between h-full p-1">
-                <DiceDot colorClass={colorClass} className="self-start" />
-                <DiceDot colorClass={colorClass} className="self-center" />
-                <DiceDot colorClass={colorClass} className="self-end" />
+            <div className="grid grid-cols-3 grid-rows-3 h-full p-1">
+                <DiceDot colorClass={colorClass} className="col-start-1 row-start-1" />
+                <DiceDot colorClass={colorClass} className="col-start-2 row-start-2" />
+                <DiceDot colorClass={colorClass} className="col-start-3 row-start-3" />
             </div>
         ),
         4: (
@@ -183,13 +183,16 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
 
     const currentTurnColorClass = turnTextColor[color];
     const currentDotColorClass = dotColor[color];
-    const faceStyle = "absolute w-16 h-16 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
+    const faceStyle = "absolute w-12 h-12 md:w-16 md:h-16 border border-black/50 flex items-center justify-center bg-white p-1 rounded-lg";
+    const diceSize = 'w-12 h-12 md:w-16 md:h-16';
+    const transformZ = '2rem';
+    const mobileTransformZ = '1.5rem';
 
     const showRollResult = !isRollingInternal && localDiceValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full">
-            <div className="w-16 h-16 perspective-500">
+            <div className={cn("perspective-500", diceSize)}>
                 <motion.div
                     className="w-full h-full relative preserve-3d"
                     animate={controls}
@@ -197,27 +200,27 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     style={{ cursor: isHumanTurn && !isRollingInternal ? 'pointer' : 'default' }}
                 >
                     {/* Face 1 (Front) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'translateZ(2rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'translateZ(var(--tz))' }}>
                         <DiceFace face={1} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 2 (Right) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(2rem)' }}>
+                    {/* Face 2 (Bottom) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(var(--tz))' }}>
                          <DiceFace face={2} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 3 (Top) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(-90deg) translateZ(2rem)' }}>
+                    {/* Face 3 (Left) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(90deg) translateZ(var(--tz))' }}>
                          <DiceFace face={3} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 4 (Bottom) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(2rem)' }}>
+                    {/* Face 4 (Right) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(var(--tz))' }}>
                          <DiceFace face={4} colorClass={currentDotColorClass} />
                     </div>
-                    {/* Face 5 (Left) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateY(-90deg) translateZ(2rem)' }}>
+                    {/* Face 5 (Top) */}
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(90deg) translateZ(var(--tz))' }}>
                          <DiceFace face={5} colorClass={currentDotColorClass} />
                     </div>
                     {/* Face 6 (Back) */}
-                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(180deg) translateZ(2rem)' }}>
+                    <div className={cn(faceStyle)} style={{ transform: 'rotateX(180deg) translateZ(var(--tz))' }}>
                          <DiceFace face={6} colorClass={currentDotColorClass} />
                     </div>
                 </motion.div>
@@ -237,6 +240,16 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                     </p>
                 )}
             </div>
+            <style jsx>{`
+                .preserve-3d {
+                    --tz: ${mobileTransformZ};
+                }
+                @media (min-width: 768px) {
+                    .preserve-3d {
+                        --tz: ${transformZ};
+                    }
+                }
+            `}</style>
         </div>
     );
 }

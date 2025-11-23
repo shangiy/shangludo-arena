@@ -72,10 +72,10 @@ function PlayerPod({
   
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start p-4 gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none",
+        "relative flex flex-col items-center justify-start p-2 md:p-4 gap-2 md:gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <h3 className="text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
+        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
         
         {isCurrentTurn ? (
           <Dice3D
@@ -90,8 +90,8 @@ function PlayerPod({
           />
         ) : (
            <div className="flex flex-col items-center justify-center gap-2 h-full">
-               <button className="w-24 h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                    <EndLogo className="w-24 h-24" />
+               <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                    <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
                </button>
            </div>
         )}
@@ -420,7 +420,7 @@ export function ClassicGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
-            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-1 md:items-end md:pt-12">
+            <div className="flex w-full justify-around md:justify-center md:col-start-1 md:row-start-1 md:items-end md:pt-12 md:col-span-1">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -434,7 +434,7 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
             </div>
-             <div className="hidden md:flex md:w-full md:justify-center md:col-start-3 md:row-start-1 md:items-end md:pt-12">
+             <div className="flex w-full justify-around md:justify-center md:col-start-3 md:row-start-1 md:items-end md:pt-12">
                 <PlayerPod
                   player={greenPlayer}
                   color="green"
