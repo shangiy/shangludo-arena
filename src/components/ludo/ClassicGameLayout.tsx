@@ -3,7 +3,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun } from "lucide-react";
-import { PlayerColor } from "@/lib/ludo-constants";
+import { PlayerColor, type Pawn } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -107,10 +107,48 @@ function PlayerPod({
   );
 }
 
+function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[] }) {
+    const activePlayers = players.filter(p => p.type !== 'none');
+    const colorClasses: Record<PlayerColor, string> = {
+        red: 'text-red-500',
+        green: 'text-green-500',
+        yellow: 'text-yellow-400',
+        blue: 'text-blue-500',
+    };
+
+    const getHomeCount = (color: PlayerColor) => {
+        return pawns[color]?.filter(p => p.isHome).length || 0;
+    }
+
+    const playerMap = new Map(activePlayers.map(p => [p.color, p]));
+    const displayOrder: PlayerColor[] = ['red', 'green', 'blue', 'yellow'];
+  
+    return (
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[90vw] md:max-w-[70vh] aspect-square mx-auto p-2 pointer-events-none">
+        <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
+          {displayOrder.map((color) => {
+              const player = playerMap.get(color);
+              if (!player) return <div key={color} />; // Render an empty div if player not active
+              
+              const homeCount = getHomeCount(color);
+
+              return (
+                <div key={color} className="flex flex-col items-center justify-center gap-2 text-sm p-1">
+                    <span className={cn("font-semibold capitalize truncate", colorClasses[color])}>{player.name}</span>
+                    <span className="font-bold text-base">{homeCount} / 4 Home</span>
+                </div>
+              );
+            }
+          )}
+        </div>
+      </div>
+    );
+}
 
 type ClassicGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
+  pawns: Record<PlayerColor, Pawn[]>;
   onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
   isRolling: boolean;
@@ -132,6 +170,7 @@ type ClassicGameLayoutProps = {
 export function ClassicGameLayout({
   children,
   gameSetup,
+  pawns,
   onGameSetupChange,
   currentTurn,
   isRolling,
@@ -384,7 +423,7 @@ export function ClassicGameLayout({
 
         {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16">
-            <div className="md:col-start-1 md:row-start-1 flex justify-center items-end">
+            <div className="md:col-start-1 md:row-start-1 flex justify-center items-end pt-12">
                  <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -398,7 +437,7 @@ export function ClassicGameLayout({
                   showNotifications={showNotifications}
                 />
             </div>
-             <div className="md:col-start-3 md:row-start-1 flex justify-center items-end">
+             <div className="md:col-start-3 md:row-start-1 flex justify-center items-end pt-12">
                 <PlayerPod
                   player={greenPlayer}
                   color="green"
@@ -447,8 +486,7 @@ export function ClassicGameLayout({
                 />
             </div>
         </main>
+        <Scoreboard pawns={pawns} players={gameSetup.players} />
       </div>
   );
 }
-
-    

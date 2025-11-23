@@ -925,6 +925,7 @@ export default function GameClient() {
             {gameSetup && (
               <ClassicGameLayout
                 gameSetup={gameSetup}
+                pawns={pawns}
                 onGameSetupChange={handleGameSetup}
                 currentTurn={currentTurn}
                 isRolling={isRolling}
