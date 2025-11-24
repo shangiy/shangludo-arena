@@ -90,7 +90,7 @@ function PlayerPod({
                         d="M 2.5,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 Z"
                         fill="none"
                         className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
-                        strokeWidth="2.5"
+                        strokeWidth="5"
                         strokeDasharray="380"
                         strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
                         style={{
