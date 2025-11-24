@@ -48,8 +48,6 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const [isClient, setIsClient] = useState(false);
     const controls = useAnimation();
     const isAnimatingRef = useRef(false);
-    // This local state will hold the true final value of the roll.
-    const [finalValue, setFinalValue] = useState<number | null>(diceValue);
 
     useEffect(() => {
         setIsClient(true);
@@ -64,9 +62,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
         if (rolling && !isAnimatingRef.current) {
             isAnimatingRef.current = true;
             
-            // Generate the random number here, this is the source of truth.
             const newFinalValue = Math.floor(Math.random() * 6) + 1;
-            setFinalValue(newFinalValue); // Set our internal truth.
             
             controls.start({
                 rotateX: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].x],
@@ -74,19 +70,13 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 transition: { duration: duration / 1000, ease: "circOut" },
             }).then(() => {
                 isAnimatingRef.current = false;
-                // Report the one true value back to the parent.
                 onRollEnd(newFinalValue);
             });
         }
     }, [rolling, controls, duration, onRollEnd]);
     
     useEffect(() => {
-        // When the roll is over (rolling is false) or diceValue from parent changes,
-        // update our internal finalValue. This syncs the display.
-        if (!rolling) {
-            setFinalValue(diceValue);
-        }
-        if (diceValue !== null) {
+        if (diceValue !== null && !rolling) {
             controls.set({
                 rotateX: rotations[diceValue].x,
                 rotateY: rotations[diceValue].y,
@@ -107,8 +97,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     };
     const currentTurnColorClass = turnTextColor[color];
     
-    // The result text now uses the `finalValue` from this component's state.
-    const showRollResult = !rolling && finalValue !== null;
+    const showRollResult = !rolling && diceValue !== null;
 
     return (
         <div className="flex flex-col items-center justify-center gap-2 h-full">
@@ -125,7 +114,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 </motion.div>
             </div>
             <div className="text-center h-8 flex items-center justify-center">
-                {isHumanTurn && !rolling && finalValue === null && (
+                {isHumanTurn && !rolling && diceValue === null && (
                 <button
                     onClick={handleRoll}
                     className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
@@ -135,7 +124,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
                 {showRollResult && (
                 <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
-                    {playerName} Rolled: {finalValue}
+                    {playerName} Rolled: {diceValue}
                 </p>
                 )}
             </div>
