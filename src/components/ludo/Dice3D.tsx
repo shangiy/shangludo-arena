@@ -48,6 +48,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const [isClient, setIsClient] = useState(false);
     const controls = useAnimation();
     const isAnimatingRef = useRef(false);
+    const [finalValue, setFinalValue] = useState(diceValue);
 
     useEffect(() => {
         setIsClient(true);
@@ -63,6 +64,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             isAnimatingRef.current = true;
             
             const newFinalValue = Math.floor(Math.random() * 6) + 1;
+            setFinalValue(newFinalValue);
             
             controls.start({
                 rotateX: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].x],
@@ -76,7 +78,8 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     }, [rolling, controls, duration, onRollEnd]);
     
     useEffect(() => {
-        if (diceValue !== null && !rolling) {
+        if (!rolling && diceValue !== null) {
+            setFinalValue(diceValue);
             controls.set({
                 rotateX: rotations[diceValue].x,
                 rotateY: rotations[diceValue].y,
