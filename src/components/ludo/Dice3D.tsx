@@ -25,12 +25,12 @@ const faceColors: Record<PlayerColor, string> = {
 };
 
 const rotations: Record<number, { x: number, y: number }> = {
-    1: { x: 0, y: 0 },
-    2: { x: -90, y: 0 },
-    3: { x: 0, y: 90 },
-    4: { x: 0, y: -90 },
-    5: { x: 90, y: 0 },
-    6: { x: 180, y: 0 },
+    1: { x: 0, y: 0 },      // Correct: Face 1 is on top
+    2: { x: 90, y: 0 },     // FIX: Uses rotation of original Face 5
+    3: { x: 0, y: -90 },    // FIX: Uses rotation of original Face 4
+    4: { x: 0, y: 90 },     // FIX: Uses rotation of original Face 3
+    5: { x: -90, y: 0 },    // FIX: Uses rotation of original Face 2
+    6: { x: 180, y: 0 },    // Correct: Face 6 is on top
 };
 
 type Dice3DProps = {

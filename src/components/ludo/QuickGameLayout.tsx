@@ -1,0 +1,596 @@
+
+"use client";
+
+import { useState, type ReactNode } from "react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun } from "lucide-react";
+import { PlayerColor, type Pawn, PATHS } from "@/lib/ludo-constants";
+import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import type { GameSetup, PlayerSetup } from "./GameSetupForm";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { ScrollArea } from "../ui/scroll-area";
+import { EndLogo } from "../icons/EndLogo";
+import Image from "next/image";
+import { useTheme } from "@/hooks/use-theme";
+import { Progress } from "../ui/progress";
+import { Dice3D } from "./Dice3D";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+
+type PlayerPodProps = {
+  player: { name: string; type: "human" | "ai" | "none" };
+  color: PlayerColor;
+  isCurrentTurn: boolean;
+  isRolling: boolean;
+  diceRollDuration: number;
+  onRollStart: () => void;
+  onDiceRoll: (value: number) => void;
+  diceValue: number | null;
+  phase: string;
+  showNotifications: boolean;
+};
+
+const turnIndicatorClasses: Record<PlayerColor, string> = {
+    red: 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.7)] bg-red-500/5',
+    green: 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)] bg-green-500/5',
+    yellow: 'border-yellow-400 shadow-[0_0_15px_rgba(245,158,11,0.7)] bg-yellow-400/5',
+    blue: 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.7)] bg-blue-500/5',
+};
+
+function PlayerPod({
+  player,
+  color,
+  isCurrentTurn,
+  diceValue,
+  phase,
+  showNotifications,
+  isRolling,
+  diceRollDuration,
+  onRollStart,
+  onDiceRoll,
+}: PlayerPodProps) {
+
+  if (player.type === 'none') {
+    return <div className="relative flex h-full min-h-28 w-full max-w-48 flex-col items-center justify-center p-2 rounded-lg" />;
+  }
+
+  const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
+  
+  return (
+    <div className={cn(
+        "relative flex flex-col items-center justify-start p-2 md:p-4 gap-2 md:gap-4 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] min-h-[10rem] h-full select-none overflow-hidden",
+        isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
+    )}>
+        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
+        
+        {isCurrentTurn ? (
+          <Dice3D
+            rolling={isRolling}
+            onRollStart={onRollStart}
+            onRollEnd={onDiceRoll}
+            color={color}
+            duration={diceRollDuration}
+            isHumanTurn={isHumanTurnAndRollingPhase}
+            diceValue={diceValue}
+            playerName={player.name}
+          />
+        ) : (
+           <div className="flex flex-col items-center justify-center gap-2 h-full">
+               <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                    <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
+               </button>
+           </div>
+        )}
+
+        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+             {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
+                <p className="text-xs font-semibold capitalize text-center">
+                    Select a pawn to move.
+                </p>
+            )}
+        </div>
+    </div>
+  );
+}
+
+function Scoreboard({ pawns, players, gameMode, scores }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[], gameMode: string, scores: Record<PlayerColor, number> }) {
+    const activePlayers = players.filter(p => p.type !== 'none');
+    
+    const getProgressPercentage = (color: PlayerColor) => {
+        const playerPawns = pawns[color];
+        if (!playerPawns || playerPawns.length === 0) return 0;
+    
+        if (gameMode !== 'quick') {
+            const homeCount = playerPawns.filter(p => p.isHome).length;
+            return Math.floor((homeCount / 4) * 100);
+        }
+    
+        // Quick mode percentage calculation
+        const path = PATHS[color];
+        const totalPathLength = path.length -1;
+        const maxProgress = 4 * totalPathLength;
+    
+        let currentProgress = 0;
+        playerPawns.forEach(pawn => {
+            if (pawn.isHome) {
+                currentProgress += totalPathLength;
+            } else if (pawn.position !== -1) {
+                const pathIndex = path.indexOf(pawn.position);
+                if (pathIndex !== -1) {
+                    currentProgress += pathIndex;
+                }
+            }
+        });
+        
+        const percentage = (currentProgress / maxProgress) * 100;
+        return Math.floor(Math.min(100, percentage));
+    };
+
+    const playerMap = new Map(activePlayers.map(p => [p.color, p]));
+    const displayOrder: {color: PlayerColor, justify: string, items: string}[] = [
+        { color: 'red', justify: 'justify-start', items: 'items-start' },
+        { color: 'green', justify: 'justify-end', items: 'items-start' },
+        { color: 'blue', justify: 'justify-start', items: 'items-end' },
+        { color: 'yellow', justify: 'justify-end', items: 'items-end' },
+    ];
+  
+    return (
+      <div className="absolute inset-0 w-full h-full p-2 pointer-events-none">
+        <div className="grid grid-cols-2 grid-rows-2 h-full w-full">
+          {displayOrder.map(({ color, justify, items }) => {
+              const player = playerMap.get(color);
+              if (!player) return <div key={color} />;
+              
+              const percentage = getProgressPercentage(color);
+
+              return (
+                <div key={color} className={cn("flex p-2", justify, items)}>
+                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1 text-center">
+                        <span className="font-semibold capitalize truncate text-white">{player.name}</span>
+                        <span className="font-bold text-base text-black">{percentage}%</span>
+                    </div>
+                </div>
+              );
+            }
+          )}
+        </div>
+      </div>
+    );
+}
+
+type QuickGameLayoutProps = {
+  children: ReactNode;
+  gameSetup: GameSetup;
+  pawns: Record<PlayerColor, Pawn[]>;
+  scores: Record<PlayerColor, number>;
+  onGameSetupChange: (newSetup: GameSetup) => void;
+  currentTurn: PlayerColor;
+  isRolling: boolean;
+  diceRollDuration: number;
+  onDiceRollDurationChange: (duration: number) => void;
+  onRollStart: () => void;
+  onDiceRoll: (value: number) => void;
+  diceValue: number | null;
+  onResetAndGoHome: () => void;
+  muteSound: boolean;
+  onToggleMuteSound: () => void;
+  showNotifications: boolean;
+  onToggleShowNotifications: () => void;
+  addSecondarySafePoints: boolean;
+  onToggleSecondarySafePoints: () => void;
+  phase: string;
+};
+
+export function QuickGameLayout({
+  children,
+  gameSetup,
+  pawns,
+  scores,
+  onGameSetupChange,
+  currentTurn,
+  isRolling,
+  diceRollDuration,
+  onDiceRollDurationChange,
+  onRollStart,
+  onDiceRoll,
+  diceValue,
+  onResetAndGoHome,
+  muteSound,
+  onToggleMuteSound,
+  showNotifications,
+  onToggleShowNotifications,
+  addSecondarySafePoints,
+  onToggleSecondarySafePoints,
+  phase,
+}: QuickGameLayoutProps) {
+    const { players } = gameSetup;
+    const { theme, toggleTheme } = useTheme();
+    const redPlayer = players.find(p => p.color === 'red') || { color: 'red', name: 'Empty', type: 'none' };
+    const greenPlayer = players.find(p => p.color === 'green') || { color: 'green', name: 'Empty', type: 'none' };
+    const bluePlayer = players.find(p => p.color === 'blue') || { color: 'blue', name: 'Empty', type: 'none' };
+    const yellowPlayer = players.find(p => p.color === 'yellow') || { color: 'yellow', name: 'Empty', type: 'none' };
+    
+    const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
+
+    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
+        setPlayerConfig(prev => {
+            const playerExists = prev.some(p => p.color === color);
+            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+
+            if (type === 'none') {
+                return prev.filter(p => p.color !== color);
+            }
+            if (playerExists) {
+                return prev.map(p => {
+                    if (p.color === color) {
+                        const newName = p.type !== type ? (type === 'human' ? `${colorName} Player` : `${colorName} AI`) : p.name;
+                        return {...p, type, name: newName };
+                    }
+                    return p;
+                });
+            }
+            
+            const newName = type === 'human' ? `${colorName} Player` : `${colorName} AI`;
+            return [...prev, { color, type, name: newName }];
+        });
+    };
+
+    const handlePlayerNameChange = (color: PlayerColor, name: string) => {
+        setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, name} : p));
+    };
+
+    const handleApplyAllChanges = () => {
+      onDiceRollDurationChange(newDiceRollDuration * 1000);
+      
+      const turnOrder = playerConfig.map(p => p.color);
+
+      onGameSetupChange({
+        ...gameSetup,
+        players: playerConfig,
+        turnOrder,
+      });
+      setIsSettingsOpen(false);
+    };
+    
+    const allPlayers: {color: PlayerColor, name: string}[] = [
+        { color: 'red', name: 'Red' },
+        { color: 'green', name: 'Green' },
+        { color: 'yellow', name: 'Yellow' },
+        { color: 'blue', name: 'Blue' },
+    ];
+
+    const classicRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
+        <p><strong>Rolling:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
+        <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
+        <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
+        <p><strong>Winning:</strong> The first player to get all four of their pawns to the center home space wins the game.</p>
+      </div>
+    );
+  
+    const quickRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
+        <p><strong>Starting a Pawn:</strong> Pawns start on the board. You do not need a 6 to start.</p>
+        <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
+        <p><strong>Breaking Walls & Capturing:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
+        <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Opponent's Pawn Goes Home:</strong> The opponent's pawn is immediately removed from the board and sent back to their starting yard.</li>
+            <li><strong>Your Glass Wall Breaks:</strong> If your "glass wall" was still up, this capture shatters it! You'll hear a glass-breaking sound, and your path to the home triangle is now permanently open.</li>
+            <li><strong>You Get Another Turn:</strong> Just like in classic Ludo, capturing a pawn rewards you with an extra roll of the dice.</li>
+        </ul>
+        <p><strong>Special Capture Rule:</strong> When you roll a 1 and land your pawn on the same square as an opponent's pawn, you capture it and remain there alone. Any other pawns on that square (friend or foe) are sent back to their respective yards.</p>
+        <p><strong>Blockades:</strong> Two of your own pawns on the same square create a blockade that other players cannot pass.</p>
+        <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
+      </div>
+    );
+  
+    const fiveMinRules = (
+      <div className="space-y-4 text-sm text-muted-foreground">
+        <p><strong>Objective:</strong> Get the highest score before the 5-minute timer runs out!</p>
+        <p><strong>Scoring:</strong></p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>+1 point for each step a pawn moves.</li>
+          <li>+20 points for capturing an opponent's pawn.</li>
+          <li>+50 points for moving a pawn to the home space.</li>
+          <li>-20 points when your pawn is captured.</li>
+        </ul>
+        <p><strong>Gameplay:</strong> Follows the same rules as Quick Play (pawns start on board, blockades are active), but the goal is to score as many points as possible.</p>
+        <p><strong>Winning:</strong> The player with the highest score when the timer ends is the winner. In case of a tie, the player with more pawns finished wins.</p>
+      </div>
+    );
+  
+    const getRules = () => {
+      switch (gameSetup.gameMode) {
+        case 'quick': return quickRules;
+        case '5-min': return fiveMinRules;
+        default: return classicRules;
+      }
+    }
+
+
+  return (
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
+      <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-4 left-1/2 -translate-x-1/2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Home />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Your current game progress will be lost. You will be returned to the main lobby.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <div className="flex items-center gap-2">
+            <Sheet>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <HelpCircle />
+                      </Button>
+                    </SheetTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>How to Play</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>How to Play: {gameSetup.gameMode === 'quick' ? 'Quick Play' : gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
+                  <SheetDescription>
+                    Here are the rules for the current game mode.
+                  </SheetDescription>
+                </SheetHeader>
+                <ScrollArea className="h-[calc(100%-4rem)] pr-4">
+                  {getRules()}
+                </ScrollArea>
+              </SheetContent>
+            </Sheet>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={toggleTheme}>
+                    {theme === 'dark' ? <Sun /> : <Moon />}
+                    <span className="sr-only">Toggle theme</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Toggle Dark Mode</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Settings />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 animated-border flex flex-col p-0">
+                <div className="absolute inset-0.5 bg-popover rounded-md z-0" />
+                <div className="relative z-10 flex flex-col h-[60vh] max-h-[500px]">
+                  <div className="p-4 border-b">
+                    <h4 className="font-medium leading-none">Settings</h4>
+                  </div>
+                  <ScrollArea className="flex-1">
+                    <TooltipProvider>
+                      <div className="grid gap-4 p-4">
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                          <div className="space-y-2 rounded-lg border p-2">
+                            {allPlayers.map(p => {
+                              const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
+                              const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
+                              return (
+                                <div key={p.color} className="flex items-center justify-between gap-2">
+                                  {type === 'human' ? (
+                                    <Input
+                                      value={currentPlayerConfig?.name || ''}
+                                      onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                      className="h-8 flex-1"
+                                    />
+                                  ) : (
+                                    <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                      <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                      {p.color}
+                                    </Label>
+                                  )}
+                                  <Select
+                                    value={type}
+                                    onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
+                                  >
+                                    <SelectTrigger className="w-32 h-8">
+                                      <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="human">Human</SelectItem>
+                                      <SelectItem value="ai">AI</SelectItem>
+                                      <SelectItem value="none">No One</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="mute-sound" className="flex items-center gap-2">
+                              {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                              Mute Sound
+                            </Label>
+                            <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="show-notifications" className="flex items-center gap-2">
+                              {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                              Show Notifications
+                            </Label>
+                            <Switch id="show-notifications" checked={showNotifications} onCheckedChange={onToggleShowNotifications} />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="secondary-safepoints" className="flex items-center gap-2">
+                              <Star className="h-4 w-4" />
+                              Secondary Safe Points
+                            </Label>
+                            <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
+                              <Dice5 className="h-4 w-4" />
+                              Dice Rolling Time (s)
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Max time in seconds for the dice animation.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    id="dice-timer"
+                                    type="number"
+                                    min="1"
+                                    max="9"
+                                    step="1"
+                                    className="w-20"
+                                    value={newDiceRollDuration}
+                                    onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
+                                  />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>admin only level</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Number of Dice</Label>
+                            <RadioGroup
+                              defaultValue="1"
+                              className="grid grid-cols-4 gap-2"
+                            >
+                              {[1, 2, 3, 4].map(num => (
+                                <div key={num} className="flex items-center space-x-2">
+                                  <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
+                                  <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                          </div>
+                        </div>
+                      </div>
+                    </TooltipProvider>
+                  </ScrollArea>
+                  <div className="p-4 border-t">
+                      <Button size="sm" className="w-full" onClick={handleApplyAllChanges}>Apply Changes & Play</Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </header>
+
+        {/* Main Game Area */}
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
+                 <PlayerPod
+                  player={redPlayer}
+                  color="red"
+                  isCurrentTurn={currentTurn === 'red'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                />
+                 <PlayerPod
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                />
+            </div>
+
+            {/* Game Board and Scoreboard Container */}
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
+                {children}
+                <Scoreboard pawns={pawns} players={gameSetup.players} gameMode={gameSetup.gameMode} scores={scores} />
+            </div>
+            
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
+                <PlayerPod
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                />
+                <PlayerPod
+                  player={yellowPlayer}
+                  color="yellow"
+                  isCurrentTurn={currentTurn === 'yellow'}
+                  isRolling={isRolling}
+                  diceRollDuration={diceRollDuration}
+                  onRollStart={onRollStart}
+                  onDiceRoll={onDiceRoll}
+                  diceValue={diceValue}
+                  phase={phase}
+                  showNotifications={showNotifications}
+                />
+            </div>
+        </main>
+      </div>
+  );
+}

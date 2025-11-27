@@ -10,6 +10,7 @@ import {
 } from '@/components/ludo/GameBoard';
 import { ClassicGameLayout } from '@/components/ludo/ClassicGameLayout';
 import { FiveMinGameLayout } from '@/components/ludo/FiveMinGameLayout';
+import { QuickGameLayout } from '@/components/ludo/QuickGameLayout';
 import {
   PLAYER_COLORS,
   PATHS,
@@ -851,6 +852,124 @@ export default function GameClient() {
         </div>
       );
   }
+  
+  const renderGameLayout = () => {
+    switch (gameMode) {
+      case 'classic':
+        return (
+          gameSetup && (
+            <ClassicGameLayout
+              gameSetup={gameSetup}
+              pawns={pawns}
+              scores={scores}
+              onGameSetupChange={handleGameSetup}
+              currentTurn={currentTurn}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onDiceRollDurationChange={handleDiceRollDurationChange}
+              onRollStart={startRoll}
+              onDiceRoll={handleDiceRollEnd}
+              diceValue={diceValue}
+              onResetAndGoHome={handleResetAndGoHome}
+              muteSound={muteSound}
+              onToggleMuteSound={() => setMuteSound(prev => !prev)}
+              showNotifications={showNotifications}
+              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+              addSecondarySafePoints={addSecondarySafePoints}
+              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+              phase={phase}
+            >
+              <GameBoard 
+                showSecondarySafes={addSecondarySafePoints} 
+                scores={scores} 
+                gameMode={gameMode} 
+                glassWalls={{red: false, green: false, blue: false, yellow: false}}
+              >
+                {renderPawns()}
+              </GameBoard>
+            </ClassicGameLayout>
+          )
+        );
+      case 'quick':
+         return (
+          gameSetup && (
+            <QuickGameLayout
+              gameSetup={gameSetup}
+              pawns={pawns}
+              scores={scores}
+              onGameSetupChange={handleGameSetup}
+              currentTurn={currentTurn}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onDiceRollDurationChange={handleDiceRollDurationChange}
+              onRollStart={startRoll}
+              onDiceRoll={handleDiceRollEnd}
+              diceValue={diceValue}
+              onResetAndGoHome={handleResetAndGoHome}
+              muteSound={muteSound}
+              onToggleMuteSound={() => setMuteSound(prev => !prev)}
+              showNotifications={showNotifications}
+              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+              addSecondarySafePoints={addSecondarySafePoints}
+              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+              phase={phase}
+            >
+              <GameBoard 
+                showSecondarySafes={addSecondarySafePoints} 
+                scores={scores} 
+                gameMode={gameMode} 
+                glassWalls={glassWalls}
+              >
+                {renderPawns()}
+              </GameBoard>
+            </QuickGameLayout>
+          )
+        );
+      case '5-min':
+        return (
+          gameSetup && (
+            <FiveMinGameLayout
+              gameSetup={gameSetup}
+              onGameSetupChange={handleGameSetup}
+              currentTurn={currentTurn}
+              turnTimer={turnTimer}
+              turnTimerDuration={turnTimerDuration}
+              onTurnTimerDurationChange={handleTurnTimerDurationChange}
+              gameTimer={gameTimer}
+              gameTimerDuration={gameTimerDuration}
+              onGameTimerDurationChange={handleGameTimerDurationChange}
+              isRolling={isRolling}
+              diceRollDuration={diceRollDuration}
+              onDiceRollDurationChange={handleDiceRollDurationChange}
+              onRollStart={startRoll}
+              onDiceRoll={handleDiceRollEnd}
+              diceValue={diceValue}
+              onResetAndGoHome={handleResetAndGoHome}
+              muteSound={muteSound}
+              onToggleMuteSound={() => setMuteSound(prev => !prev)}
+              showNotifications={showNotifications}
+              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+              addSecondarySafePoints={addSecondarySafePoints}
+              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+              phase={phase}
+              scores={scores}
+            >
+              <GameBoard 
+                showSecondarySafes={addSecondarySafePoints} 
+                scores={scores} 
+                gameMode={gameMode} 
+                glassWalls={{red: false, green: false, blue: false, yellow: false}}
+              >
+                {renderPawns()}
+              </GameBoard>
+            </FiveMinGameLayout>
+          )
+        );
+      default:
+        return null;
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col">
@@ -893,86 +1012,12 @@ export default function GameClient() {
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
 
-      {gameMode === 'classic' || gameMode === 'quick' ? (
-          <div className="flex flex-col flex-1 h-screen">
-          <main className="flex-1 flex flex-col">
-            {gameSetup && (
-              <ClassicGameLayout
-                gameSetup={gameSetup}
-                pawns={pawns}
-                scores={scores}
-                onGameSetupChange={handleGameSetup}
-                currentTurn={currentTurn}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onDiceRollDurationChange={handleDiceRollDurationChange}
-                onRollStart={startRoll}
-                onDiceRoll={handleDiceRollEnd}
-                diceValue={diceValue}
-                onResetAndGoHome={handleResetAndGoHome}
-                muteSound={muteSound}
-                onToggleMuteSound={() => setMuteSound(prev => !prev)}
-                showNotifications={showNotifications}
-                onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-                addSecondarySafePoints={addSecondarySafePoints}
-                onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-                phase={phase}
-              >
-                  <GameBoard 
-                    showSecondarySafes={addSecondarySafePoints} 
-                    scores={scores} 
-                    gameMode={gameMode} 
-                    glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
-                  >
-                      {renderPawns()}
-                  </GameBoard>
-              </ClassicGameLayout>
-            )}
-          </main>
-        </div>
-      ) : (
-        <div className="flex flex-col flex-1 h-screen">
-            <main className="flex-1 flex flex-col">
-                {gameSetup && (
-                    <FiveMinGameLayout
-                      gameSetup={gameSetup}
-                      onGameSetupChange={handleGameSetup}
-                      currentTurn={currentTurn}
-                      turnTimer={turnTimer}
-                      turnTimerDuration={turnTimerDuration}
-                      onTurnTimerDurationChange={handleTurnTimerDurationChange}
-                      gameTimer={gameTimer}
-                      gameTimerDuration={gameTimerDuration}
-                      onGameTimerDurationChange={handleGameTimerDurationChange}
-                      isRolling={isRolling}
-                      diceRollDuration={diceRollDuration}
-                      onDiceRollDurationChange={handleDiceRollDurationChange}
-                      onRollStart={startRoll}
-                      onDiceRoll={handleDiceRollEnd}
-                      diceValue={diceValue}
-                      onResetAndGoHome={handleResetAndGoHome}
-                      muteSound={muteSound}
-                      onToggleMuteSound={() => setMuteSound(prev => !prev)}
-                      showNotifications={showNotifications}
-                      onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-                      addSecondarySafePoints={addSecondarySafePoints}
-                      onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-                      phase={phase}
-                      scores={scores}
-                    >
-                        <GameBoard 
-                          showSecondarySafes={addSecondarySafePoints} 
-                          scores={scores} 
-                          gameMode={gameMode} 
-                          glassWalls={{red: false, green: false, blue: false, yellow: false}}
-                        >
-                            {renderPawns()}
-                        </GameBoard>
-                    </FiveMinGameLayout>
-                )}
-            </main>
-        </div>
-      )}
+      <div className="flex flex-col flex-1 h-screen">
+        <main className="flex-1 flex flex-col">
+          {renderGameLayout()}
+        </main>
+      </div>
+
       <GameFooter />
     </div>
   );
