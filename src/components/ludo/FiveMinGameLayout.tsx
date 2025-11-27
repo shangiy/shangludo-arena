@@ -55,6 +55,13 @@ const turnIndicatorClasses: Record<PlayerColor, string> = {
     blue: 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.7)] bg-blue-500/5',
 };
 
+const turnStrokeColorClasses: Record<PlayerColor, string> = {
+  red: 'stroke-red-500',
+  green: 'stroke-green-500',
+  yellow: 'stroke-yellow-400',
+  blue: 'stroke-blue-500',
+};
+
 function PlayerPod({
   player,
   color,
@@ -89,7 +96,7 @@ function PlayerPod({
                     <path
                         d="M 2.5,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 Z"
                         fill="none"
-                        className={cn("transition-all", isUrgent ? "stroke-red-500" : `stroke-${color}-500`)}
+                        className={cn("transition-all", isUrgent ? "stroke-red-500" : turnStrokeColorClasses[color])}
                         strokeWidth="5"
                         strokeDasharray="380"
                         strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
@@ -674,3 +681,5 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    
