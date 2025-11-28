@@ -103,7 +103,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
     const showRollResult = !rolling && diceValue !== null;
 
     return (
-        <div className="flex flex-col items-center justify-center gap-2 h-full">
+        <div className="flex flex-col items-center justify-center gap-1 h-full">
             <div className="dice-container">
                 <motion.div 
                     className="dice" 
