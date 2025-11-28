@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === 'classic' ? -1 : -1,
+            position: gameMode === 'classic' || gameMode === 'quick' ? -1 : -1,
             isHome: false,
         }));
     }
@@ -208,7 +208,7 @@ export default function GameClient() {
           } else if (savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER') {
             resumeGameFromState(savedState);
             resumed = true;
-            toast({ title: "Game Resumed", description: "Your previous session has been restored." });
+            setTimeout(() => toast({ title: "Game Resumed", description: "Your previous session has been restored." }), 0);
           }
         }
       }
@@ -313,7 +313,7 @@ export default function GameClient() {
     if (savedStateJSON) {
         const savedState = JSON.parse(savedStateJSON);
         resumeGameFromState(savedState);
-        toast({ title: "Game Resumed", description: "Your paused game has been restored." });
+        setTimeout(() => toast({ title: "Game Resumed", description: "Your paused game has been restored." }), 0);
     }
   };
 
@@ -335,22 +335,22 @@ export default function GameClient() {
     const activePlayers = setup.players.filter(p => p.type !== 'none');
     
     if (activePlayers.length < 2) {
-        toast({
+        setTimeout(() => toast({
             variant: 'destructive',
             title: 'Not Enough Players',
             description: 'You need at least two players to start a game.',
-        });
+        }), 0);
         setPhase('SETUP');
         setGameSetup(setup);
         return;
     }
 
     if (!activePlayers.some(p => p.type === 'human')) {
-      toast({
+      setTimeout(() => toast({
           variant: 'destructive',
           title: 'No Human Players',
           description: 'At least one human player is required to start a game.',
-      });
+      }), 0);
       setPhase('SETUP');
       setGameSetup(setup);
       return;
@@ -411,8 +411,16 @@ export default function GameClient() {
     }
     
     let displayScoreType = 'progress';
-    if (gameMode === '5-min') displayScoreType = 'score';
-    if (gameMode === 'classic') displayScoreType = 'finished';
+    if (gameMode === '5-min') {
+      displayScoreType = 'score';
+    } else if (gameMode === 'classic') {
+      displayScoreType = 'finished';
+    } else { // quick mode
+      const finishedPawns = pawns[ranking[0]?.playerId]?.filter(p => p.isHome).length || 0;
+      if (finishedPawns > 0) {
+        displayScoreType = 'finished';
+      }
+    }
 
 
     const summary = {
@@ -481,11 +489,11 @@ export default function GameClient() {
                 clearInterval(turnTimerRef.current!);
                 addMessage("System", `${players[currentTurn].name} ran out of time!`);
                 if (showNotifications) {
-                    toast({
+                    setTimeout(() => toast({
                         variant: 'destructive',
                         title: 'Time\'s Up!',
                         description: `${players[currentTurn].name}'s turn was skipped or auto-played.`,
-                    });
+                    }), 0);
                 }
                 
                 if (phase === 'MOVING' && diceValue) {
@@ -511,7 +519,7 @@ export default function GameClient() {
   
   useEffect(() => {
     const activePhases = ['ROLLING', 'MOVING', 'AI_THINKING'];
-    if (!gameMode.includes('min') || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING') {
+    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING') {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
         return;
     }
@@ -611,10 +619,8 @@ export default function GameClient() {
       const isHumanTurn = players[currentTurn].type === 'human';
 
       if (isHumanTurn) {
-        // If human gets another turn (e.g. rolled a 6) but has only one type of move, still let them choose.
-        // The exception is if there's only one pawn on the board and it's not a "get another turn" roll.
-        const onBoardPawns = pawns[currentTurn].filter(p => p.position !== -1 && !p.isHome);
-        if (possibleMoves.length === 1 && onBoardPawns.length === 1 && !getsAnotherTurn) {
+        // If human gets another turn (e.g. rolled a 6), always let them choose, even if there's one "type" of move.
+        if (possibleMoves.length === 1 && !getsAnotherTurn) {
           setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
         }
         // Otherwise, wait for human input.
@@ -675,11 +681,11 @@ export default function GameClient() {
 
     if (!selectedMove) {
       if (players[currentTurn]?.type === 'human' && showNotifications) {
-        toast({
+        setTimeout(() => toast({
           variant: 'destructive',
           title: 'Invalid Move',
           description: 'This pawn cannot make that move.',
-        });
+        }), 0);
       }
       return;
     }
@@ -706,11 +712,11 @@ export default function GameClient() {
 
     // Quick Mode: Handle glass wall restart
     if ((gameMode === 'quick' || gameMode === '5-min') && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
-        toast({
+        setTimeout(() => toast({
             title: "Wall Block!",
             description: `${players[currentTurn].name}'s pawn was blocked and must restart its lap!`,
             variant: "destructive"
-        });
+        }), 0);
     }
 
     setPawns((prev) => {
@@ -759,7 +765,7 @@ export default function GameClient() {
                             }
                             addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
                             if (showNotifications) {
-                                toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
+                                setTimeout(() => toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` }), 0);
                             }
                         }
                         if (gameMode === '5-min') {
@@ -777,7 +783,7 @@ export default function GameClient() {
       newPawns[currentTurn] = pawnsOfPlayer;
       
       const winningConditionMet = () => {
-        if (gameMode === 'quick' || gameMode === '5-min') {
+        if (gameMode === 'quick') {
             return newPawns[currentTurn].some((p: Pawn) => p.isHome);
         }
         return newPawns[currentTurn].every((p: Pawn) => p.isHome);
@@ -925,7 +931,7 @@ export default function GameClient() {
     if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
         setPreviousPhase(phase);
         setPhase('PAUSED');
-        toast({ title: 'Game Paused', description: 'Your game is saved. You can return later.' });
+        setTimeout(() => toast({ title: 'Game Paused', description: 'Your game is saved. You can return later.' }), 0);
         router.push('/');
     }
   };
@@ -1152,3 +1158,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
