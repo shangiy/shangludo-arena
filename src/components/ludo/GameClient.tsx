@@ -1099,7 +1099,7 @@ export default function GameClient() {
             onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             phase={phase}
           >
-            <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && 'blur-sm transition-all')}>
+            <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && phase !== 'ANIMATING_MOVE' && 'blur-sm transition-all')}>
               {gameBoard}
             </div>
           </ClassicGameLayout>
@@ -1138,7 +1138,7 @@ export default function GameClient() {
           phase={phase}
           scores={scores}
         >
-          <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && 'blur-sm transition-all')}>
+          <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && phase !== 'ANIMATING_MOVE' && 'blur-sm transition-all')}>
             {gameBoard}
           </div>
         </FiveMinGameLayout>
@@ -1209,7 +1209,7 @@ export default function GameClient() {
 
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-breaking.mp3" preload="auto" />
-      <audio ref={pawnHopAudioRef} src="/sounds/ludo_multi_hop.wav" preload="auto" />
+      <audio ref={pawnHopAudioRef} src="/sounds/ludo_cartoon_pop.wav" preload="auto" />
       <audio ref={pawnLeaveYardAudioRef} src="/sounds/ludo_pop_punchy.wav" preload="auto" />
 
       <div className="flex flex-col flex-1 h-screen">
