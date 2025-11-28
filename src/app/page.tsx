@@ -1,12 +1,13 @@
 
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Twitter, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
 import { FindFriendForm } from '@/components/ludo/FindFriendForm';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { XIcon } from '@/components/icons/XIcon';
 
 export default function Home() {
   return (
@@ -167,7 +168,7 @@ export default function Home() {
                 A creative and passionate full-stack developer dedicated to building elegant, functional, and user-friendly web experiences. I thrive on turning complex problems into beautiful, intuitive designs.
               </p>
               <div className="flex space-x-4">
-                <Link href="#" className="hover:text-white"><Twitter className="h-5 w-5" /></Link>
+                <Link href="#" className="hover:text-white"><XIcon className="h-5 w-5" /></Link>
                 <Link href="#" className="hover:text-white"><Dribbble className="h-5 w-5" /></Link>
                 <Link href="#" className="hover:text-white"><Linkedin className="h-5 w-5" /></Link>
               </div>
