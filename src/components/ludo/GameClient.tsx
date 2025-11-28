@@ -368,7 +368,6 @@ export default function GameClient() {
     setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
     setDiceValue(null);
-    setPhase('ROLLING');
     setEndGameSummary(null);
     setShowEndGameDialog(false);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
@@ -379,6 +378,24 @@ export default function GameClient() {
       setTurnTimer(newTurnDuration);
       setGameTimer(gameTimerDuration);
     }
+    
+    setPhase('RESUMING');
+    setCountdown(3);
+    const interval = setInterval(() => {
+        setCountdown(prev => {
+            if (prev === null) {
+                clearInterval(interval);
+                return null;
+            }
+            if (prev <= 1) {
+                clearInterval(interval);
+                setPhase('ROLLING');
+                setCountdown(null);
+                return null;
+            }
+            return prev - 1;
+        });
+    }, 1000);
   };
 
   const handleEndGame = () => {
@@ -488,13 +505,15 @@ export default function GameClient() {
             if (prev <= 1000) {
                 clearInterval(turnTimerRef.current!);
                 addMessage("System", `${players[currentTurn].name} ran out of time!`);
-                if (showNotifications) {
-                    setTimeout(() => toast({
-                        variant: 'destructive',
-                        title: 'Time\'s Up!',
-                        description: `${players[currentTurn].name}'s turn was skipped or auto-played.`,
-                    }), 0);
-                }
+                setTimeout(() => {
+                    if (showNotifications) {
+                        toast({
+                            variant: 'destructive',
+                            title: 'Time\'s Up!',
+                            description: `${players[currentTurn].name}'s turn was skipped or auto-played.`,
+                        });
+                    }
+                }, 0);
                 
                 if (phase === 'MOVING' && diceValue) {
                    const autoMove = getMostAdvancedPawnMove(diceValue);
@@ -620,7 +639,10 @@ export default function GameClient() {
 
       if (isHumanTurn) {
         // If human gets another turn (e.g. rolled a 6), always let them choose, even if there's one "type" of move.
-        if (possibleMoves.length === 1 && !getsAnotherTurn) {
+        const canMoveFromYard = possibleMoves.some(m => m.pawn.position === -1);
+        const canMoveOnBoard = possibleMoves.some(m => m.pawn.position !== -1);
+        
+        if (possibleMoves.length === 1 && !(getsAnotherTurn && canMoveFromYard && canMoveOnBoard)) {
           setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
         }
         // Otherwise, wait for human input.
@@ -761,12 +783,15 @@ export default function GameClient() {
                              setGlassWalls(prev => ({...prev, [currentTurn]: false}));
                              setShowGlassShatter(true);
                             if (!muteSound && glassBreakAudioRef.current) {
+                                glassBreakAudioRef.current.volume = 1.0;
                                 glassBreakAudioRef.current.play();
                             }
                             addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
-                            if (showNotifications) {
-                                setTimeout(() => toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` }), 0);
-                            }
+                            setTimeout(() => {
+                                if (showNotifications) {
+                                    toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
+                                }
+                            }, 0);
                         }
                         if (gameMode === '5-min') {
                            setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
@@ -783,7 +808,7 @@ export default function GameClient() {
       newPawns[currentTurn] = pawnsOfPlayer;
       
       const winningConditionMet = () => {
-        if (gameMode === 'quick') {
+        if (gameMode === 'quick' || gameMode === '5-min') {
             return newPawns[currentTurn].some((p: Pawn) => p.isHome);
         }
         return newPawns[currentTurn].every((p: Pawn) => p.isHome);
@@ -1146,7 +1171,7 @@ export default function GameClient() {
 
 
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
-      <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
+      <audio ref={glassBreakAudioRef} src="/sounds/glass-breaking.mp3" preload="auto" />
 
       <div className="flex flex-col flex-1 h-screen">
         <main className="flex-1 flex flex-col">
