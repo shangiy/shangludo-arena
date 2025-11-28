@@ -152,6 +152,7 @@ export default function GameClient() {
   const diceRollAudioRef = useRef<HTMLAudioElement>(null);
   const glassBreakAudioRef = useRef<HTMLAudioElement>(null);
   const pawnHopAudioRef = useRef<HTMLAudioElement>(null);
+  const pawnLeaveYardAudioRef = useRef<HTMLAudioElement>(null);
 
   const SAFE_ZONES = useMemo(() => {
     const primarySafes = [
@@ -743,7 +744,7 @@ export default function GameClient() {
       }
   
       currentStep++;
-      animationTimeoutRef.current = setTimeout(step, 250); // Adjust hop speed here
+      animationTimeoutRef.current = setTimeout(step, 250);
     };
   
     step();
@@ -758,6 +759,10 @@ export default function GameClient() {
 
     if (startIndex === -1) { // Coming out of yard
       movePath = [newPosition];
+       if (pawnLeaveYardAudioRef.current && !muteSound) {
+        pawnLeaveYardAudioRef.current.currentTime = 0;
+        pawnLeaveYardAudioRef.current.play().catch(e => console.error("Audio play failed:", e));
+      }
     } else {
       const endIndex = path.indexOf(newPosition);
       if (endIndex > startIndex) {
@@ -1205,6 +1210,7 @@ export default function GameClient() {
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-breaking.mp3" preload="auto" />
       <audio ref={pawnHopAudioRef} src="/sounds/ludo_multi_hop.wav" preload="auto" />
+      <audio ref={pawnLeaveYardAudioRef} src="/sounds/ludo_pop_punchy.wav" preload="auto" />
 
       <div className="flex flex-col flex-1 h-screen">
         <main className="flex-1 flex flex-col">
