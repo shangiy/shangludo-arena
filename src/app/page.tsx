@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Logo } from '@/components/icons/Logo';
 import { FindFriendForm } from '@/components/ludo/FindFriendForm';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function Home() {
   return (
@@ -217,7 +218,7 @@ export default function Home() {
                     <div>
                         <p className="font-semibold">Quick Contact</p>
                         <p className="text-sm">contact@mushangi.dev</p>
-                        <p className="text-sm">+254 123 456 789</p>
+                        <p className="text-sm">+254 727 607 824</p>
                     </div>
                 </div>
             </div>
@@ -245,7 +246,7 @@ export default function Home() {
                 <div>
                     <p className="font-semibold text-white">Quick Contact</p>
                     <p className="text-sm">contact@mushangi.dev</p>
-                    <p className="text-sm">+254 123 456 789</p>
+                    <p className="text-sm">+254 727 607 824</p>
                 </div>
             </div>
           </div>
@@ -257,7 +258,7 @@ export default function Home() {
                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
                         🎲
                     </div>
-                    <p className="text-sm">&copy; 2025 Shangludo . Developed by  Coder+. All rights reserved.</p>
+                    <p className="text-sm">&copy; 2025 Shangludo . Developed by <TooltipProvider><Tooltip><TooltipTrigger asChild><a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline">Coder+</a></TooltipTrigger><TooltipContent><p>Dev: Mushangi Patrick Coder+, see more</p></TooltipContent></Tooltip></TooltipProvider>. All rights reserved.</p>
                 </div>
 
                 <a href="#top" className="absolute right-4 -top-5 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
