@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === 'quick' || gameMode === '5-min' ? -1 : -1,
+            position: gameMode === 'classic' ? -1 : -1,
             isHome: false,
         }));
     }
@@ -510,7 +510,8 @@ export default function GameClient() {
   }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue]);
   
   useEffect(() => {
-    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER' || phase === 'PAUSED' || phase === 'RESUMING') {
+    const activePhases = ['ROLLING', 'MOVING', 'AI_THINKING'];
+    if (!gameMode.includes('min') || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING') {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
         return;
     }
@@ -531,7 +532,7 @@ export default function GameClient() {
     return () => {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
     };
-  }, [phase, gameMode, gameTimerDuration]);
+  }, [phase, gameMode, winner, gameTimerDuration]);
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
@@ -592,61 +593,48 @@ export default function GameClient() {
     setDiceValue(value);
 
     const possibleMoves = getPossibleMoves(currentTurn, value);
+    const getsAnotherTurn = value === 6;
 
     if (possibleMoves.length === 0) {
       addMessage('System', `${players[currentTurn].name} has no possible moves.`);
       setTimeout(() => {
-        if (value !== 6 || winner) {
-          nextTurn();
-        } else {
+        if (getsAnotherTurn && !winner) {
           setPhase('ROLLING'); // Roll again
           setDiceValue(null);
           addMessage('System', `${players[currentTurn].name} gets to roll again.`);
+        } else {
+          nextTurn();
         }
       }, 1000);
     } else {
       setPhase('MOVING');
       const isHumanTurn = players[currentTurn].type === 'human';
 
-      if (isHumanTurn && possibleMoves.length === 1) {
-        // If there's only one possible move for a human, play it automatically
-        setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
+      if (isHumanTurn) {
+        // If human gets another turn (e.g. rolled a 6) but has only one type of move, still let them choose.
+        // The exception is if there's only one pawn on the board and it's not a "get another turn" roll.
+        const onBoardPawns = pawns[currentTurn].filter(p => p.position !== -1 && !p.isHome);
+        if (possibleMoves.length === 1 && onBoardPawns.length === 1 && !getsAnotherTurn) {
+          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
+        }
+        // Otherwise, wait for human input.
       } else if (players[currentTurn].type === 'ai') {
         setPhase('AI_THINKING');
         setTimeout(() => {
           handleAiMove(value);
         }, 500);
-      } else {
-         // This is the case for human turn with multiple moves
-         // Also handle all-pawns-in-same-place scenario here
-         const onBoardPawns = pawns[currentTurn].filter(p => p.position !== -1 && !p.isHome);
-         const uniquePositions = new Set(onBoardPawns.map(p => p.position));
-
-         if (onBoardPawns.length > 0 && uniquePositions.size === 1) {
-             const singleMove = possibleMoves.find(move => move.pawn.position === onBoardPawns[0].position);
-             if (singleMove) {
-                 setTimeout(() => performMove(singleMove.pawn, singleMove.newPosition, value), 500);
-                 return;
-             }
-         }
       }
-      // If it's a human turn with multiple moves, we just wait for the user to click a pawn.
     }
   };
 
   const startRoll = () => {
     if (phase !== 'ROLLING' || isRolling) return;
-    if (gameMode === '5-min' && turnTimerRef.current) {
-      // Don't clear here, let the useEffect for phase change handle it
-    }
     
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.currentTime = 0;
-      diceRollAudioRef.current.play();
+      diceRollAudioRef.current.play().catch(e => console.error("Audio play failed", e));
     }
     
-    // The Dice3D/Dice component now handles the random number generation.
-    // We just trigger the animation here.
     setIsRolling(true);
   };
 
@@ -664,13 +652,12 @@ export default function GameClient() {
       if (move && move.pawn) {
         performMove(move.pawn, move.newPosition, roll);
       } else {
-        // AI has no move, which should be handled by the logic inside chooseAiMove
-        // But as a fallback, we check what handleDiceRollEnd would do.
-        if (roll !== 6) {
-          nextTurn();
-        } else {
+        const getsAnotherTurn = roll === 6;
+        if (getsAnotherTurn) {
           setPhase('ROLLING');
           setDiceValue(null);
+        } else {
+          nextTurn();
         }
       }
   };
@@ -943,7 +930,7 @@ export default function GameClient() {
     }
   };
 
-  if (!isMounted) {
+  if (!isMounted || !gameSetup) {
      return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

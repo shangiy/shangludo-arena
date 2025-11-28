@@ -78,6 +78,7 @@ export function chooseMove(
   const startSquare = START_POSITIONS[playerId];
   const playerPath = PATHS[playerId];
   const isClassic = gameState.gameMode === 'classic';
+  const getsAnotherTurn = dice === 6; // Simplified for this context
 
   // build list of legal moves given roll
   const getPossibleMoves = (roll: number) => {
@@ -109,19 +110,15 @@ export function chooseMove(
       if (targetIdx < playerPath.length) {
         const newPos = playerPath[targetIdx];
         
-        // Quick Mode: Glass wall sends you back to start
-        if (gameState.gameMode === 'quick' && gameState.glassWalls[playerId] && newPos === GLASS_WALL_POSITIONS[playerId]) {
-          moves.push({ pawn, newPosition: startSquare });
-          continue; // special move
+        // Quick/5-min Mode: Glass wall sends you back to start
+        if ((gameState.gameMode === 'quick' || gameState.gameMode === '5-min') && gameState.glassWalls[playerId]) {
+          const homeRunEntryIndex = 51;
+          if(curIdx < homeRunEntryIndex && targetIdx >= homeRunEntryIndex) {
+            moves.push({ pawn, newPosition: startSquare });
+            continue; // special move
+          }
         }
         
-        // Quick Mode: Blocked from entering home run
-        const homeRunEntryIndex = 51;
-        if (gameState.gameMode === 'quick' && gameState.glassWalls[playerId] && curIdx < homeRunEntryIndex && targetIdx >= homeRunEntryIndex) {
-            // blocked by wall, cannot enter home run
-            continue;
-        }
-
         const ownAtDest = playerPawns.filter(p => p.position === newPos).length;
         if (!isClassic && !safeSquares.has(newPos) && ownAtDest >= 2) {
           // moving into own blockade (non-classic) - skip
@@ -138,12 +135,23 @@ export function chooseMove(
   if (possibleMoves.length === 0) {
     return null;
   }
+  
+  if (possibleMoves.length === 1 && !getsAnotherTurn) {
+    return possibleMoves[0];
+  }
 
-  // If a 6 is rolled and there are pawns in the yard, prioritize getting a pawn out.
+
+  // If a 6 is rolled and there are pawns in the yard, strongly prefer getting a pawn out.
   if (dice === 6 && playerPawns.some(p => isInYard(p))) {
     const enterYardMove = possibleMoves.find(m => isInYard(m.pawn));
-    if (enterYardMove) {
-      return enterYardMove;
+    // If there's a capture move available, consider it against bringing a pawn out
+    const captureMove = possibleMoves.find(move => {
+      const opponents = findOpponentsOnSquare(gameState.pawns, move.newPosition, playerId);
+      return opponents.length > 0 && !safeSquares.has(move.newPosition as number);
+    });
+
+    if (enterYardMove && !captureMove) {
+      return enterYardMove; // Prioritize getting out if no capture is possible
     }
   }
 
@@ -165,8 +173,8 @@ export function chooseMove(
       score += 800 + opponents.length * 150;
     }
     
-    // Quick Mode: Restarting lap is very bad
-    if (gameState.gameMode === 'quick' && newPosition === startSquare && oldIdx !== -1) {
+    // Quick/5-min Mode: Restarting lap is very bad
+    if ((gameState.gameMode === 'quick' || gameState.gameMode === '5-min') && newPosition === startSquare && oldIdx !== -1) {
       score -= 5000;
     }
 
@@ -210,9 +218,24 @@ export function computeRanking(
     
         const path = PATHS[color];
         const totalPathLength = path.length - 1; // 57 steps
-        const maxProgress = (gameMode === 'quick' ? 1 : 4) * totalPathLength;
+        const maxProgress = 4 * totalPathLength;
     
         let currentProgress = 0;
+
+        // For quick mode, we only care about the most advanced pawn
+        if (gameMode === 'quick') {
+            const pawnPositions = playerPawns.map(p => {
+                if (p.isHome) return totalPathLength;
+                if (p.position === -1) return -1;
+                return path.indexOf(p.position);
+            });
+            const maxPosition = Math.max(...pawnPositions);
+            currentProgress = maxPosition >= 0 ? maxPosition : 0;
+            const singlePawnMax = totalPathLength;
+            return Math.floor(Math.min(100, (currentProgress / singlePawnMax) * 100));
+        }
+
+        // For classic and 5-min modes
         playerPawns.forEach(pawn => {
             if (pawn.isHome) {
                 currentProgress += totalPathLength;
@@ -224,17 +247,6 @@ export function computeRanking(
             }
         });
         
-        // For quick mode, we only care about the most advanced pawn
-        if (gameMode === 'quick') {
-            const pawnPositions = playerPawns.map(p => {
-                if (p.isHome) return totalPathLength;
-                if (p.position === -1) return -1;
-                return path.indexOf(p.position);
-            });
-            const maxPosition = Math.max(...pawnPositions);
-            currentProgress = maxPosition >= 0 ? maxPosition : 0;
-        }
-
         const percentage = (currentProgress / maxProgress) * 100;
         return Math.floor(Math.min(100, percentage));
     };
