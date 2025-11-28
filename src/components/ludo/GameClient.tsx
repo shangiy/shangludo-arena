@@ -743,7 +743,7 @@ export default function GameClient() {
       }
   
       currentStep++;
-      animationTimeoutRef.current = setTimeout(step, 150); // Adjust hop speed here
+      animationTimeoutRef.current = setTimeout(step, 100); // Adjust hop speed here
     };
   
     step();
@@ -812,7 +812,7 @@ export default function GameClient() {
                           if (gameMode === '5-min') {
                              setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                           }
-                          return { ...p, position: (gameMode === '5-min' ? -1 : START_POSITIONS[p.color]) };
+                          return { ...p, position: (gameMode === '5-min' || gameMode === 'quick' ? -1 : START_POSITIONS[p.color]) };
                       }
                       return p;
                   });
@@ -1064,7 +1064,8 @@ export default function GameClient() {
       </GameBoard>
     );
 
-    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER' && phase !== 'ANIMATING_MOVE';
+    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER';
+    const isBoardBlurred = phase === 'PAUSED' || phase === 'RESUMING' || phase === 'SETUP' || countdown !== null || phase === 'GAME_OVER';
 
     if (gameMode === 'classic') {
       return (
@@ -1090,7 +1091,7 @@ export default function GameClient() {
             onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             phase={phase}
           >
-            <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+            <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && 'blur-sm transition-all')}>
               {gameBoard}
             </div>
           </ClassicGameLayout>
@@ -1129,7 +1130,7 @@ export default function GameClient() {
           phase={phase}
           scores={scores}
         >
-            <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+          <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && 'blur-sm transition-all')}>
             {gameBoard}
           </div>
         </FiveMinGameLayout>
