@@ -743,7 +743,7 @@ export default function GameClient() {
       }
   
       currentStep++;
-      animationTimeoutRef.current = setTimeout(step, 100); // Adjust hop speed here
+      animationTimeoutRef.current = setTimeout(step, 250); // Adjust hop speed here
     };
   
     step();
@@ -826,6 +826,9 @@ export default function GameClient() {
         const winningConditionMet = () => {
           if (gameMode === 'quick') {
               return newPawns[currentTurn].some((p: Pawn) => p.isHome);
+          }
+          if (gameMode === '5-min') {
+              return newPawns[currentTurn].every((p: Pawn) => p.isHome);
           }
           return newPawns[currentTurn].every((p: Pawn) => p.isHome);
         };
@@ -1064,7 +1067,7 @@ export default function GameClient() {
       </GameBoard>
     );
 
-    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER';
+    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER' && phase !== 'ANIMATING_MOVE';
     const isBoardBlurred = phase === 'PAUSED' || phase === 'RESUMING' || phase === 'SETUP' || countdown !== null || phase === 'GAME_OVER';
 
     if (gameMode === 'classic') {
