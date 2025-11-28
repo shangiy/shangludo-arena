@@ -257,7 +257,7 @@ export default function Home() {
                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
                         🎲
                     </div>
-                    <p className="text-sm">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
+                    <p className="text-sm">&copy; 2025 Shangludo . Developed by  Coder+. All rights reserved.</p>
                 </div>
 
                 <a href="#top" className="absolute right-4 -top-5 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
