@@ -38,8 +38,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogAction,
-  DialogCancel,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
@@ -932,8 +930,8 @@ export default function GameClient() {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <DialogCancel onClick={handleNewGame}>Start New Game</DialogCancel>
-                    <DialogAction onClick={handleResume}>Resume Game</DialogAction>
+                    <Button variant="outline" onClick={handleNewGame}>Start New Game</Button>
+                    <Button onClick={handleResume}>Resume Game</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -1077,9 +1075,9 @@ export default function GameClient() {
         <DialogContent>
           <DialogHeader>
              <DialogTitle className="text-2xl font-bold text-center">
-              {endGameSummary?.title}
+              {endGameSummary?.title}{' '}
               {endGameSummary?.winnerName && (
-                <span className={cn("ml-2", endGameSummary.winnerColor && PLAYER_TEXT_COLORS[endGameSummary.winnerColor])}>
+                <span className={cn(endGameSummary.winnerColor && PLAYER_TEXT_COLORS[endGameSummary.winnerColor])}>
                   {endGameSummary.winnerName}
                 </span>
               )}
