@@ -313,7 +313,7 @@ export function Pawn({
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+      transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
         top: `${top}%`,
