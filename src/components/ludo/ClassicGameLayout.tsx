@@ -110,33 +110,28 @@ function PlayerPod({
   );
 }
 
-function Scoreboard({ pawns, players, gameMode, scores }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[], gameMode: string, scores: Record<PlayerColor, number> }) {
+function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[] }) {
     const activePlayers = players.filter(p => p.type !== 'none');
     
     const getProgressPercentage = (color: PlayerColor) => {
         const playerPawns = pawns[color];
         if (!playerPawns || playerPawns.length === 0) return 0;
     
-        if (gameMode !== 'quick') {
-            const homeCount = playerPawns.filter(p => p.isHome).length;
-            return Math.floor((homeCount / 4) * 100);
-        }
-    
-        // Quick mode percentage calculation
         const path = PATHS[color];
-        const totalPathLength = path.length -1;
+        const totalPathLength = path.length - 1; // 57 steps
         const maxProgress = 4 * totalPathLength;
     
         let currentProgress = 0;
         playerPawns.forEach(pawn => {
             if (pawn.isHome) {
                 currentProgress += totalPathLength;
-            } else if (pawn.position !== -1) {
+            } else if (pawn.position !== -1) { // Pawn is on the board
                 const pathIndex = path.indexOf(pawn.position);
                 if (pathIndex !== -1) {
                     currentProgress += pathIndex;
                 }
             }
+            // Pawns in the yard (position: -1) contribute 0 progress
         });
         
         const percentage = (currentProgress / maxProgress) * 100;
@@ -577,7 +572,7 @@ export function ClassicGameLayout({
             {/* Game Board and Scoreboard Container */}
             <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
                 {children}
-                <Scoreboard pawns={pawns} players={gameSetup.players} gameMode={gameSetup.gameMode} scores={scores} />
+                <Scoreboard pawns={pawns} players={gameSetup.players} />
             </div>
             
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
