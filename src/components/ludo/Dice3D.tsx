@@ -18,19 +18,19 @@ const DiceFace = ({ face, colorClass }: { face: number, colorClass: string }) =>
 };
 
 const faceColors: Record<PlayerColor, string> = {
-  red: 'bg-red-500',
-  green: 'bg-green-500',
-  yellow: 'bg-yellow-400',
-  blue: 'bg-blue-500',
+  red: 'bg-gradient-to-br from-red-400 to-red-600',
+  green: 'bg-gradient-to-br from-green-400 to-green-600',
+  yellow: 'bg-gradient-to-br from-yellow-300 to-yellow-500',
+  blue: 'bg-gradient-to-br from-blue-400 to-blue-600',
 };
 
 const rotations: Record<number, { x: number, y: number }> = {
-    1: { x: 0, y: 0 },      // Correct: Face 1 is on top
-    2: { x: 90, y: 0 },     // FIX: Uses rotation of original Face 5
-    3: { x: 0, y: -90 },    // FIX: Uses rotation of original Face 4
-    4: { x: 0, y: 90 },     // FIX: Uses rotation of original Face 3
-    5: { x: -90, y: 0 },    // FIX: Uses rotation of original Face 2
-    6: { x: 180, y: 0 },    // Correct: Face 6 is on top
+    1: { x: 0, y: 0 },
+    2: { x: 90, y: 0 },
+    3: { x: 0, y: -90 },
+    4: { x: 0, y: 90 },
+    5: { x: -90, y: 0 },
+    6: { x: 180, y: 0 },
 };
 
 type Dice3DProps = {

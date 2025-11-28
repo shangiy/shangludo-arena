@@ -12,6 +12,10 @@ export default {
     'bg-green-500', 'border-green-500', 'text-green-500', 'fill-green-500',
     'bg-yellow-400', 'border-yellow-400', 'text-yellow-400', 'fill-yellow-400',
     'bg-blue-500', 'border-blue-500', 'text-blue-500', 'fill-blue-500',
+    'bg-gradient-to-br', 'from-red-400', 'to-red-600',
+    'from-green-400', 'to-green-600',
+    'from-yellow-300', 'to-yellow-500',
+    'from-blue-400', 'to-blue-600',
   ],
   theme: {
     extend: {
