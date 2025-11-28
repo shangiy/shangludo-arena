@@ -217,8 +217,10 @@ export default function GameClient() {
     }
 
     if (!resumed && !showResumeDialog) {
-      if (gameMode === 'quick' || gameMode === '5-min') {
-        handleGameSetup(gameMode === 'quick' ? quickPlaySetup : fiveMinSetup);
+      if (gameMode === 'quick') {
+        handleGameSetup(quickPlaySetup);
+      } else if (gameMode === '5-min') {
+        handleGameSetup(fiveMinSetup);
       }
     }
   }, [gameMode]);
@@ -314,8 +316,10 @@ export default function GameClient() {
       setShowResumeDialog(false);
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
       // Re-initialize based on mode
-      if (gameMode === 'quick' || gameMode === '5-min') {
-        handleGameSetup(gameMode === 'quick' ? quickPlaySetup : fiveMinSetup);
+      if (gameMode === 'quick') {
+        handleGameSetup(quickPlaySetup);
+      } else if (gameMode === '5-min') {
+        handleGameSetup(fiveMinSetup);
       } else {
         setPhase('SETUP');
       }
@@ -456,7 +460,7 @@ export default function GameClient() {
 
   useEffect(() => {
     const activePhases = ['ROLLING', 'MOVING'];
-    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner) {
+    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING') {
         if (turnTimerRef.current) clearInterval(turnTimerRef.current);
         return;
     }
@@ -499,7 +503,7 @@ export default function GameClient() {
   }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue]);
   
   useEffect(() => {
-    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER' || phase === 'PAUSED') {
+    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER' || phase === 'PAUSED' || phase === 'RESUMING') {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
         return;
     }
@@ -956,7 +960,7 @@ export default function GameClient() {
     );
   }
 
-  if (phase === 'SETUP' && gameMode !== 'quick' && gameMode !== '5-min') {
+  if (phase === 'SETUP' && gameMode === 'classic') {
       return (
         <div className="relative min-h-screen bg-gray-100 flex flex-col">
             <main className="flex-1 flex items-center justify-center p-4">
@@ -974,7 +978,7 @@ export default function GameClient() {
       <>
         {renderPawns()}
         <AnimatePresence>
-          {(countdown !== null || phase === 'RESUMING') && (
+          {(countdown !== null) && (
             <motion.div
               key={countdown}
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
@@ -1005,78 +1009,75 @@ export default function GameClient() {
 
     const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null;
 
-    switch (gameMode) {
-      case 'classic':
-        return (
-          gameSetup && (
-            <ClassicGameLayout
-              gameSetup={gameSetup}
-              pawns={pawns}
-              onGameSetupChange={handleGameSetup}
-              currentTurn={currentTurn}
-              isRolling={isRolling}
-              diceRollDuration={diceRollDuration}
-              onDiceRollDurationChange={handleDiceRollDurationChange}
-              onRollStart={startRoll}
-              onDiceRoll={handleDiceRollEnd}
-              diceValue={diceValue}
-              onResetAndGoHome={handleResetAndGoHome}
-              onPauseGame={handlePauseGame}
-              muteSound={muteSound}
-              onToggleMuteSound={() => setMuteSound(prev => !prev)}
-              showNotifications={showNotifications}
-              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-              addSecondarySafePoints={addSecondarySafePoints}
-              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-              phase={phase}
-            >
-              <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
-                {gameBoard}
-              </div>
-            </ClassicGameLayout>
-          )
-        );
-      case 'quick':
-      case '5-min':
-        return (
-          gameSetup && (
-            <FiveMinGameLayout
-              gameSetup={gameSetup}
-              pawns={pawns}
-              onGameSetupChange={handleGameSetup}
-              currentTurn={currentTurn}
-              turnTimer={turnTimer}
-              turnTimerDuration={turnTimerDuration}
-              onTurnTimerDurationChange={handleTurnTimerDurationChange}
-              gameTimer={gameTimer}
-              gameTimerDuration={gameTimerDuration}
-              onGameTimerDurationChange={handleGameTimerDurationChange}
-              isRolling={isRolling}
-              diceRollDuration={diceRollDuration}
-              onDiceRollDurationChange={handleDiceRollDurationChange}
-              onRollStart={startRoll}
-              onDiceRoll={handleDiceRollEnd}
-              diceValue={diceValue}
-              onResetAndGoHome={handleResetAndGoHome}
-              onPauseGame={handlePauseGame}
-              muteSound={muteSound}
-              onToggleMuteSound={() => setMuteSound(prev => !prev)}
-              showNotifications={showNotifications}
-              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-              addSecondarySafePoints={addSecondarySafePoints}
-              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-              phase={phase}
-              scores={scores}
-            >
-               <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
-                {gameBoard}
-              </div>
-            </FiveMinGameLayout>
-          )
-        );
-      default:
-        return null;
+    if (gameMode === 'classic') {
+      return (
+        gameSetup && (
+          <ClassicGameLayout
+            gameSetup={gameSetup}
+            pawns={pawns}
+            onGameSetupChange={handleGameSetup}
+            currentTurn={currentTurn}
+            isRolling={isRolling}
+            diceRollDuration={diceRollDuration}
+            onDiceRollDurationChange={handleDiceRollDurationChange}
+            onRollStart={startRoll}
+            onDiceRoll={handleDiceRollEnd}
+            diceValue={diceValue}
+            onResetAndGoHome={handleResetAndGoHome}
+            onPauseGame={handlePauseGame}
+            muteSound={muteSound}
+            onToggleMuteSound={() => setMuteSound(prev => !prev)}
+            showNotifications={showNotifications}
+            onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+            addSecondarySafePoints={addSecondarySafePoints}
+            onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+            phase={phase}
+          >
+            <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+              {gameBoard}
+            </div>
+          </ClassicGameLayout>
+        )
+      );
     }
+    
+    // Quick and 5-min mode use the same layout now
+    return (
+      gameSetup && (
+        <FiveMinGameLayout
+          gameSetup={gameSetup}
+          pawns={pawns}
+          onGameSetupChange={handleGameSetup}
+          currentTurn={currentTurn}
+          turnTimer={turnTimer}
+          turnTimerDuration={turnTimerDuration}
+          onTurnTimerDurationChange={handleTurnTimerDurationChange}
+          gameTimer={gameTimer}
+          gameTimerDuration={gameTimerDuration}
+          onGameTimerDurationChange={handleGameTimerDurationChange}
+          isRolling={isRolling}
+          diceRollDuration={diceRollDuration}
+          onDiceRollDurationChange={handleDiceRollDurationChange}
+          onRollStart={startRoll}
+          onDiceRoll={handleDiceRollEnd}
+          diceValue={diceValue}
+          onResetAndGoHome={handleResetAndGoHome}
+          onPauseGame={handlePauseGame}
+          muteSound={muteSound}
+          onToggleMuteSound={() => setMuteSound(prev => !prev)}
+          showNotifications={showNotifications}
+          onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
+          addSecondarySafePoints={addSecondarySafePoints}
+          onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
+          phase={phase}
+          scores={scores}
+        >
+            <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+            {gameBoard}
+          </div>
+        </FiveMinGameLayout>
+      )
+    );
   };
 
 
@@ -1092,7 +1093,7 @@ export default function GameClient() {
       >
         <DialogContent>
           <DialogHeader>
-             <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+            <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
               {endGameSummary?.title}
               {endGameSummary?.winnerName && (
                 <span className={cn(endGameSummary.winnerColor && PLAYER_TEXT_COLORS[endGameSummary.winnerColor])}>
