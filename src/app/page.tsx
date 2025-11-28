@@ -1,5 +1,4 @@
 
-
 import Link from 'next/link';
 import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Twitter, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -217,7 +216,7 @@ export default function Home() {
                     <Phone className="h-5 w-5 mt-1 text-gray-400" />
                     <div>
                         <p className="font-semibold">Quick Contact</p>
-                        <p className="text-sm">contact@mushangi.dev</p>
+                        <p className="text-sm">mushangip0@gmail.com</p>
                         <p className="text-sm">+254 727 607 824</p>
                     </div>
                 </div>
@@ -245,7 +244,7 @@ export default function Home() {
                 <Phone className="h-5 w-5 mt-1 text-gray-400" />
                 <div>
                     <p className="font-semibold text-white">Quick Contact</p>
-                    <p className="text-sm">contact@mushangi.dev</p>
+                    <p className="text-sm">mushangip0@gmail.com</p>
                     <p className="text-sm">+254 727 607 824</p>
                 </div>
             </div>
