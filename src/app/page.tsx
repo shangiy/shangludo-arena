@@ -1,6 +1,7 @@
 
+
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Twitter, Dribbble, Linkedin, MapPin, Clock, ArrowUp } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Twitter, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -112,6 +113,25 @@ export default function Home() {
                 </CardDescription>
                 <Button asChild className="w-full bg-primary hover:bg-primary/90">
                   <Link href="/game?mode=classic">Play Classic</Link>
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="bg-slate-400/10 p-3 rounded-full">
+                    <Skull className="h-6 w-6 text-slate-500" />
+                  </div>
+                  <CardTitle className="font-headline">Tombstone</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  A high-stakes mode where captured pawns are eliminated permanently. Last player standing wins.
+                </CardDescription>
+                <Button asChild className="w-full bg-slate-800 hover:bg-slate-900 text-white">
+                  <Link href="/game?mode=tombstone">Play Tombstone</Link>
                 </Button>
               </CardContent>
             </Card>
