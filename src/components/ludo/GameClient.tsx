@@ -585,11 +585,11 @@ export default function GameClient() {
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
     setDiceValue(value);
-    
+
     if (!muteSound && diceRollAudioRef.current) {
       diceRollAudioRef.current.play();
     }
-    
+
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
     if (possibleMoves.length === 0) {
@@ -606,18 +606,17 @@ export default function GameClient() {
     } else {
       setPhase('MOVING');
       const isHumanTurn = players[currentTurn].type === 'human';
-      const isAITurn = players[currentTurn].type === 'ai';
 
-      if (isHumanTurn) {
-        if (possibleMoves.length === 1) {
-          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
-        }
-      } else if (isAITurn) {
+      if (isHumanTurn && possibleMoves.length === 1) {
+        // If there's only one possible move for a human, play it automatically
+        setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
+      } else if (players[currentTurn].type === 'ai') {
         setPhase('AI_THINKING');
         setTimeout(() => {
-            handleAiMove(value);
+          handleAiMove(value);
         }, 500);
       }
+      // If it's a human turn with multiple moves, we just wait for the user to click a pawn.
     }
   };
 
