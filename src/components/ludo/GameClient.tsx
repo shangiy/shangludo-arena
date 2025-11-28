@@ -230,10 +230,8 @@ export default function GameClient() {
     }
 
     if (!resumed) {
-      if (gameMode === 'quick') {
-        handleGameSetup(quickPlaySetup);
-      } else if (gameMode === '5-min') {
-        handleGameSetup(fiveMinSetup);
+      if (gameMode === 'quick' || gameMode === '5-min') {
+        handleGameSetup(gameMode === 'quick' ? quickPlaySetup : fiveMinSetup);
       }
     }
   }, [gameMode]);
@@ -389,39 +387,65 @@ export default function GameClient() {
       setTurnTimer(turnTimerDuration);
     }
   };
+  
+  const getMostAdvancedPawnMove = (roll: number) => {
+    const possibleMoves = getPossibleMoves(currentTurn, roll);
+    if (possibleMoves.length === 0) return null;
+
+    const path = PATHS[currentTurn];
+    
+    possibleMoves.sort((a, b) => {
+        const pathIndexOfA = path.indexOf(a.pawn.position);
+        const pathIndexOfB = path.indexOf(b.pawn.position);
+        return pathIndexOfB - pathIndexOfA;
+    });
+
+    return possibleMoves[0];
+  };
 
   useEffect(() => {
-      if (gameMode !== '5-min' || phase !== 'ROLLING' || winner) {
-          if (turnTimerRef.current) clearInterval(turnTimerRef.current);
-          return;
-      }
+    const activePhases = ['ROLLING', 'MOVING'];
+    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner) {
+        if (turnTimerRef.current) clearInterval(turnTimerRef.current);
+        return;
+    }
 
-      setTurnTimer(turnTimerDuration); // Reset timer for the new turn
-      
-      turnTimerRef.current = setInterval(() => {
-          setTurnTimer(prev => {
-              if (prev <= 1000) {
-                  clearInterval(turnTimerRef.current!);
-                  addMessage("System", `${players[currentTurn].name} ran out of time!`);
-                  if (showNotifications) {
-                      toast({
-                          variant: 'destructive',
-                          title: 'Time\'s Up!',
-                          description: `${players[currentTurn].name}'s turn was skipped.`,
-                      });
-                  }
-                  nextTurn();
-                  return 0;
-              }
-              return prev - 1000;
-          });
-      }, 1000);
+    // Reset timer for the new phase
+    setTurnTimer(turnTimerDuration); 
+    
+    turnTimerRef.current = setInterval(() => {
+        setTurnTimer(prev => {
+            if (prev <= 1000) {
+                clearInterval(turnTimerRef.current!);
+                addMessage("System", `${players[currentTurn].name} ran out of time!`);
+                if (showNotifications) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Time\'s Up!',
+                        description: `${players[currentTurn].name}'s turn was skipped or auto-played.`,
+                    });
+                }
+                
+                if (phase === 'MOVING') {
+                   const autoMove = getMostAdvancedPawnMove(diceValue!);
+                   if (autoMove) {
+                       performMove(autoMove.pawn, autoMove.newPosition, diceValue!);
+                   } else {
+                       nextTurn();
+                   }
+                } else { // ROLLING phase
+                   nextTurn();
+                }
+                return 0;
+            }
+            return prev - 1000;
+        });
+    }, 1000);
 
-      return () => {
-          if (turnTimerRef.current) clearInterval(turnTimerRef.current);
-      };
-
-  }, [currentTurn, phase, winner, gameMode, turnTimerDuration]);
+    return () => {
+        if (turnTimerRef.current) clearInterval(turnTimerRef.current);
+    };
+  }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue]);
   
   useEffect(() => {
     if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER') {
@@ -547,7 +571,7 @@ export default function GameClient() {
   const startRoll = () => {
     if (phase !== 'ROLLING' || isRolling) return;
     if (gameMode === '5-min' && turnTimerRef.current) {
-      clearInterval(turnTimerRef.current);
+      // Don't clear here, let the useEffect for phase change handle it
     }
     
     // The Dice3D/Dice component now handles the random number generation.
@@ -891,40 +915,6 @@ export default function GameClient() {
           )
         );
       case 'quick':
-         return (
-          gameSetup && (
-            <QuickGameLayout
-              gameSetup={gameSetup}
-              pawns={pawns}
-              scores={scores}
-              onGameSetupChange={handleGameSetup}
-              currentTurn={currentTurn}
-              isRolling={isRolling}
-              diceRollDuration={diceRollDuration}
-              onDiceRollDurationChange={handleDiceRollDurationChange}
-              onRollStart={startRoll}
-              onDiceRoll={handleDiceRollEnd}
-              diceValue={diceValue}
-              onResetAndGoHome={handleResetAndGoHome}
-              muteSound={muteSound}
-              onToggleMuteSound={() => setMuteSound(prev => !prev)}
-              showNotifications={showNotifications}
-              onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-              addSecondarySafePoints={addSecondarySafePoints}
-              onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-              phase={phase}
-            >
-              <GameBoard 
-                showSecondarySafes={addSecondarySafePoints} 
-                scores={scores} 
-                gameMode={gameMode} 
-                glassWalls={glassWalls}
-              >
-                {renderPawns()}
-              </GameBoard>
-            </QuickGameLayout>
-          )
-        );
       case '5-min':
         return (
           gameSetup && (
@@ -958,7 +948,7 @@ export default function GameClient() {
                 showSecondarySafes={addSecondarySafePoints} 
                 scores={scores} 
                 gameMode={gameMode} 
-                glassWalls={{red: false, green: false, blue: false, yellow: false}}
+                glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
               >
                 {renderPawns()}
               </GameBoard>
@@ -1022,3 +1012,4 @@ export default function GameClient() {
     </div>
   );
 }
+
