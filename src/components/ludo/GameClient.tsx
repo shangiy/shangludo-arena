@@ -61,7 +61,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === '5-min' || gameMode === 'quick' ? START_POSITIONS[color] : -1,
+            position: gameMode === '5-min' ? START_POSITIONS[color] : -1,
             isHome: false,
         }));
     }
@@ -355,7 +355,7 @@ export default function GameClient() {
     const playerColors = finalSetup.players.map(p => p.color);
     setDiceRollDuration(Number(setup.diceRollDuration));
     setCurrentTurn(finalSetup.turnOrder[0]);
-    setPawns(initialPawns(gameMode, playerColors));
+    setPawns(initialPawns(finalSetup.gameMode, playerColors));
     setScores({ red: 0, green: 0, yellow: 0, blue: 0 });
     setWinner(null);
     setDiceValue(null);
@@ -527,17 +527,17 @@ export default function GameClient() {
     if (!playerPawns) return [];
   
     const moves: { pawn: Pawn; newPosition: number }[] = [];
-    const isClassic = gameMode === 'classic';
   
-    // Pawns on the board can always move
     playerPawns.forEach((pawn) => {
       if (pawn.isHome) return;
 
+      // Rule: Can only move from yard if a 6 is rolled
       if (pawn.position === -1) {
         if (roll === 6) {
            const startPos = START_POSITIONS[player];
            const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-           if (!isClassic && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+           // In non-classic modes, check for blockades at start
+           if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
              // Blockade, can't move out
            } else {
              moves.push({ pawn, newPosition: startPos });
@@ -552,27 +552,26 @@ export default function GameClient() {
       if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
         const newPosition = currentPath[currentPathIndex + roll];
   
-        // Glass wall check for quick mode
-        if (gameMode === 'quick') {
-          const wallPosition = GLASS_WALL_POSITIONS[player];
-          if (glassWalls[player] && wallPosition) {
-            const wallIndexOnPath = currentPath.indexOf(wallPosition);
-            if (wallIndexOnPath !== -1 && currentPathIndex < wallIndexOnPath && currentPathIndex + roll >= wallIndexOnPath) {
-              return; // Invalid move, blocked by wall
-            }
-          }
+        // Glass wall check for quick mode: if pawn is forced to restart
+        if (gameMode === 'quick' && glassWalls[player] && newPosition === GLASS_WALL_POSITIONS[player]) {
+           moves.push({ pawn, newPosition: START_POSITIONS[player] });
+           return; // This is a special move, no other calculation needed for this pawn
+        }
+
+        // Home run entry check
+        const homeRunEntryIndex = 51;
+        if (gameMode === 'quick' && glassWalls[player] && currentPathIndex < homeRunEntryIndex && currentPathIndex + roll >= homeRunEntryIndex) {
+            // Blocked by wall, cannot enter home run
+            return;
         }
   
         const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-        if (isClassic) {
+        // Blockade rules for non-classic modes
+        if (gameMode !== 'classic' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+          // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+        } else {
           moves.push({ pawn, newPosition });
-        } else { // Blockade rules for non-classic
-          if (!SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-            // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
-          } else {
-            moves.push({ pawn, newPosition });
-          }
         }
       }
     });
@@ -635,6 +634,7 @@ export default function GameClient() {
         players: gameSetup?.players || [],
         safeZones: SAFE_ZONES,
         gameMode: gameMode,
+        glassWalls: glassWalls,
       };
 
       const move = chooseMove(aiGameState, currentTurn, roll);
@@ -695,6 +695,23 @@ export default function GameClient() {
         }
     }
 
+    // Quick Mode: Handle glass wall restart
+    if (gameMode === 'quick' && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
+        toast({
+            title: "Wall Block!",
+            description: `${players[currentTurn].name}'s pawn was blocked and must restart its lap!`,
+            variant: "destructive"
+        });
+        setPawns((prev) => {
+            const newPawns = JSON.parse(JSON.stringify(prev));
+            const pawnIndex = newPawns[currentTurn].findIndex((p: Pawn) => p.id === pawnToMove.id);
+            newPawns[currentTurn][pawnIndex].position = START_POSITIONS[currentTurn];
+            return newPawns;
+        });
+        nextTurn();
+        return;
+    }
+
     setPawns((prev) => {
       const newPawns = JSON.parse(JSON.stringify(prev));
       const pawnsOfPlayer = newPawns[currentTurn];
@@ -702,10 +719,8 @@ export default function GameClient() {
         (p: Pawn) => p.id === pawnToMove.id
       );
       
-      const originalPawnPosition = pawnsOfPlayer[pawnIndex].position;
       pawnsOfPlayer[pawnIndex].position = newPosition;
 
-      // Check if pawn reached home run
       const currentPath = PATHS[currentTurn];
       const homeRunStartIndex = 51; 
       const newPathIndex = currentPath.indexOf(newPosition);
@@ -959,7 +974,7 @@ export default function GameClient() {
       <>
         {renderPawns()}
         <AnimatePresence>
-          {countdown !== null && (
+          {(countdown !== null || phase === 'RESUMING') && (
             <motion.div
               key={countdown}
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
@@ -988,7 +1003,7 @@ export default function GameClient() {
       </GameBoard>
     );
 
-    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP';
+    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null;
 
     switch (gameMode) {
       case 'classic':

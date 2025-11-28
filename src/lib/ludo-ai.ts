@@ -13,6 +13,7 @@ import {
   Pawn,
   PATHS,
   START_POSITIONS,
+  GLASS_WALL_POSITIONS,
 } from './ludo-constants';
 import type { PlayerSetup } from '@/components/ludo/GameSetupForm';
 
@@ -21,6 +22,7 @@ export interface AiGameState {
   players: PlayerSetup[];
   safeZones: number[];          // array of board indices that are safe
   gameMode: string;            // 'classic' | 'quick' | '5-min' etc.
+  glassWalls: Record<PlayerColor, boolean>;
 }
 
 /* ---------- Helpers ---------- */
@@ -86,10 +88,10 @@ export function chooseMove(
       // 1) Pawn in yard/home -> can only enter when roll === 6
       if (isInYard(pawn)) {
         if (roll === 6) {
-          // check blockade rules at start: in non-classic you might avoid creating a blockade
           const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
+          // Blockade check
           if (!isClassic && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
-            // normally avoid creating illegal blockade; skip unless forced later
+            // Can't move out to create illegal blockade
           } else {
             moves.push({ pawn, newPosition: startSquare });
           }
@@ -100,13 +102,26 @@ export function chooseMove(
       // 2) Pawn on board -> move along PATHS
       const curIdx = playerPath.indexOf(pawn.position as number);
       if (curIdx === -1) {
-        // Not on path (maybe already in final stretch or different encoding). Skip.
         continue;
       }
       const targetIdx = curIdx + roll;
-      // ensure not overshooting final index (if your rules require exact roll, adapt here)
+      
       if (targetIdx < playerPath.length) {
         const newPos = playerPath[targetIdx];
+        
+        // Quick Mode: Glass wall sends you back to start
+        if (gameState.gameMode === 'quick' && gameState.glassWalls[playerId] && newPos === GLASS_WALL_POSITIONS[playerId]) {
+          moves.push({ pawn, newPosition: startSquare });
+          continue; // special move
+        }
+        
+        // Quick Mode: Blocked from entering home run
+        const homeRunEntryIndex = 51;
+        if (gameState.gameMode === 'quick' && gameState.glassWalls[playerId] && curIdx < homeRunEntryIndex && targetIdx >= homeRunEntryIndex) {
+            // blocked by wall, cannot enter home run
+            continue;
+        }
+
         const ownAtDest = playerPawns.filter(p => p.position === newPos).length;
         if (!isClassic && !safeSquares.has(newPos) && ownAtDest >= 2) {
           // moving into own blockade (non-classic) - skip
@@ -118,22 +133,20 @@ export function chooseMove(
     return moves;
   };
 
-  // gather moves normally
   let possibleMoves = getPossibleMoves(dice);
 
-  // IMPORTANT: If no moves and dice===6, force entering from yard (to avoid freeze)
-  if (possibleMoves.length === 0 && dice === 6) {
-    // prefer entering rather than doing nothing; pick a random pawn in yard
-    const yardPawns = playerPawns.filter(p => isInYard(p) && !isFinished(p));
-    if (yardPawns.length > 0) {
-      // If we previously avoided entering because of blockade rules, force it now.
-      const pick = yardPawns[Math.floor(Math.random() * yardPawns.length)];
-      return { pawn: pick, newPosition: startSquare };
-    }
-    // If no yard pawns, we already have no moves -> fall through to null
+  if (possibleMoves.length === 0) {
+    return null;
   }
 
-  if (possibleMoves.length === 0) return null;
+  // If a 6 is rolled and there are pawns in the yard, prioritize getting a pawn out.
+  if (dice === 6 && playerPawns.some(p => isInYard(p))) {
+    const enterYardMove = possibleMoves.find(m => isInYard(m.pawn));
+    if (enterYardMove) {
+      return enterYardMove;
+    }
+  }
+
 
   // Score each move (higher = better). AI is aggressive and individualistic.
   const scored = possibleMoves.map(move => {
@@ -150,6 +163,11 @@ export function chooseMove(
     const opponents = findOpponentsOnSquare(gameState.pawns, newPosition, playerId);
     if (opponents.length > 0 && !safeSquares.has(newPosition as number)) {
       score += 800 + opponents.length * 150;
+    }
+    
+    // Quick Mode: Restarting lap is very bad
+    if (gameState.gameMode === 'quick' && newPosition === startSquare && oldIdx !== -1) {
+      score -= 5000;
     }
 
     // prefer moving out of yard (encourage entering)
@@ -206,6 +224,17 @@ export function computeRanking(
             }
         });
         
+        // For quick mode, we only care about the most advanced pawn
+        if (gameMode === 'quick') {
+            const pawnPositions = playerPawns.map(p => {
+                if (p.isHome) return totalPathLength;
+                if (p.position === -1) return -1;
+                return path.indexOf(p.position);
+            });
+            const maxPosition = Math.max(...pawnPositions);
+            currentProgress = maxPosition >= 0 ? maxPosition : 0;
+        }
+
         const percentage = (currentProgress / maxProgress) * 100;
         return Math.floor(Math.min(100, percentage));
     };
@@ -223,24 +252,29 @@ export function computeRanking(
       const idx = playerPath.indexOf(pawn.position as number);
       return sum + (idx !== -1 ? idx : 0);
     }, 0);
+    
+    let score = 0;
+    if (gameMode === '5-min') {
+      score = scores[playerId] ?? 0;
+    } else if (gameMode === 'classic') {
+      score = finished;
+    } else { // quick
+      score = progressPercentage;
+    }
+
 
     return {
       playerId,
       finishedPawns: finished,
-      score: gameMode === '5-min' ? (scores[playerId] ?? 0) : (gameMode === 'classic' ? finished : progressPercentage),
+      score: score,
       progressPercentage,
       progressSum,
     };
   });
 
   ranking.sort((a, b) => {
-    if (gameMode === '5-min') {
-      if (b.score !== a.score) return b.score - a.score;
-    } else if (gameMode === 'quick') {
-        if (b.progressPercentage !== a.progressPercentage) return b.progressPercentage - a.progressPercentage;
-    } else { // classic
-      if (b.finishedPawns !== a.finishedPawns) return b.finishedPawns - a.finishedPawns;
-    }
+    if (b.score !== a.score) return b.score - a.score;
+    // Tie-breaker: total progress
     return b.progressSum - a.progressSum;
   });
 
