@@ -131,7 +131,7 @@ export default function Home() {
                   A high-stakes mode where captured pawns are eliminated permanently. Last player standing wins.
                 </CardDescription>
                 <Button asChild className="w-full bg-slate-800 hover:bg-slate-900 text-white">
-                  <Link href="/game?mode=tombstone">Play Tombstone</Link>
+                  <Link href="/tombstone">Play Tombstone</Link>
                 </Button>
               </CardContent>
             </Card>
