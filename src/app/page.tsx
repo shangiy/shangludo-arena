@@ -254,8 +254,8 @@ export default function Home() {
         <div className="border-t border-gray-700">
             <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center relative">
                 <div className="flex items-center space-x-2">
-                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white font-bold">
-                        N
+                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
+                        🎲
                     </div>
                     <p className="text-sm">&copy; 2025 Mushangi Patrick Portfolio. Shangludo. All rights reserved.</p>
                 </div>
