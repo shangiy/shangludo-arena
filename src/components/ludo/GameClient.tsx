@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === 'quick' ? -1 : -1,
+            position: gameMode === 'quick' || gameMode === '5-min' ? -1 : -1,
             isHome: false,
         }));
     }
@@ -142,6 +142,7 @@ export default function GameClient() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [previousPhase, setPreviousPhase] = useState<GamePhase>('ROLLING');
   const [showGlassShatter, setShowGlassShatter] = useState(false);
+  const [showEndGameDialog, setShowEndGameDialog] = useState(false);
 
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -369,6 +370,7 @@ export default function GameClient() {
     setDiceValue(null);
     setPhase('ROLLING');
     setEndGameSummary(null);
+    setShowEndGameDialog(false);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
 
     if (gameMode === '5-min') {
@@ -428,6 +430,7 @@ export default function GameClient() {
 
     setEndGameSummary(summary);
     setPhase('GAME_OVER');
+    setShowEndGameDialog(true);
     localStorage.removeItem(LUDO_GAME_STATE_KEY);
   };
 
@@ -613,6 +616,19 @@ export default function GameClient() {
         setTimeout(() => {
           handleAiMove(value);
         }, 500);
+      } else {
+         // This is the case for human turn with multiple moves
+         // Also handle all-pawns-in-same-place scenario here
+         const onBoardPawns = pawns[currentTurn].filter(p => p.position !== -1 && !p.isHome);
+         const uniquePositions = new Set(onBoardPawns.map(p => p.position));
+
+         if (onBoardPawns.length > 0 && uniquePositions.size === 1) {
+             const singleMove = possibleMoves.find(move => move.pawn.position === onBoardPawns[0].position);
+             if (singleMove) {
+                 setTimeout(() => performMove(singleMove.pawn, singleMove.newPosition, value), 500);
+                 return;
+             }
+         }
       }
       // If it's a human turn with multiple moves, we just wait for the user to click a pawn.
     }
@@ -1002,7 +1018,7 @@ export default function GameClient() {
       </GameBoard>
     );
 
-    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null;
+    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER';
 
     if (gameMode === 'classic') {
       return (
@@ -1084,10 +1100,11 @@ export default function GameClient() {
         )}
       </AnimatePresence>
        <Dialog
-        open={phase === 'GAME_OVER' && !!endGameSummary}
+        open={showEndGameDialog}
         onOpenChange={(open) => {
             if (!open) {
-              handleGameSetup(gameSetup!);
+              setShowEndGameDialog(false);
+              // Allow viewing the board without restarting
             }
         }}
       >
@@ -1116,6 +1133,7 @@ export default function GameClient() {
             ))}
           </div>
           <DialogFooter className="sm:justify-center">
+            <Button variant="outline" onClick={() => setShowEndGameDialog(false)}>View Board</Button>
             <Button onClick={() => handleGameSetup(gameSetup!)}>Play Again</Button>
             <Button variant="secondary" asChild>
               <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
@@ -1123,6 +1141,16 @@ export default function GameClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {phase === 'GAME_OVER' && !showEndGameDialog && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-4">
+              <Button onClick={() => handleGameSetup(gameSetup!)}>Play Again</Button>
+              <Button variant="secondary" asChild>
+                  <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
+              </Button>
+          </div>
+      )}
+
 
       <audio ref={diceRollAudioRef} src="/sounds/dice-Music.mp3" preload="auto" />
       <audio ref={glassBreakAudioRef} src="/sounds/glass-break.mp3" preload="auto" />
