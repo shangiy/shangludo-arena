@@ -138,7 +138,7 @@ export default function GameClient() {
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [showResumeToast, setShowResumeToast] = useState(false);
   const [glassWalls, setGlassWalls] = useState<Record<PlayerColor, boolean>>({red: true, green: true, blue: true, yellow: true});
-  const [endGameSummary, setEndGameSummary] = useState<{ title: string; ranking: { playerId: PlayerColor; name: string; score: string; }[] } | null>(null);
+  const [endGameSummary, setEndGameSummary] = useState<{ title: string; winnerName: string | null; winnerColor: PlayerColor | null; ranking: { playerId: PlayerColor; name: string; score: string; }[] } | null>(null);
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -339,12 +339,13 @@ export default function GameClient() {
 
     const ranking = computeRanking(finalPawns, playerOrder, finalScores, gameMode);
     let title = "Game Over!";
+    let winnerName: string | null = null;
+    let winnerColor: PlayerColor | null = null;
 
     if (ranking.length > 0) {
       const topScore = ranking[0].score;
       const winners = ranking.filter(r => r.score === topScore);
 
-      // Handle case where top score is 0 and all have 0
       const allScoresZero = ranking.every(r => r.score === 0);
 
       if (allScoresZero) {
@@ -354,12 +355,16 @@ export default function GameClient() {
       } else {
         finalWinner = winners[0].playerId;
         setWinner(finalWinner);
-        title = `Winner: ${players[finalWinner]?.name || 'Unknown'}`;
+        winnerColor = finalWinner;
+        winnerName = players[finalWinner]?.name || 'Unknown';
+        title = `Winner:`;
       }
     }
     
     const summary = {
       title,
+      winnerName,
+      winnerColor,
       ranking: ranking.map(r => ({
         playerId: r.playerId,
         name: players[r.playerId]?.name || 'Unknown',
@@ -974,7 +979,12 @@ export default function GameClient() {
         <DialogContent>
           <DialogHeader>
              <DialogTitle className="text-2xl font-bold text-center">
-              {endGameSummary?.title || 'Game Over!'}
+              {endGameSummary?.title}
+              {endGameSummary?.winnerName && (
+                <span className={cn("ml-2", endGameSummary.winnerColor && PLAYER_TEXT_COLORS[endGameSummary.winnerColor])}>
+                  {endGameSummary.winnerName}
+                </span>
+              )}
             </DialogTitle>
              <DialogDescription className="text-center pt-2">
                 Final Rankings:
@@ -1012,4 +1022,3 @@ export default function GameClient() {
     </div>
   );
 }
-
