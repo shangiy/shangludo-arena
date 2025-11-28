@@ -32,7 +32,6 @@ import { useTheme } from "@/hooks/use-theme";
 import { Progress } from "../ui/progress";
 import { Dice } from "./Dice";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
-import { Dice3D } from "./Dice3D";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -605,3 +604,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    
