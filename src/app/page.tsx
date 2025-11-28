@@ -178,7 +178,7 @@ export default function Home() {
               <h3 className="text-lg font-semibold text-white">Useful Links</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link href="#" className="hover:text-white">About</Link></li>
-                <li><Link href="#" className="hover:text-white">Projects</Link></li>
+                <li><Link href="https://mushangis-portfolio.onrender.com/portfolio" target="_blank" rel="noopener noreferrer" className="hover:text-white">Projects</Link></li>
                 <li><Link href="#" className="hover:text-white">Portfolio</Link></li>
                 <li><Link href="#" className="hover:text-white">Blog</Link></li>
               </ul>
