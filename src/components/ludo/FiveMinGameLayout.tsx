@@ -376,6 +376,7 @@ export function FiveMinGameLayout({
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Get the highest score before the 5-minute timer runs out!</p>
         <p><strong>Starting:</strong> All your pawns start on the board, ready to move. No need to roll a 6 to begin.</p>
+        <p><strong>Captured Pawns:</strong> If one of your pawns is captured, it goes back to your starting yard. You must roll a 6 to bring it back onto the track.</p>
         <p><strong>Scoring:</strong></p>
         <ul className="list-disc pl-5 space-y-1">
           <li>+1 point for each step a pawn moves.</li>

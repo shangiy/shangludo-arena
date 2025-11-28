@@ -570,13 +570,14 @@ export default function GameClient() {
     playerPawns.forEach((pawn) => {
       if (pawn.isHome) return;
 
-      // Rule: Can only move from yard if a 6 is rolled (Classic mode only)
+      // Rule: Can only move from yard if a 6 is rolled
       if (pawn.position === -1) {
-        if (gameMode === 'classic' && roll !== 6) return;
+        if (roll !== 6) return;
 
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-        // In non-classic modes, check for blockades at start
+
+        // Blockade check for non-classic modes
         if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
           // Blockade, can't move out
         } else {
