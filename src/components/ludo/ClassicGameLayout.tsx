@@ -75,10 +75,10 @@ function PlayerPod({
   
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start p-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center">{player.name}</h3>
+        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center mb-1">{player.name}</h3>
         
         {isCurrentTurn ? (
           <Dice
