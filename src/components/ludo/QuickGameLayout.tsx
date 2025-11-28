@@ -290,7 +290,7 @@ export function QuickGameLayout({
     const quickRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
-        <p><strong>Starting a Pawn:</strong> Pawns start on the board. You do not need a 6 to start.</p>
+        <p><strong>Starting a Pawn:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square.</p>
         <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
         <p><strong>Breaking Walls & Capturing:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
         <ul className="list-disc pl-5 space-y-1">
@@ -307,6 +307,7 @@ export function QuickGameLayout({
     const fiveMinRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Get the highest score before the 5-minute timer runs out!</p>
+        <p><strong>Starting:</strong> All your pawns start on the board, ready to move. No need to roll a 6 to begin.</p>
         <p><strong>Scoring:</strong></p>
         <ul className="list-disc pl-5 space-y-1">
           <li>+1 point for each step a pawn moves.</li>
@@ -314,8 +315,8 @@ export function QuickGameLayout({
           <li>+50 points for moving a pawn to the home space.</li>
           <li>-20 points when your pawn is captured.</li>
         </ul>
-        <p><strong>Gameplay:</strong> Follows the same rules as Quick Play (pawns start on board, blockades are active), but the goal is to score as many points as possible.</p>
-        <p><strong>Winning:</strong> The player with the highest score when the timer ends is the winner. In case of a tie, the player with more pawns finished wins.</p>
+        <p><strong>Instant Win:</strong> If you get all 4 of your pawns to the home triangle before the timer ends, you win instantly!</p>
+        <p><strong>Time's Up:</strong> If the timer runs out, the player with the highest score wins. In case of a tie, the player with more pawns finished wins.</p>
       </div>
     );
   

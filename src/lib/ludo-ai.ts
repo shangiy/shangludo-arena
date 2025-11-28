@@ -88,15 +88,16 @@ export function chooseMove(
 
       // 1) Pawn in yard/home -> can only enter when roll === 6
       if (isInYard(pawn)) {
-        if (roll === 6) {
-          const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
-          // Blockade check
-          if (!isClassic && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
-            // Can't move out to create illegal blockade
-          } else {
-            moves.push({ pawn, newPosition: startSquare });
-          }
+        if (isClassic && roll !== 6) continue;
+        
+        const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
+        // Blockade check
+        if (!isClassic && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
+          // Can't move out to create illegal blockade
+        } else {
+          moves.push({ pawn, newPosition: startSquare });
         }
+        
         continue; // cannot move forward while in yard
       }
 
@@ -111,7 +112,7 @@ export function chooseMove(
         const newPos = playerPath[targetIdx];
         
         // Quick/5-min Mode: Glass wall sends you back to start
-        if ((gameState.gameMode === 'quick' || gameState.gameMode === '5-min') && gameState.glassWalls[playerId]) {
+        if (gameState.gameMode === 'quick' && gameState.glassWalls[playerId]) {
           const homeRunEntryIndex = 51;
           if(curIdx < homeRunEntryIndex && targetIdx >= homeRunEntryIndex) {
             moves.push({ pawn, newPosition: startSquare });
@@ -174,7 +175,7 @@ export function chooseMove(
     }
     
     // Quick/5-min Mode: Restarting lap is very bad
-    if ((gameState.gameMode === 'quick' || gameState.gameMode === '5-min') && newPosition === startSquare && oldIdx !== -1) {
+    if (gameState.gameMode === 'quick' && newPosition === startSquare && oldIdx !== -1) {
       score -= 5000;
     }
 

@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === 'classic' || gameMode === 'quick' ? -1 : -1,
+            position: gameMode === '5-min' ? START_POSITIONS[color] : -1,
             isHome: false,
         }));
     }
@@ -570,17 +570,17 @@ export default function GameClient() {
     playerPawns.forEach((pawn) => {
       if (pawn.isHome) return;
 
-      // Rule: Can only move from yard if a 6 is rolled
+      // Rule: Can only move from yard if a 6 is rolled (Classic mode only)
       if (pawn.position === -1) {
-        if (roll === 6) {
-           const startPos = START_POSITIONS[player];
-           const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-           // In non-classic modes, check for blockades at start
-           if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-             // Blockade, can't move out
-           } else {
-             moves.push({ pawn, newPosition: startPos });
-           }
+        if (gameMode === 'classic' && roll !== 6) return;
+
+        const startPos = START_POSITIONS[player];
+        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+        // In non-classic modes, check for blockades at start
+        if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+          // Blockade, can't move out
+        } else {
+          moves.push({ pawn, newPosition: startPos });
         }
         return;
       }
@@ -592,7 +592,7 @@ export default function GameClient() {
         let newPosition: number;
         // Quick Mode: Handle glass wall restart
         const homeRunEntryIndex = 51;
-        if ((gameMode === 'quick' || gameMode === '5-min') && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
+        if (gameMode === 'quick' && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
             newPosition = START_POSITIONS[player];
             moves.push({ pawn, newPosition });
             return;
@@ -638,14 +638,9 @@ export default function GameClient() {
       const isHumanTurn = players[currentTurn].type === 'human';
 
       if (isHumanTurn) {
-        // If human gets another turn (e.g. rolled a 6), always let them choose, even if there's one "type" of move.
-        const canMoveFromYard = possibleMoves.some(m => m.pawn.position === -1);
-        const canMoveOnBoard = possibleMoves.some(m => m.pawn.position !== -1);
-        
-        if (possibleMoves.length === 1 && !(getsAnotherTurn && canMoveFromYard && canMoveOnBoard)) {
+        if (possibleMoves.length === 1 && !getsAnotherTurn) {
           setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
         }
-        // Otherwise, wait for human input.
       } else if (players[currentTurn].type === 'ai') {
         setPhase('AI_THINKING');
         setTimeout(() => {
@@ -733,7 +728,7 @@ export default function GameClient() {
     }
 
     // Quick Mode: Handle glass wall restart
-    if ((gameMode === 'quick' || gameMode === '5-min') && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
+    if (gameMode === 'quick' && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
         setTimeout(() => toast({
             title: "Wall Block!",
             description: `${players[currentTurn].name}'s pawn was blocked and must restart its lap!`,
@@ -779,7 +774,7 @@ export default function GameClient() {
                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                  newPawns[color] = newPawns[color].map((p: Pawn) => {
                     if (p.position === newPosition) {
-                        if ((gameMode === 'quick' || gameMode === '5-min') && glassWalls[currentTurn]) {
+                        if (gameMode === 'quick' && glassWalls[currentTurn]) {
                              setGlassWalls(prev => ({...prev, [currentTurn]: false}));
                              setShowGlassShatter(true);
                             if (!muteSound && glassBreakAudioRef.current) {
@@ -808,7 +803,7 @@ export default function GameClient() {
       newPawns[currentTurn] = pawnsOfPlayer;
       
       const winningConditionMet = () => {
-        if (gameMode === 'quick' || gameMode === '5-min') {
+        if (gameMode === 'quick') {
             return newPawns[currentTurn].some((p: Pawn) => p.isHome);
         }
         return newPawns[currentTurn].every((p: Pawn) => p.isHome);
@@ -1030,7 +1025,7 @@ export default function GameClient() {
         showSecondarySafes={addSecondarySafePoints} 
         scores={scores} 
         gameMode={gameMode} 
-        glassWalls={(gameMode === 'quick' || gameMode === '5-min') ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+        glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
       >
         {boardContent}
       </GameBoard>
@@ -1183,5 +1178,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
