@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === 'quick' || gameMode === '5-min' ? -1 : -1,
+            position: gameMode === 'quick' ? -1 : -1,
             isHome: false,
         }));
     }
@@ -561,7 +561,7 @@ export default function GameClient() {
         let newPosition: number;
         // Quick Mode: Handle glass wall restart
         const homeRunEntryIndex = 51;
-        if ((gameMode === 'quick') && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
+        if ((gameMode === 'quick' || gameMode === '5-min') && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
             newPosition = START_POSITIONS[player];
             moves.push({ pawn, newPosition });
             return;
@@ -587,10 +587,6 @@ export default function GameClient() {
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
     setDiceValue(value);
-
-    if (!muteSound && diceRollAudioRef.current) {
-      diceRollAudioRef.current.play();
-    }
 
     const possibleMoves = getPossibleMoves(currentTurn, value);
 
@@ -626,6 +622,11 @@ export default function GameClient() {
     if (phase !== 'ROLLING' || isRolling) return;
     if (gameMode === '5-min' && turnTimerRef.current) {
       // Don't clear here, let the useEffect for phase change handle it
+    }
+    
+    if (!muteSound && diceRollAudioRef.current) {
+      diceRollAudioRef.current.currentTime = 0;
+      diceRollAudioRef.current.play();
     }
     
     // The Dice3D/Dice component now handles the random number generation.
@@ -701,7 +702,7 @@ export default function GameClient() {
     }
 
     // Quick Mode: Handle glass wall restart
-    if ((gameMode === 'quick') && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
+    if ((gameMode === 'quick' || gameMode === '5-min') && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
         toast({
             title: "Wall Block!",
             description: `${players[currentTurn].name}'s pawn was blocked and must restart its lap!`,
@@ -747,7 +748,7 @@ export default function GameClient() {
                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                  newPawns[color] = newPawns[color].map((p: Pawn) => {
                     if (p.position === newPosition) {
-                        if ((gameMode === 'quick') && glassWalls[currentTurn]) {
+                        if ((gameMode === 'quick' || gameMode === '5-min') && glassWalls[currentTurn]) {
                              setGlassWalls(prev => ({...prev, [currentTurn]: false}));
                              setShowGlassShatter(true);
                             if (!muteSound && glassBreakAudioRef.current) {
@@ -995,7 +996,7 @@ export default function GameClient() {
         showSecondarySafes={addSecondarySafePoints} 
         scores={scores} 
         gameMode={gameMode} 
-        glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+        glassWalls={(gameMode === 'quick' || gameMode === '5-min') ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
       >
         {boardContent}
       </GameBoard>
