@@ -299,7 +299,9 @@ export function Pawn({
   let scale = 1;
 
   if (stackCount > 1) {
-    const offset = stackOffsets[stackIndex];
+    // Ensure index stays within bounds of stackOffsets
+    const offsetIndex = stackIndex % stackOffsets.length;
+    const offset = stackOffsets[offsetIndex];
     translateX = `${offset.x}%`;
     translateY = `${offset.y}%`;
     scale = 0.7;
