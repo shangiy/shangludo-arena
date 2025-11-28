@@ -110,31 +110,33 @@ function PlayerPod({
         )}
         <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center mb-1">{player.name}</h3>
         
-        {isCurrentTurn ? (
-           <Dice3D
-             rolling={isRolling && isCurrentTurn}
-             onRollStart={onRollStart}
-             onRollEnd={onDiceRoll}
-             color={color}
-             duration={diceRollDuration}
-             isHumanTurn={isHumanTurnAndRollingPhase}
-             diceValue={isCurrentTurn ? diceValue : null}
-             playerName={player.name}
-           />
-        ) : (
-            <div className="flex flex-col items-center justify-center gap-2 h-full">
-                <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                    <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
-                </button>
-            </div>
-        )}
-
-        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
-             {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
-                <p className="text-xs font-semibold capitalize text-center">
-                    Select a pawn to move.
-                </p>
+        <div className="flex-1 flex flex-col justify-center items-center">
+            {isCurrentTurn ? (
+            <Dice3D
+                rolling={isRolling && isCurrentTurn}
+                onRollStart={onRollStart}
+                onRollEnd={onDiceRoll}
+                color={color}
+                duration={diceRollDuration}
+                isHumanTurn={isHumanTurnAndRollingPhase}
+                diceValue={isCurrentTurn ? diceValue : null}
+                playerName={player.name}
+            />
+            ) : (
+                <div className="flex flex-col items-center justify-center gap-2 h-full">
+                    <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
+                        <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
+                    </button>
+                </div>
             )}
+
+            <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+                {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
+                    <p className="text-xs font-semibold capitalize text-center">
+                        Select a pawn to move.
+                    </p>
+                )}
+            </div>
         </div>
     </div>
   );
