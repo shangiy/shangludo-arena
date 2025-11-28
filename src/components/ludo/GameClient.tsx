@@ -41,8 +41,7 @@ import {
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 import { cn } from '@/lib/utils';
-import { Dice } from './Dice';
-import { Dice3D } from './Dice3D';
+import { GlassShatterOverlay } from './GlassShatterOverlay';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER' | 'PAUSED' | 'RESUMING';
 
@@ -61,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === '5-min' ? START_POSITIONS[color] : -1,
+            position: gameMode === 'quick' || gameMode === '5-min' ? -1 : -1,
             isHome: false,
         }));
     }
@@ -142,6 +141,7 @@ export default function GameClient() {
   const [endGameSummary, setEndGameSummary] = useState<{ title: string; winnerName: string | null; winnerColor: PlayerColor | null; ranking: { playerId: PlayerColor; name: string; score: string; }[] } | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [previousPhase, setPreviousPhase] = useState<GamePhase>('ROLLING');
+  const [showGlassShatter, setShowGlassShatter] = useState(false);
 
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -291,13 +291,17 @@ export default function GameClient() {
     setCountdown(3);
     const interval = setInterval(() => {
         setCountdown(prev => {
-            if (prev! <= 1) {
+            if (prev === null) { // Should not happen but for type safety
+                clearInterval(interval);
+                return null;
+            }
+            if (prev <= 1) {
                 clearInterval(interval);
                 setPhase(savedState.previousPhase || 'ROLLING');
                 setCountdown(null);
                 return null;
             }
-            return prev! - 1;
+            return prev - 1;
         });
     }, 1000);
   }
@@ -481,14 +485,14 @@ export default function GameClient() {
                     });
                 }
                 
-                if (phase === 'MOVING') {
-                   const autoMove = getMostAdvancedPawnMove(diceValue!);
+                if (phase === 'MOVING' && diceValue) {
+                   const autoMove = getMostAdvancedPawnMove(diceValue);
                    if (autoMove) {
-                       performMove(autoMove.pawn, autoMove.newPosition, diceValue!);
+                       performMove(autoMove.pawn, autoMove.newPosition, diceValue);
                    } else {
                        nextTurn();
                    }
-                } else { // ROLLING phase
+                } else { // ROLLING phase or other
                    nextTurn();
                 }
                 return 0;
@@ -553,29 +557,26 @@ export default function GameClient() {
       const currentPath = PATHS[player];
       let currentPathIndex = currentPath.indexOf(pawn.position);
   
-      if (currentPathIndex !== -1 && currentPathIndex + roll < currentPath.length) {
-        const newPosition = currentPath[currentPathIndex + roll];
-  
-        // Glass wall check for quick mode: if pawn is forced to restart
-        if (gameMode === 'quick' && glassWalls[player] && newPosition === GLASS_WALL_POSITIONS[player]) {
-           moves.push({ pawn, newPosition: START_POSITIONS[player] });
-           return; // This is a special move, no other calculation needed for this pawn
-        }
-
-        // Home run entry check
+      if (currentPathIndex !== -1) {
+        let newPosition: number;
+        // Quick Mode: Handle glass wall restart
         const homeRunEntryIndex = 51;
-        if (gameMode === 'quick' && glassWalls[player] && currentPathIndex < homeRunEntryIndex && currentPathIndex + roll >= homeRunEntryIndex) {
-            // Blocked by wall, cannot enter home run
+        if ((gameMode === 'quick') && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
+            newPosition = START_POSITIONS[player];
+            moves.push({ pawn, newPosition });
             return;
         }
-  
-        const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-        // Blockade rules for non-classic modes
-        if (gameMode !== 'classic' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-          // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
-        } else {
-          moves.push({ pawn, newPosition });
+        if(currentPathIndex + roll < currentPath.length) {
+            newPosition = currentPath[currentPathIndex + roll];
+            const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
+
+            // Blockade rules for non-classic modes
+            if (gameMode !== 'classic' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+              // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
+            } else {
+              moves.push({ pawn, newPosition });
+            }
         }
       }
     });
@@ -700,20 +701,12 @@ export default function GameClient() {
     }
 
     // Quick Mode: Handle glass wall restart
-    if (gameMode === 'quick' && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
+    if ((gameMode === 'quick') && newPosition === START_POSITIONS[currentTurn] && pawnToMove.position !== -1) {
         toast({
             title: "Wall Block!",
             description: `${players[currentTurn].name}'s pawn was blocked and must restart its lap!`,
             variant: "destructive"
         });
-        setPawns((prev) => {
-            const newPawns = JSON.parse(JSON.stringify(prev));
-            const pawnIndex = newPawns[currentTurn].findIndex((p: Pawn) => p.id === pawnToMove.id);
-            newPawns[currentTurn][pawnIndex].position = START_POSITIONS[currentTurn];
-            return newPawns;
-        });
-        nextTurn();
-        return;
     }
 
     setPawns((prev) => {
@@ -754,8 +747,9 @@ export default function GameClient() {
                 addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                  newPawns[color] = newPawns[color].map((p: Pawn) => {
                     if (p.position === newPosition) {
-                        if (gameMode === 'quick' && glassWalls[currentTurn]) {
+                        if ((gameMode === 'quick') && glassWalls[currentTurn]) {
                              setGlassWalls(prev => ({...prev, [currentTurn]: false}));
+                             setShowGlassShatter(true);
                             if (!muteSound && glassBreakAudioRef.current) {
                                 glassBreakAudioRef.current.play();
                             }
@@ -1083,6 +1077,11 @@ export default function GameClient() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-foreground flex flex-col">
+       <AnimatePresence>
+        {showGlassShatter && (
+          <GlassShatterOverlay onAnimationComplete={() => setShowGlassShatter(false)} />
+        )}
+      </AnimatePresence>
        <Dialog
         open={phase === 'GAME_OVER' && !!endGameSummary}
         onOpenChange={(open) => {
