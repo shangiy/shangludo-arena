@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -5,6 +6,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { buttonVariants } from "./button"
 
 const Dialog = DialogPrimitive.Root
 
@@ -108,6 +110,34 @@ const DialogDescription = React.forwardRef<
 ))
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
+const DialogAction = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Action>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Action>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Action
+    ref={ref}
+    className={cn(buttonVariants(), className)}
+    {...props}
+  />
+))
+DialogAction.displayName = DialogPrimitive.Action.displayName
+
+const DialogCancel = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Cancel>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Cancel>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Cancel
+    ref={ref}
+    className={cn(
+      buttonVariants({ variant: "outline" }),
+      "mt-2 sm:mt-0",
+      className
+    )}
+    {...props}
+  />
+))
+DialogCancel.displayName = DialogPrimitive.Cancel.displayName
+
 export {
   Dialog,
   DialogPortal,
@@ -119,4 +149,6 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogAction,
+  DialogCancel
 }

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun, Pause } from "lucide-react";
 import { PlayerColor, type Pawn, PATHS } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -189,6 +189,7 @@ type ClassicGameLayoutProps = {
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
   onResetAndGoHome: () => void;
+  onPauseGame: () => void;
   muteSound: boolean;
   onToggleMuteSound: () => void;
   showNotifications: boolean;
@@ -212,6 +213,7 @@ export function ClassicGameLayout({
   onDiceRoll,
   diceValue,
   onResetAndGoHome,
+  onPauseGame,
   muteSound,
   onToggleMuteSound,
   showNotifications,
@@ -353,6 +355,19 @@ export function ClassicGameLayout({
           </AlertDialog>
 
           <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" className="bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onPauseGame}>
+                    <Pause />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Pause Game</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             <Sheet>
               <TooltipProvider>
                 <Tooltip>

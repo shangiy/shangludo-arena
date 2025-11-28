@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun } from "lucide-react";
+import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun, Pause } from "lucide-react";
 import { PlayerColor } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
@@ -211,6 +211,7 @@ type FiveMinGameLayoutProps = {
   onDiceRoll: (value: number) => void;
   diceValue: number | null;
   onResetAndGoHome: () => void;
+  onPauseGame: () => void;
   muteSound: boolean;
   onToggleMuteSound: () => void;
   showNotifications: boolean;
@@ -239,6 +240,7 @@ export function FiveMinGameLayout({
   onDiceRoll,
   diceValue,
   onResetAndGoHome,
+  onPauseGame,
   muteSound,
   onToggleMuteSound,
   showNotifications,
@@ -387,14 +389,27 @@ export function FiveMinGameLayout({
           </AlertDialog>
           
           <div className="flex flex-col items-center">
-            <GameTimer remaining={gameTimer} />
+            {gameSetup.gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
             <div className="text-center">
-              <p className="text-xs font-semibold text-muted-foreground leading-tight">5-Minutes</p>
+              <p className="text-xs font-semibold text-muted-foreground leading-tight">{gameSetup.gameMode === '5-min' ? '5-Minutes' : 'Quick Play'}</p>
               <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                    <Button variant="outline" size="icon" className="bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onPauseGame}>
+                        <Pause />
+                    </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                    <p>Pause Game</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
             <Sheet>
               <TooltipProvider>
                 <Tooltip>
@@ -412,7 +427,7 @@ export function FiveMinGameLayout({
               </TooltipProvider>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>How to Play: {gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
+                  <SheetTitle>How to Play: {gameSetup.gameMode === 'quick' ? 'Quick Play' : gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
                   <SheetDescription>
                     Here are the rules for the current game mode.
                   </SheetDescription>
@@ -512,41 +527,45 @@ export function FiveMinGameLayout({
                                       </Label>
                                       <Switch id="secondary-safepoints" checked={addSecondarySafePoints} onCheckedChange={onToggleSecondarySafePoints} />
                                       </div>
-                                      <div className="flex items-center justify-between gap-2">
-                                      <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
-                                          <Timer className="h-4 w-4" />
-                                          Game Time (min)
-                                      </Label>
-                                      <div className="flex items-center gap-2">
-                                          <Input
-                                          id="game-timer"
-                                          type="number"
-                                          min="1"
-                                          max="60"
-                                          className="w-20"
-                                          value={newGameTimerDuration}
-                                          onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
-                                          />
-                                      </div>
-                                      </div>
-                                      <div className="flex items-center justify-between gap-2">
-                                      <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
-                                          <Timer className="h-4 w-4" />
-                                          Turn Time Limit (s)
-                                      </Label>
-                                      <div className="flex items-center gap-2">
-                                          <Input
-                                          id="turn-timer"
-                                          type="number"
-                                          min="5"
-                                          max="60"
-                                          step="5"
-                                          className="w-20"
-                                          value={newTurnTimerDuration}
-                                          onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
-                                          />
-                                      </div>
-                                      </div>
+                                      {gameSetup.gameMode === '5-min' && (
+                                        <>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
+                                                <Timer className="h-4 w-4" />
+                                                Game Time (min)
+                                            </Label>
+                                            <div className="flex items-center gap-2">
+                                                <Input
+                                                id="game-timer"
+                                                type="number"
+                                                min="1"
+                                                max="60"
+                                                className="w-20"
+                                                value={newGameTimerDuration}
+                                                onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
+                                                <Timer className="h-4 w-4" />
+                                                Turn Time Limit (s)
+                                            </Label>
+                                            <div className="flex items-center gap-2">
+                                                <Input
+                                                id="turn-timer"
+                                                type="number"
+                                                min="5"
+                                                max="60"
+                                                step="5"
+                                                className="w-20"
+                                                value={newTurnTimerDuration}
+                                                onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
+                                                />
+                                            </div>
+                                        </div>
+                                        </>
+                                      )}
                                       <div className="flex items-center justify-between gap-2">
                                       <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
                                           <Dice5 className="h-4 w-4" />
@@ -681,5 +700,3 @@ export function FiveMinGameLayout({
       </div>
   );
 }
-
-    

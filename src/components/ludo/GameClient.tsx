@@ -2,8 +2,9 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Loader2, Pause, Play } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   GameBoard,
   Pawn as PawnComponent,
@@ -37,6 +38,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogAction,
+  DialogCancel,
 } from '../ui/dialog';
 import { GameSetup, GameSetupForm } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
@@ -44,7 +47,7 @@ import { cn } from '@/lib/utils';
 import { Dice } from './Dice';
 import { Dice3D } from './Dice3D';
 
-type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER';
+type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'AI_THINKING' | 'GAME_OVER' | 'PAUSED' | 'RESUMING';
 
 const LUDO_GAME_STATE_KEY = 'shangludo-arena-game-state';
 const DEFAULT_CLASSIC_TURN_TIMER_DURATION = 10000;
@@ -115,6 +118,7 @@ const PLAYER_TEXT_COLORS: Record<PlayerColor, string> = {
 
 export default function GameClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const gameMode = searchParams.get('mode') || 'classic';
   const { toast } = useToast();
 
@@ -136,9 +140,12 @@ export default function GameClient() {
   const [turnTimerDuration, setTurnTimerDuration] = useState<number>(DEFAULT_CLASSIC_TURN_TIMER_DURATION);
   const [gameTimer, setGameTimer] = useState<number>(DEFAULT_FIVE_MIN_GAME_DURATION);
   const [gameTimerDuration, setGameTimerDuration] = useState(DEFAULT_FIVE_MIN_GAME_DURATION);
-  const [showResumeToast, setShowResumeToast] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [glassWalls, setGlassWalls] = useState<Record<PlayerColor, boolean>>({red: true, green: true, blue: true, yellow: true});
   const [endGameSummary, setEndGameSummary] = useState<{ title: string; winnerName: string | null; winnerColor: PlayerColor | null; ranking: { playerId: PlayerColor; name: string; score: string; }[] } | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [previousPhase, setPreviousPhase] = useState<GamePhase>('ROLLING');
+
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -196,32 +203,15 @@ export default function GameClient() {
       const savedStateJSON = localStorage.getItem(LUDO_GAME_STATE_KEY);
       if (savedStateJSON) {
         const savedState = JSON.parse(savedStateJSON);
-        if (savedState && savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER' && savedState.gameSetup?.gameMode === gameMode) {
-          setGameSetup(savedState.gameSetup);
-          setPawns(savedState.pawns);
-          setCurrentTurn(savedState.currentTurn);
-          setDiceValue(savedState.diceValue);
-          setPhase(savedState.phase);
-          setWinner(savedState.winner);
-          setAddSecondarySafePoints(savedState.addSecondarySafePoints);
-          if (savedState.showNotifications !== undefined) setShowNotifications(savedState.showNotifications);
-          if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
-          setDiceRollDuration(savedState.diceRollDuration);
-          setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
-          if(savedState.scores !== undefined) setScores(savedState.scores);
-
-          if (gameMode === '5-min') {
-             const defaultDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
-             if(savedState.turnTimerDuration !== undefined) {
-                setTurnTimerDuration(savedState.turnTimerDuration);
-             } else {
-                setTurnTimerDuration(defaultDuration);
-             }
-             if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
-             if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
+        if (savedState && savedState.gameSetup?.gameMode === gameMode) {
+          if (savedState.phase === 'PAUSED') {
+             // Defer showing the dialog until we're sure we have a valid saved state
+            setShowResumeDialog(true);
+          } else if (savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER') {
+            resumeGameFromState(savedState);
+            resumed = true;
+            toast({ title: "Game Resumed", description: "Your previous session has been restored." });
           }
-          resumed = true;
-          setShowResumeToast(true);
         }
       }
     } catch (error) {
@@ -229,19 +219,12 @@ export default function GameClient() {
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
     }
 
-    if (!resumed) {
+    if (!resumed && !showResumeDialog) {
       if (gameMode === 'quick' || gameMode === '5-min') {
         handleGameSetup(gameMode === 'quick' ? quickPlaySetup : fiveMinSetup);
       }
     }
   }, [gameMode]);
-  
-  useEffect(() => {
-    if (isMounted && showResumeToast) {
-        toast({ title: "Game Resumed", description: "Your previous game has been restored." });
-        setShowResumeToast(false);
-    }
-  }, [isMounted, showResumeToast, toast]);
   
   // Save state to localStorage on change
   useEffect(() => {
@@ -252,6 +235,7 @@ export default function GameClient() {
         currentTurn,
         diceValue,
         phase,
+        previousPhase,
         winner,
         gameSetup,
         addSecondarySafePoints,
@@ -267,11 +251,12 @@ export default function GameClient() {
         gameState.gameTimerDuration = gameTimerDuration;
       }
       localStorage.setItem(LUDO_GAME_STATE_KEY, JSON.stringify(gameState));
-    } catch (error) {
+    } catch (error)
+     {
       console.error("Could not save game state to localStorage", error);
     }
   }, [
-      pawns, currentTurn, diceValue, phase, winner, gameSetup, 
+      pawns, currentTurn, diceValue, phase, previousPhase, winner, gameSetup, 
       addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, 
       isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, glassWalls
   ]);
@@ -280,6 +265,65 @@ export default function GameClient() {
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
     // For this design, we don't show messages in the UI.
     console.log(`Message: [${sender}] ${text}`);
+  };
+
+  const resumeGameFromState = (savedState: any) => {
+    setGameSetup(savedState.gameSetup);
+    setPawns(savedState.pawns);
+    setCurrentTurn(savedState.currentTurn);
+    setDiceValue(savedState.diceValue);
+    setAddSecondarySafePoints(savedState.addSecondarySafePoints);
+    if (savedState.showNotifications !== undefined) setShowNotifications(savedState.showNotifications);
+    if (savedState.muteSound !== undefined) setMuteSound(savedState.muteSound);
+    setDiceRollDuration(savedState.diceRollDuration);
+    setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
+    if(savedState.scores !== undefined) setScores(savedState.scores);
+
+    if (gameMode === '5-min') {
+       const defaultDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
+       if(savedState.turnTimerDuration !== undefined) {
+          setTurnTimerDuration(savedState.turnTimerDuration);
+       } else {
+          setTurnTimerDuration(defaultDuration);
+       }
+       if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
+       if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
+    }
+
+    setPhase('RESUMING');
+    setCountdown(3);
+    const interval = setInterval(() => {
+        setCountdown(prev => {
+            if (prev! <= 1) {
+                clearInterval(interval);
+                setPhase(savedState.previousPhase || 'ROLLING');
+                setCountdown(null);
+                return null;
+            }
+            return prev! - 1;
+        });
+    }, 1000);
+  }
+
+  const handleResume = () => {
+    setShowResumeDialog(false);
+    const savedStateJSON = localStorage.getItem(LUDO_GAME_STATE_KEY);
+    if (savedStateJSON) {
+        const savedState = JSON.parse(savedStateJSON);
+        resumeGameFromState(savedState);
+        toast({ title: "Game Resumed", description: "Your paused game has been restored." });
+    }
+  };
+
+  const handleNewGame = () => {
+      setShowResumeDialog(false);
+      localStorage.removeItem(LUDO_GAME_STATE_KEY);
+      // Re-initialize based on mode
+      if (gameMode === 'quick' || gameMode === '5-min') {
+        handleGameSetup(gameMode === 'quick' ? quickPlaySetup : fiveMinSetup);
+      } else {
+        setPhase('SETUP');
+      }
   };
 
   const handleGameSetup = (setup: GameSetup) => {
@@ -453,7 +497,7 @@ export default function GameClient() {
   }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue]);
   
   useEffect(() => {
-    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER') {
+    if (gameMode !== '5-min' || phase === 'SETUP' || phase === 'GAME_OVER' || phase === 'PAUSED') {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
         return;
     }
@@ -745,7 +789,7 @@ export default function GameClient() {
   useEffect(() => {
     const isAiTurn =
       playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
-    if (isAiTurn && phase === 'ROLLING' && !winner && isMounted) {
+    if (isAiTurn && phase === 'ROLLING' && !winner && isMounted && phase !== 'PAUSED' && phase !== 'RESUMING') {
       setTimeout(() => {
         startRoll();
       }, 100); 
@@ -760,7 +804,7 @@ export default function GameClient() {
   }, [phase, diceValue, currentTurn, pawns, players, gameMode]);
 
   const renderPawns = () => {
-    if (!gameSetup) return [];
+    if (!gameSetup || phase === 'RESUMING') return [];
     const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
     const positions: { [key: number]: Pawn[] } = {};
   
@@ -859,6 +903,14 @@ export default function GameClient() {
       }
   };
 
+  const handlePauseGame = () => {
+    if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
+        setPreviousPhase(phase);
+        setPhase('PAUSED');
+        toast({ title: 'Game Paused', description: 'Your game is saved. You can return later.' });
+        router.push('/');
+    }
+  };
 
   if (!isMounted) {
      return (
@@ -866,6 +918,25 @@ export default function GameClient() {
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <p className="text-lg">Preparing the Arena...</p>
       </div>
+    );
+  }
+  
+  if (showResumeDialog) {
+    return (
+        <Dialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Resume Game?</DialogTitle>
+                    <DialogDescription>
+                        You have a paused game in this mode. Would you like to resume it?
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <DialogCancel onClick={handleNewGame}>Start New Game</DialogCancel>
+                    <DialogAction onClick={handleResume}>Resume Game</DialogAction>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
   }
 
@@ -883,6 +954,41 @@ export default function GameClient() {
   }
   
   const renderGameLayout = () => {
+    const boardContent = (
+      <>
+        {renderPawns()}
+        <AnimatePresence>
+          {countdown !== null && (
+            <motion.div
+              key={countdown}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0, transition: { duration: 0.5, ease: "easeIn" } }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              <span className="text-9xl font-extrabold text-white" style={{ WebkitTextStroke: '4px black' }}>
+                {countdown}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
+    );
+  
+    const gameBoard = (
+      <GameBoard 
+        showSecondarySafes={addSecondarySafePoints} 
+        scores={scores} 
+        gameMode={gameMode} 
+        glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+      >
+        {boardContent}
+      </GameBoard>
+    );
+
+    const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP';
+
     switch (gameMode) {
       case 'classic':
         return (
@@ -900,6 +1006,7 @@ export default function GameClient() {
               onDiceRoll={handleDiceRollEnd}
               diceValue={diceValue}
               onResetAndGoHome={handleResetAndGoHome}
+              onPauseGame={handlePauseGame}
               muteSound={muteSound}
               onToggleMuteSound={() => setMuteSound(prev => !prev)}
               showNotifications={showNotifications}
@@ -908,14 +1015,9 @@ export default function GameClient() {
               onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
               phase={phase}
             >
-              <GameBoard 
-                showSecondarySafes={addSecondarySafePoints} 
-                scores={scores} 
-                gameMode={gameMode} 
-                glassWalls={{red: false, green: false, blue: false, yellow: false}}
-              >
-                {renderPawns()}
-              </GameBoard>
+              <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+                {gameBoard}
+              </div>
             </ClassicGameLayout>
           )
         );
@@ -940,6 +1042,7 @@ export default function GameClient() {
               onDiceRoll={handleDiceRollEnd}
               diceValue={diceValue}
               onResetAndGoHome={handleResetAndGoHome}
+              onPauseGame={handlePauseGame}
               muteSound={muteSound}
               onToggleMuteSound={() => setMuteSound(prev => !prev)}
               showNotifications={showNotifications}
@@ -949,14 +1052,9 @@ export default function GameClient() {
               phase={phase}
               scores={scores}
             >
-              <GameBoard 
-                showSecondarySafes={addSecondarySafePoints} 
-                scores={scores} 
-                gameMode={gameMode} 
-                glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
-              >
-                {renderPawns()}
-              </GameBoard>
+               <div className={cn(!isBoardInteractive && 'pointer-events-none blur-sm transition-all')}>
+                {gameBoard}
+              </div>
             </FiveMinGameLayout>
           )
         );
