@@ -3,7 +3,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Home, Settings, Volume2, VolumeX, Timer, Bell, BellOff, Dice5, Star, HelpCircle, Users, Moon, Sun, Pause } from "lucide-react";
-import { PlayerColor } from "@/lib/ludo-constants";
+import { PlayerColor, type Pawn, PATHS } from "@/lib/ludo-constants";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -159,9 +159,34 @@ function GameTimer({ remaining }: { remaining: number }) {
   );
 }
 
-function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, players: PlayerSetup[] }) {
+function Scoreboard({ scores, players, pawns, gameMode }: { scores: Record<PlayerColor, number>, players: PlayerSetup[], pawns: Record<PlayerColor, Pawn[]>, gameMode: string }) {
     const activePlayers = players.filter(p => p.type !== 'none');
     
+    const getProgressPercentage = (color: PlayerColor) => {
+        const playerPawns = pawns[color];
+        if (!playerPawns || playerPawns.length === 0) return 0;
+    
+        const path = PATHS[color];
+        const totalPathLength = path.length - 1; // 57 steps
+        const maxProgress = (gameMode === 'quick' ? 1 : 4) * totalPathLength;
+    
+        let currentProgress = 0;
+        playerPawns.forEach(pawn => {
+            if (pawn.isHome) {
+                currentProgress += totalPathLength;
+            } else if (pawn.position !== -1) { // Pawn is on the board
+                const pathIndex = path.indexOf(pawn.position);
+                if (pathIndex !== -1) {
+                    currentProgress += pathIndex;
+                }
+            }
+            // Pawns in the yard (position: -1) contribute 0 progress
+        });
+        
+        const percentage = (currentProgress / maxProgress) * 100;
+        return Math.floor(Math.min(100, percentage));
+    };
+
     const playerMap = new Map(activePlayers.map(p => [p.color, p]));
     const displayOrder: {color: PlayerColor, justify: string, items: string}[] = [
         { color: 'red', justify: 'justify-start', items: 'items-start' },
@@ -176,12 +201,16 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
           {displayOrder.map(({ color, justify, items }) => {
               const player = playerMap.get(color);
               if (!player) return <div key={color} />;
+
+              const displayValue = gameMode === '5-min' 
+                ? scores[color]
+                : `${getProgressPercentage(color)}%`;
               
               return (
                 <div key={color} className={cn("flex p-2", justify, items)}>
                     <div className="flex flex-col items-center justify-center gap-1 text-sm p-1 text-center">
                         <span className="font-semibold capitalize truncate text-white">{player.name}</span>
-                        <span className="font-bold text-base text-black">{scores[color]}</span>
+                        <span className="font-bold text-base text-black">{displayValue}</span>
                     </div>
                 </div>
               );
@@ -196,6 +225,7 @@ function Scoreboard({ scores, players }: { scores: Record<PlayerColor, number>, 
 type FiveMinGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
+  pawns: Record<PlayerColor, Pawn[]>;
   onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
   turnTimer: number;
@@ -225,6 +255,7 @@ type FiveMinGameLayoutProps = {
 export function FiveMinGameLayout({
   children,
   gameSetup,
+  pawns,
   onGameSetupChange,
   currentTurn,
   turnTimer,
@@ -250,7 +281,7 @@ export function FiveMinGameLayout({
   phase,
   scores
 }: FiveMinGameLayoutProps) {
-    const { players } = gameSetup;
+    const { players, gameMode } = gameSetup;
     const { theme, toggleTheme } = useTheme();
     const redPlayer = players.find(p => p.color === 'red') || { color: 'red', name: 'Empty', type: 'none' };
     const greenPlayer = players.find(p => p.color === 'green') || { color: 'green', name: 'Empty', type: 'none' };
@@ -389,9 +420,9 @@ export function FiveMinGameLayout({
           </AlertDialog>
           
           <div className="flex flex-col items-center">
-            {gameSetup.gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
+            {gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
             <div className="text-center">
-              <p className="text-xs font-semibold text-muted-foreground leading-tight">{gameSetup.gameMode === '5-min' ? '5-Minutes' : 'Quick Play'}</p>
+              <p className="text-xs font-semibold text-muted-foreground leading-tight">{gameMode === '5-min' ? '5-Minutes' : 'Quick Play'}</p>
               <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
             </div>
           </div>
@@ -662,7 +693,7 @@ export function FiveMinGameLayout({
             {/* Game Board and Scoreboard Container */}
             <div className="relative w-full max-w-[90vw] md:max-w-[70vh] flex flex-col justify-center">
                 {children}
-                <Scoreboard scores={scores} players={gameSetup.players} />
+                <Scoreboard scores={scores} players={gameSetup.players} pawns={pawns} gameMode={gameMode} />
             </div>
 
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">

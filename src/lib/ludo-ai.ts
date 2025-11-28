@@ -1,3 +1,4 @@
+
 /* src/lib/ludo-ai.ts
    Reworked AI:
    - fixes yard/home/finished detection
@@ -27,11 +28,11 @@ export interface AiGameState {
 // Normalize checks for pawn in yard/home and finished
 function isInYard(pawn: Pawn) {
   // Accept common encodings: position === -1, isHome flag, or null
-  return pawn.position === -1 || pawn.position === null || pawn.isHome === true;
+  return pawn.position === -1 || pawn.position === null;
 }
 function isFinished(pawn: Pawn) {
-  // Accept common encodings: isFinished flag, a specific finished marker (-2), or boolean
-  return pawn.isFinished === true || pawn.position === -2 || pawn.position === 'finished';
+  // A pawn is finished if its isHome property is true.
+  return pawn.isHome === true;
 }
 
 function findOpponentsOnSquare(
@@ -185,9 +186,35 @@ export function computeRanking(
   scores: Record<PlayerColor, number>,
   gameMode: string
 ) {
+
+    const getProgressPercentage = (color: PlayerColor, playerPawns: Pawn[]) => {
+        if (!playerPawns || playerPawns.length === 0) return 0;
+    
+        const path = PATHS[color];
+        const totalPathLength = path.length - 1; // 57 steps
+        const maxProgress = (gameMode === 'quick' ? 1 : 4) * totalPathLength;
+    
+        let currentProgress = 0;
+        playerPawns.forEach(pawn => {
+            if (pawn.isHome) {
+                currentProgress += totalPathLength;
+            } else if (pawn.position !== -1) { // Pawn is on the board
+                const pathIndex = path.indexOf(pawn.position);
+                if (pathIndex !== -1) {
+                    currentProgress += pathIndex;
+                }
+            }
+        });
+        
+        const percentage = (currentProgress / maxProgress) * 100;
+        return Math.floor(Math.min(100, percentage));
+    };
+
+
   const ranking = playerOrder.map(playerId => {
     const pp = pawns[playerId] ?? [];
     const finished = countFinishedPawns(pp);
+    const progressPercentage = getProgressPercentage(playerId, pp);
 
     const playerPath = PATHS[playerId];
     const progressSum = pp.reduce((sum, pawn) => {
@@ -200,7 +227,8 @@ export function computeRanking(
     return {
       playerId,
       finishedPawns: finished,
-      score: gameMode === '5-min' ? (scores[playerId] ?? 0) : finished,
+      score: gameMode === '5-min' ? (scores[playerId] ?? 0) : (gameMode === 'classic' ? finished : progressPercentage),
+      progressPercentage,
       progressSum,
     };
   });
@@ -208,7 +236,9 @@ export function computeRanking(
   ranking.sort((a, b) => {
     if (gameMode === '5-min') {
       if (b.score !== a.score) return b.score - a.score;
-    } else {
+    } else if (gameMode === 'quick') {
+        if (b.progressPercentage !== a.progressPercentage) return b.progressPercentage - a.progressPercentage;
+    } else { // classic
       if (b.finishedPawns !== a.finishedPawns) return b.finishedPawns - a.finishedPawns;
     }
     return b.progressSum - a.progressSum;

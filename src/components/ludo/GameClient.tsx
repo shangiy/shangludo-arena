@@ -11,7 +11,6 @@ import {
 } from '@/components/ludo/GameBoard';
 import { ClassicGameLayout } from '@/components/ludo/ClassicGameLayout';
 import { FiveMinGameLayout } from '@/components/ludo/FiveMinGameLayout';
-import { QuickGameLayout } from '@/components/ludo/QuickGameLayout';
 import {
   PLAYER_COLORS,
   PATHS,
@@ -390,7 +389,7 @@ export default function GameClient() {
 
       const allScoresZero = ranking.every(r => r.score === 0);
 
-      if (allScoresZero) {
+      if (allScoresZero && gameMode === '5-min') {
         title = "It's a Draw!";
       } else if (winners.length > 1) {
         title = "It's a Draw!";
@@ -403,6 +402,11 @@ export default function GameClient() {
       }
     }
     
+    let displayScoreType = 'progress';
+    if (gameMode === '5-min') displayScoreType = 'score';
+    if (gameMode === 'classic') displayScoreType = 'finished';
+
+
     const summary = {
       title,
       winnerName,
@@ -410,7 +414,9 @@ export default function GameClient() {
       ranking: ranking.map(r => ({
         playerId: r.playerId,
         name: players[r.playerId]?.name || 'Unknown',
-        score: gameMode === '5-min' ? `${r.score}` : `${r.finishedPawns} / 4`,
+        score: displayScoreType === 'score' 
+                ? `${r.score}` 
+                : (displayScoreType === 'finished' ? `${r.finishedPawns} / 4` : `${r.progressPercentage}%`),
       }))
     };
 
@@ -680,7 +686,7 @@ export default function GameClient() {
     let capturedPawn = false;
     let pawnReachedHome = false;
 
-    if (gameMode === '5-min' || gameMode === 'quick') {
+    if (gameMode === '5-min') {
         const path = PATHS[currentTurn];
         const oldIndex = pawnToMove.position === -1 ? -1 : path.indexOf(pawnToMove.position);
         const newIndex = path.indexOf(newPosition);
@@ -713,7 +719,7 @@ export default function GameClient() {
             addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
             pawnReachedHome = true;
 
-            if (gameMode === '5-min' || gameMode === 'quick') {
+            if (gameMode === '5-min') {
                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
             }
         }
@@ -742,7 +748,7 @@ export default function GameClient() {
                                 toast({ title: 'Glass Wall Shattered!', description: `${players[currentTurn].name} has broken the barrier!` });
                             }
                         }
-                        if (gameMode === '5-min' || gameMode === 'quick') {
+                        if (gameMode === '5-min') {
                            setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                         }
                         return { ...p, position: -1 };
@@ -994,7 +1000,6 @@ export default function GameClient() {
             <ClassicGameLayout
               gameSetup={gameSetup}
               pawns={pawns}
-              scores={scores}
               onGameSetupChange={handleGameSetup}
               currentTurn={currentTurn}
               isRolling={isRolling}
@@ -1025,6 +1030,7 @@ export default function GameClient() {
           gameSetup && (
             <FiveMinGameLayout
               gameSetup={gameSetup}
+              pawns={pawns}
               onGameSetupChange={handleGameSetup}
               currentTurn={currentTurn}
               turnTimer={turnTimer}
@@ -1074,8 +1080,8 @@ export default function GameClient() {
       >
         <DialogContent>
           <DialogHeader>
-             <DialogTitle className="text-2xl font-bold text-center">
-              {endGameSummary?.title}{' '}
+             <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+              {endGameSummary?.title}
               {endGameSummary?.winnerName && (
                 <span className={cn(endGameSummary.winnerColor && PLAYER_TEXT_COLORS[endGameSummary.winnerColor])}>
                   {endGameSummary.winnerName}

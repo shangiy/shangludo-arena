@@ -174,7 +174,6 @@ type ClassicGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
   pawns: Record<PlayerColor, Pawn[]>;
-  scores: Record<PlayerColor, number>;
   onGameSetupChange: (newSetup: GameSetup) => void;
   currentTurn: PlayerColor;
   isRolling: boolean;
@@ -198,7 +197,6 @@ export function ClassicGameLayout({
   children,
   gameSetup,
   pawns,
-  scores,
   onGameSetupChange,
   currentTurn,
   isRolling,
