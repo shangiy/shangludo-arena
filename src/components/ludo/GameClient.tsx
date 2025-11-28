@@ -276,15 +276,13 @@ export default function GameClient() {
     setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
     if(savedState.scores !== undefined) setScores(savedState.scores);
 
+    const defaultTurnDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
+    const savedTurnDuration = savedState.turnTimerDuration;
+    setTurnTimerDuration(savedTurnDuration !== undefined ? savedTurnDuration : defaultTurnDuration);
+
     if (gameMode === '5-min') {
-       const defaultDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
-       if(savedState.turnTimerDuration !== undefined) {
-          setTurnTimerDuration(savedState.turnTimerDuration);
-       } else {
-          setTurnTimerDuration(defaultDuration);
-       }
-       if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
-       if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
+      if(savedState.gameTimer !== undefined) setGameTimer(savedState.gameTimer);
+      if(savedState.gameTimerDuration !== undefined) setGameTimerDuration(savedState.gameTimerDuration);
     }
 
     setPhase('RESUMING');
@@ -762,7 +760,7 @@ export default function GameClient() {
       newPawns[currentTurn] = pawnsOfPlayer;
       
       const winningConditionMet = () => {
-        if (gameMode === 'quick') {
+        if (gameMode === 'quick' || gameMode === '5-min') {
             return newPawns[currentTurn].some((p: Pawn) => p.isHome);
         }
         return newPawns[currentTurn].every((p: Pawn) => p.isHome);
