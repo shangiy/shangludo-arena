@@ -300,13 +300,9 @@ export function ClassicGameLayout({
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
         <p><strong>Starting a Pawn:</strong> Pawns start on the board. You do not need a 6 to start.</p>
+        <p><strong>Capturing:</strong> Landing on an opponent's pawn sends it back to their yard. You must roll a 6 to bring it back out.</p>
         <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
-        <p><strong>Breaking Walls & Capturing:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
-        <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Opponent's Pawn Goes Home:</strong> The opponent's pawn is immediately removed from the board and sent back to their starting yard.</li>
-            <li><strong>Your Glass Wall Breaks:</strong> If your "glass wall" was still up, this capture shatters it! You'll hear a glass-breaking sound, and your path to the home triangle is now permanently open.</li>
-            <li><strong>You Get Another Turn:</strong> Just like in classic Ludo, capturing a pawn rewards you with an extra roll of the dice.</li>
-        </ul>
+        <p><strong>Breaking Walls:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall and permanently open your home entry.</p>
         <p><strong>Stacking Pawns:</strong> Multiple pawns of the same color can safely occupy the same square.</p>
         <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
       </div>
@@ -663,3 +659,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    

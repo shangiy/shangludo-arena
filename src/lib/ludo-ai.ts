@@ -77,7 +77,7 @@ export function chooseMove(
   const safeSquares = new Set(gameState.safeZones || []);
   const startSquare = START_POSITIONS[playerId];
   const playerPath = PATHS[playerId];
-  const isClassic = gameState.gameMode === 'classic';
+  const isClassicLike = gameState.gameMode === 'classic' || gameState.gameMode === '5-min' || gameState.gameMode === 'quick';
   const getsAnotherTurn = dice === 6; // Simplified for this context
 
   // build list of legal moves given roll
@@ -88,7 +88,7 @@ export function chooseMove(
 
       // 1) Pawn in yard/home -> can only enter when roll === 6
       if (isInYard(pawn)) {
-        if (isClassic && roll !== 6) continue;
+        if (isClassicLike && roll !== 6) continue;
         
         const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
         // Blockade check only for powerup
@@ -302,3 +302,5 @@ export function computeRanking(
 
   return ranking;
 }
+
+    

@@ -126,7 +126,7 @@ function GameFooter() {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
-                      <div className="w-full bg-[#111827] text-gray-300 py-2">
+                        <div className="w-full bg-[#111827] text-gray-300 py-2">
                             <div className="max-w-7xl mx-auto flex justify-center items-center relative">
                                 <div className="flex items-center space-x-2">
                                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
@@ -631,12 +631,17 @@ export default function GameClient() {
     if (!playerPawns) return [];
   
     const moves: { pawn: Pawn; newPosition: number }[] = [];
-  
+    const isYardMoveAllowed = (
+        gameMode === 'classic' || 
+        gameMode === '5-min' || 
+        (gameMode === 'quick' && playerPawns.some(p => p.position === -1))
+    ) && roll !== 6;
+
     playerPawns.forEach((pawn) => {
       if (pawn.isHome) return;
 
       if (pawn.position === -1) {
-        if (roll !== 6 && (gameMode === 'classic' || gameMode === '5-min')) return;
+        if ((gameMode === 'classic' || gameMode === '5-min' || gameMode === 'quick') && roll !== 6) return;
 
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
@@ -877,7 +882,7 @@ export default function GameClient() {
                 );
                 
                 // Classic mode only captures single pawns
-                const canCapture = gameMode === 'classic' ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
+                const canCapture = (gameMode === 'classic' || gameMode === 'powerup') ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
 
                 if (canCapture) {
                     capturedPawn = true;
@@ -893,7 +898,7 @@ export default function GameClient() {
                             if (gameMode === '5-min') {
                                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                             }
-                            return { ...p, position: (gameMode === 'classic' || gameMode === '5-min' ? -1 : START_POSITIONS[p.color]) };
+                            return { ...p, position: -1 };
                         }
                         return p;
                     });
@@ -1239,3 +1244,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
