@@ -325,9 +325,9 @@ export function Pawn({
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(calc(-50% + ${cellSize/2}%), calc(-50% + ${cellSize/2}%)) scale(${scale})`,
+        transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
       }}
-      className="p-0.5 pointer-events-auto"
+      className="p-0.5 pointer-events-auto flex items-center justify-center"
       onClick={() => onPawnClick({ id, color, position, isHome })}
     >
       <div
