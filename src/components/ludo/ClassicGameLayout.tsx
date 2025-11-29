@@ -307,8 +307,7 @@ export function ClassicGameLayout({
             <li><strong>Your Glass Wall Breaks:</strong> If your "glass wall" was still up, this capture shatters it! You'll hear a glass-breaking sound, and your path to the home triangle is now permanently open.</li>
             <li><strong>You Get Another Turn:</strong> Just like in classic Ludo, capturing a pawn rewards you with an extra roll of the dice.</li>
         </ul>
-        <p><strong>Special Capture Rule:</strong> When you roll a 1 and land your pawn on the same square as an opponent's pawn, you capture it and remain there alone. Any other pawns on that square (friend or foe) are sent back to their respective yards.</p>
-        <p><strong>Blockades:</strong> Two of your own pawns on the same square create a blockade that other players cannot pass.</p>
+        <p><strong>Stacking Pawns:</strong> Multiple pawns of the same color can safely occupy the same square.</p>
         <p><strong>Winning:</strong> The first player to get just one of their four pawns to the center home space wins the game.</p>
       </div>
     );

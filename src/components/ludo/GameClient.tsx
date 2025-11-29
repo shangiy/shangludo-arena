@@ -641,8 +641,9 @@ export default function GameClient() {
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
 
-        if (gameMode === 'powerup' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-            // Blockade rule for powerup mode
+        // Blockades are not a rule in quick mode
+        if ((gameMode === 'powerup' || gameMode === 'classic') && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+            // Blockade rule for powerup/classic mode
         } else {
           moves.push({ pawn, newPosition: startPos });
         }
@@ -665,8 +666,9 @@ export default function GameClient() {
             newPosition = currentPath[currentPathIndex + roll];
             const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-            if (gameMode === 'powerup' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-              // Blockade rule for powerup mode
+            // Blockades are not a rule in quick mode
+            if ((gameMode === 'powerup' || gameMode === 'classic') && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+              // Blockade rule for powerup/classic mode
             } else {
               moves.push({ pawn, newPosition });
             }
@@ -870,15 +872,6 @@ export default function GameClient() {
                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
             }
         } else if (!SAFE_ZONES.includes(newPosition)) {
-          let pawnsOnNewPos = 0;
-          (Object.keys(newPawns) as PlayerColor[]).forEach(c => {
-             if (newPawns[c]) pawnsOnNewPos += newPawns[c].filter((p: Pawn) => p.position === newPosition).length;
-          });
-
-          // Blockade rule for Power-up mode
-          if (gameMode === 'powerup' && pawnsOnNewPos > 2) {
-             // no captures if moving to a space with more than 1 pawn already
-          } else {
             (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
               if (color !== currentTurn && newPawns[color]) {
                 let opponentPawnsAtPos = newPawns[color].filter(
@@ -909,7 +902,6 @@ export default function GameClient() {
                 }
               }
             });
-          }
         }
 
         newPawns[currentTurn] = pawnsOfPlayer;
