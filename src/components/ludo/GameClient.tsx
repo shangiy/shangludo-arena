@@ -631,12 +631,7 @@ export default function GameClient() {
     if (!playerPawns) return [];
   
     const moves: { pawn: Pawn; newPosition: number }[] = [];
-    const isYardMoveAllowed = (
-        gameMode === 'classic' || 
-        gameMode === '5-min' || 
-        (gameMode === 'quick' && playerPawns.some(p => p.position === -1))
-    ) && roll !== 6;
-
+  
     playerPawns.forEach((pawn) => {
       if (pawn.isHome) return;
 
@@ -881,7 +876,6 @@ export default function GameClient() {
                   (p: Pawn) => p.position === newPosition
                 );
                 
-                // Classic mode only captures single pawns
                 const canCapture = (gameMode === 'classic' || gameMode === 'powerup') ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
 
                 if (canCapture) {
@@ -1244,5 +1238,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

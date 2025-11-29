@@ -232,3 +232,16 @@
   0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0); }
   50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.9); }
 }
+
+.globe-spin {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}

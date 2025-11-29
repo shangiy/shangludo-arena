@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { XIcon } from '@/components/icons/XIcon';
 import Image from 'next/image';
-import { StrongArmIcon } from '@/components/icons/StrongArmIcon';
+import { GlobeIcon } from '@/components/icons/GlobeIcon';
 
 export default function Home() {
   return (
@@ -184,7 +184,6 @@ export default function Home() {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
                 <div className="bg-[#111827] text-gray-300">
                   <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -195,9 +194,9 @@ export default function Home() {
                           A creative and passionate full-stack developer dedicated to building elegant, functional, and user-friendly web experiences. I thrive on turning complex problems into beautiful, intuitive designs.
                         </p>
                         <div className="flex space-x-4">
-                          <span className="hover:text-white"><XIcon className="h-5 w-5" /></span>
-                          <span className="hover:text-white"><Dribbble className="h-5 w-5" /></span>
-                          <span className="hover:text-white"><Linkedin className="h-5 w-5" /></span>
+                            <a href="https://x.com/Mushangip" target="_blank" rel="noopener noreferrer" className="hover:text-white"><XIcon className="h-5 w-5" /></a>
+                            <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white"><GlobeIcon className="h-5 w-5" /></a>
+                            <a href="https://www.linkedin.com/in/peter-mushangi-991757233/" target="_blank" rel="noopener noreferrer" className="hover:text-white"><Linkedin className="h-5 w-5" /></a>
                         </div>
                       </div>
 
@@ -205,10 +204,10 @@ export default function Home() {
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-white">Useful Links</h3>
                         <ul className="space-y-2 text-sm">
-                          <li>About</li>
-                          <li>Projects</li>
-                          <li>Portfolio</li>
-                          <li>Blog</li>
+                            <li><a href="https://mushangis-portfolio.onrender.com/#about" target="_blank" rel="noopener noreferrer" className="hover:underline">About</a></li>
+                            <li><a href="https://mushangis-portfolio.onrender.com/#projects" target="_blank" rel="noopener noreferrer" className="hover:underline">Projects</a></li>
+                            <li><a href="https://mushangis-portfolio.onrender.com/#portfolio" target="_blank" rel="noopener noreferrer" className="hover:underline">Portfolio</a></li>
+                            <li><a href="https://mushangis-portfolio.onrender.com/#blog" target="_blank" rel="noopener noreferrer" className="hover:underline">Blog</a></li>
                         </ul>
                       </div>
 
@@ -216,9 +215,9 @@ export default function Home() {
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold text-white">Support & Legal</h3>
                         <ul className="space-y-2 text-sm">
-                          <li>FAQs</li>
-                          <li>Privacy Policy</li>
-                          <li>Terms of Service</li>
+                          <li><a href="#" className="hover:underline">FAQs</a></li>
+                          <li><a href="#" className="hover:underline">Privacy Policy</a></li>
+                          <li><a href="#" className="hover:underline">Terms of Service</a></li>
                         </ul>
                       </div>
                       
@@ -290,7 +289,6 @@ export default function Home() {
                       </div>
                   </div>
                 </div>
-              </a>
             </TooltipTrigger>
             <TooltipContent>
               <p>https://mushangis-portfolio.onrender.com/</p>
