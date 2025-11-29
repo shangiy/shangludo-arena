@@ -119,7 +119,7 @@ export function GameBoard({
                 { points: '0,100 100,0 100,100', className: 'fill-blue-500' },
             ];
         // Row 9, Col 9 (x=8, y=8)
-        } else if (x === 8 && y === 8) {
+        } else if (x > 8 && y > 8) {
              polygons = [
                 { points: '0,0 100,0 100,100', className: 'fill-yellow-400' },
                 { points: '0,0 0,100 100,100', className: 'fill-blue-500' },
@@ -227,7 +227,7 @@ export function GameBoard({
         positionClasses[color]
       )}>
         <p className="text-white font-bold text-sm md:text-base capitalize truncate drop-shadow-lg">{name}</p>
-        <p className="text-black font-extrabold text-2xl md:text-4xl drop-shadow-lg">{score}</p>
+        <p className="text-black font-extrabold text-xs md:text-sm drop-shadow-lg">{score}</p>
       </div>
     );
   };
