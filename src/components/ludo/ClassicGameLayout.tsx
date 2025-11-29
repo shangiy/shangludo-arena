@@ -181,67 +181,6 @@ function GameTimer({ remaining }: { remaining: number }) {
   );
 }
 
-function Scoreboard({ pawns, players, scores, gameMode }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[], scores?: Record<PlayerColor, number>, gameMode: string }) {
-    const activePlayers = players.filter(p => p.type !== 'none');
-    
-    const getProgressPercentage = (color: PlayerColor) => {
-        const playerPawns = pawns[color];
-        if (!playerPawns || playerPawns.length === 0) return 0;
-    
-        const path = PATHS[color];
-        const totalPathLength = path.length - 1; 
-        const maxProgress = (gameMode === 'quick' ? 1 : 4) * totalPathLength;
-    
-        let currentProgress = 0;
-        playerPawns.forEach(pawn => {
-            if (pawn.isHome) {
-                currentProgress += totalPathLength;
-            } else if (pawn.position !== -1) { 
-                const pathIndex = path.indexOf(pawn.position);
-                if (pathIndex !== -1) {
-                    currentProgress += pathIndex;
-                }
-            }
-        });
-        
-        const percentage = (currentProgress / maxProgress) * 100;
-        return Math.floor(Math.min(100, percentage));
-    };
-
-    const playerMap = new Map(activePlayers.map(p => [p.color, p]));
-    const displayOrder: {color: PlayerColor, justify: string, items: string}[] = [
-        { color: 'red', justify: 'justify-start', items: 'items-start' },
-        { color: 'green', justify: 'justify-end', items: 'items-start' },
-        { color: 'blue', justify: 'justify-start', items: 'items-end' },
-        { color: 'yellow', justify: 'justify-end', items: 'items-end' },
-    ];
-  
-    return (
-      <div className="absolute inset-0 w-full h-full p-2 pointer-events-none">
-        <div className="grid grid-cols-2 grid-rows-2 h-full w-full">
-          {displayOrder.map(({ color, justify, items }) => {
-              const player = playerMap.get(color);
-              if (!player) return <div key={color} />;
-              
-              const displayValue = gameMode === '5-min' && scores
-                ? scores[color]
-                : `${getProgressPercentage(color)}%`;
-
-              return (
-                <div key={color} className={cn("flex p-2", justify, items)}>
-                    <div className="flex flex-col items-center justify-center gap-1 text-sm p-1 text-center">
-                        <span className="font-semibold capitalize truncate text-white">{player.name}</span>
-                        <span className="font-bold text-base text-black">{displayValue}</span>
-                    </div>
-                </div>
-              );
-            }
-          )}
-        </div>
-      </div>
-    );
-}
-
 type ClassicGameLayoutProps = {
   children: ReactNode;
   gameSetup: GameSetup;
@@ -686,7 +625,6 @@ export function ClassicGameLayout({
               )}
               <div className="relative w-full aspect-square">
                 {children}
-                {(gameMode === '5-min' && scores) ? null : <Scoreboard pawns={pawns} players={gameSetup.players} scores={scores} gameMode={gameMode} />}
               </div>
           </div>
           

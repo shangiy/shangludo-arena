@@ -17,6 +17,7 @@ import {
 import { StarIcon } from '../icons/StarIcon';
 import { PawnIcon } from '../icons/PawnIcon';
 import { Ban } from 'lucide-react';
+import { PlayerSetup } from './GameSetupForm';
 
 const gridCellStyle =
   'flex items-center justify-center border-r border-b border-black/40';
@@ -26,13 +27,15 @@ export function GameBoard({
   showSecondarySafes,
   gameMode,
   glassWalls,
-  scores
+  scores,
+  players
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
   gameMode: string;
   glassWalls: Record<PlayerColor, boolean>;
   scores?: Record<PlayerColor, number>;
+  players?: PlayerSetup[];
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -182,28 +185,38 @@ export function GameBoard({
     }
 
     // 🏡 Yard rendering
-    const renderYard = (color: PlayerColor) => (
-      <div
-        className={cn(
-          'h-full w-full p-2 relative',
-          YARD_BGS[color],
-          borderClasses
-        )}
-      >
-        <div className="h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2 bg-white/30 rounded-md">
-            {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
-            ))}
-        </div>
-        {gameMode === '5-min' && scores && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-white text-3xl font-extrabold" style={{ WebkitTextStroke: '1.5px black', textStroke: '1.5px black' }}>
-              {scores[color]}
-            </span>
+    const renderYard = (color: PlayerColor) => {
+      const playerDetails = players?.find(p => p.color === color);
+      const score = scores ? scores[color] : null;
+
+      return (
+        <div
+          className={cn(
+            'h-full w-full p-2 relative',
+            YARD_BGS[color],
+            borderClasses
+          )}
+        >
+          <div className="h-full w-full p-2 relative grid grid-cols-2 grid-rows-2 gap-2 bg-white/30 rounded-md">
+              {Array(4).fill(0).map((_, i) => (
+                  <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
+              ))}
           </div>
-        )}
-      </div>
-    );
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center p-1">
+              {playerDetails && (
+                <span className="font-semibold capitalize truncate text-white text-sm md:text-base" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>
+                  {playerDetails.name}
+                </span>
+              )}
+              {score !== null && (
+                <span className="font-bold text-2xl md:text-3xl text-black" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}>
+                  {score}
+                </span>
+              )}
+          </div>
+        </div>
+      );
+    }
 
     if (x < 6 && y < 6) return renderYard('red');
     if (x > 8 && y < 6) return renderYard('green');
