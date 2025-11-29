@@ -42,14 +42,9 @@ type DiceProps = {
 };
 
 export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHumanTurn, diceValue, playerName }: DiceProps) {
-  const [isClient, setIsClient] = useState(false);
   const [interimValue, setInterimValue] = useState(1);
   const rollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRollingRef = useRef(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleRoll = () => {
     if (isRollingRef.current || !isHumanTurn) return;
@@ -72,10 +67,6 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
         }, duration);
     }
   }, [rolling, onRollEnd, duration]);
-
-  if (!isClient) {
-    return <div className="w-16 h-16 md:w-24 md:h-24" />; // Placeholder for SSR
-  }
 
   const currentTurnColorClass = turnTextColor[color];
   const currentBgColorClass = turnBgColor[color];
