@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { XIcon } from '@/components/icons/XIcon';
 import Image from 'next/image';
+import { StrongArmIcon } from '@/components/icons/StrongArmIcon';
 
 export default function Home() {
   return (
@@ -152,7 +153,7 @@ export default function Home() {
                   Collect special abilities on the board to gain an advantage. Unleash powers to shield, teleport, or strike!
                 </CardDescription>
                 <Button asChild className={cn("w-full gradient-button-purple")}>
-                  <Link href="/game?mode=powerup">Play Power-Up</Link>
+                  <Link href="/powerup">Play Power-Up</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -291,5 +292,7 @@ export default function Home() {
     </div>
   );
 }
+
+    
 
     

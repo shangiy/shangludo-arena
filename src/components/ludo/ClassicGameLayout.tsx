@@ -315,11 +315,27 @@ export function ClassicGameLayout({
         <p><strong>Winning:</strong> The player with the highest score when the timer ends is the winner. In case of a tie, the player with more pawns finished wins.</p>
       </div>
     );
+
+    const powerUpRules = (
+        <div className="space-y-4 text-sm text-muted-foreground">
+          <p><strong>Objective:</strong> Be the first to get all 4 of your pawns home, using special powers to your advantage!</p>
+          <p><strong>Power-Up Spaces:</strong> Special spaces on the board grant you a random power-up when you land on them. You can hold one power-up at a time.</p>
+          <p><strong>Power-Ups Include:</strong></p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li><strong>Shield:</strong> Your pawn cannot be captured for one full round.</li>
+            <li><strong>Teleport:</strong> Instantly move one pawn to the next safe zone on the path.</li>
+            <li><strong>Double Roll:</strong> Your next roll is doubled. If you roll a 3, you move 6 spaces.</li>
+            <li><strong>Strike:</strong> Choose any opponent's pawn on the board (not on a safe zone) and send it back to their yard.</li>
+          </ul>
+          <p><strong>Gameplay:</strong> Standard Ludo rules apply, but with the added chaos of power-ups. Use them wisely to secure your victory!</p>
+        </div>
+      );
   
     const getRules = () => {
       switch (gameSetup.gameMode) {
         case 'quick': return quickRules;
         case '5-min': return fiveMinRules;
+        case 'powerup': return powerUpRules;
         default: return classicRules;
       }
     }
@@ -379,7 +395,7 @@ export function ClassicGameLayout({
               </TooltipProvider>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle>How to Play: {gameSetup.gameMode === 'quick' ? 'Quick Play' : gameSetup.gameMode === '5-min' ? '5-Minute' : 'Classic'} Ludo</SheetTitle>
+                  <SheetTitle>How to Play: {gameSetup.gameMode === 'quick' ? 'Quick Play' : gameSetup.gameMode === '5-min' ? '5-Minute' : gameSetup.gameMode === 'powerup' ? 'Power-Up' : 'Classic'} Ludo</SheetTitle>
                   <SheetDescription>
                     Here are the rules for the current game mode.
                   </SheetDescription>
@@ -604,3 +620,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    
