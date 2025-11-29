@@ -327,12 +327,12 @@ export function Pawn({
       transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
-        top: `calc(${top}% + 50%)`,
-        left: `calc(${left}% + 50%)`,
+        top: `${top}%`,
+        left: `${left}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(-50%, -50%) translate(${translateX}%, ${translateY}%) scale(${scale})`,
+        transform: `translate(${translateX - 50}%, ${translateY - 50}%) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto flex items-center justify-center"
       onClick={() => onPawnClick({ id, color, position, isHome })}
@@ -355,4 +355,3 @@ export function Pawn({
     </motion.div>
   );
 }
-
