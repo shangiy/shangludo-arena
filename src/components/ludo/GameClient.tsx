@@ -126,11 +126,11 @@ function GameFooter() {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
-                        <footer className="w-full bg-[#111827] text-gray-300 py-2">
+                        <div className="w-full bg-[#111827] text-gray-300 py-2">
                             <div className="max-w-7xl mx-auto flex justify-center items-center">
                                 <p className="text-xs">🎲 © 2025 Shangludo . Developed by Coder+. All rights reserved.</p>
                             </div>
-                        </footer>
+                        </div>
                     </a>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -896,9 +896,8 @@ export default function GameClient() {
                             }
                             if (gameMode === '5-min') {
                                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
-                                return { ...p, position: -1 };
                             }
-                            return { ...p, position: (gameMode === 'classic' ? -1 : START_POSITIONS[p.color]) };
+                            return { ...p, position: (gameMode === 'classic' || gameMode === '5-min' ? -1 : START_POSITIONS[p.color]) };
                         }
                         return p;
                     });
@@ -1122,6 +1121,7 @@ export default function GameClient() {
         showSecondarySafes={addSecondarySafePoints}
         gameMode={gameMode} 
         glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+        scores={gameMode === '5-min' ? scores : undefined}
       >
         {boardContent}
       </GameBoard>

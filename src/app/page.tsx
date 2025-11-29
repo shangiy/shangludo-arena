@@ -183,8 +183,8 @@ export default function Home() {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer">
-              <footer className="bg-[#111827] text-gray-300">
+            <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
+              <div className="bg-[#111827] text-gray-300">
                 <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* About Me */}
@@ -292,7 +292,7 @@ export default function Home() {
                         </a>
                     </div>
                 </div>
-              </footer>
+              </div>
             </a>
           </TooltipTrigger>
           <TooltipContent>
