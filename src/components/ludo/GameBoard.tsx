@@ -320,12 +320,12 @@ export function Pawn({
       transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
-        top: `${top + cellSize / 2}%`,
-        left: `${left + cellSize / 2}%`,
+        top: `${top}%`,
+        left: `${left}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(calc(-50% + ${translateX}%), calc(-50% + ${translateY}%)) scale(${scale})`,
+        transform: `translate(calc(-50% + ${translateX}px + ${cellSize/2}%), calc(-50% + ${translateY}px + ${cellSize/2}%)) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
