@@ -325,7 +325,7 @@ export function Pawn({
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(calc(-50% + ${translateX}px + ${cellSize/2}%), calc(-50% + ${translateY}px + ${cellSize/2}%)) scale(${scale})`,
+        transform: `translate(calc(-50% + ${cellSize/2}%), calc(-50% + ${cellSize/2}%)) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
