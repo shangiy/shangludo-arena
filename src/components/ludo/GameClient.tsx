@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === '5-min' || gameMode === 'powerup' ? START_POSITIONS[color] : -1,
+            position: gameMode === '5-min' || gameMode === 'powerup' || gameMode === 'quick' ? START_POSITIONS[color] : -1,
             isHome: false,
         }));
     }
@@ -172,10 +172,7 @@ export default function GameClient() {
 
   const SAFE_ZONES = useMemo(() => {
     const primarySafes = [
-      START_POSITIONS.red,
-      START_POSITIONS.green,
-      START_POSITIONS.yellow,
-      START_POSITIONS.blue,
+      ...PRIMARY_SAFE_ZONES,
     ];
 
     if (addSecondarySafePoints) {
@@ -645,7 +642,7 @@ export default function GameClient() {
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
     setDiceValue(value);
-
+  
     if (gameMode === 'classic' && value === 6) {
       if (consecutiveSixes === 2) {
           addMessage('System', `${players[currentTurn].name} rolled a third 6 and loses their turn.`);
@@ -854,7 +851,7 @@ export default function GameClient() {
                           if (gameMode === '5-min') {
                              setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                           }
-                          return { ...p, position: (gameMode === '5-min' || gameMode === 'quick' || gameMode === 'powerup' ? -1 : START_POSITIONS[p.color]) };
+                          return { ...p, position: (gameMode === 'classic' ? -1 : START_POSITIONS[p.color]) };
                       }
                       return p;
                   });

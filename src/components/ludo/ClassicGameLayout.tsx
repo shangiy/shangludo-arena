@@ -77,7 +77,9 @@ function PlayerPod({
         "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center mb-1">{player.name}</h3>
+        <div className="w-full text-center h-8 flex items-center justify-center">
+            <h3 className="text-base md:text-lg font-bold truncate capitalize">{player.name}</h3>
+        </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
             {isCurrentTurn ? (
@@ -285,7 +287,7 @@ export function ClassicGameLayout({
           <ul className="list-disc pl-5 space-y-1">
             <li>To move a pawn out of your yard onto the starting square, you must roll a 6.</li>
             <li>If you roll a 6, you get an additional roll in that turn.</li>
-            <li>If you roll three 6s consecutively, your turn ends, and you cannot move.</li>
+            <li>If you roll two 6s consecutively, your third roll will not be a 6. Your turn continues with the number rolled.</li>
           </ul>
         </div>
         <div>
@@ -331,6 +333,8 @@ export function ClassicGameLayout({
     const fiveMinRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Get the highest score before the 5-minute timer runs out!</p>
+        <p><strong>Starting:</strong> All your pawns start on the board, ready to move. No need to roll a 6 to begin.</p>
+        <p><strong>Captured Pawns:</strong> If one of your pawns is captured, it goes back to your starting yard. You must roll a 6 to bring it back onto the track.</p>
         <p><strong>Scoring:</strong></p>
         <ul className="list-disc pl-5 space-y-1">
           <li>+1 point for each step a pawn moves.</li>
@@ -338,8 +342,8 @@ export function ClassicGameLayout({
           <li>+50 points for moving a pawn to the home space.</li>
           <li>-20 points when your pawn is captured.</li>
         </ul>
-        <p><strong>Gameplay:</strong> Follows the same rules as Quick Play (pawns start on board, blockades are active), but the goal is to score as many points as possible.</p>
-        <p><strong>Winning:</strong> The player with the highest score when the timer ends is the winner. In case of a tie, the player with more pawns finished wins.</p>
+        <p><strong>Instant Win:</strong> If you get all 4 of your pawns to the home triangle before the timer ends, you win instantly!</p>
+        <p><strong>Time's Up:</strong> If the timer runs out, the player with the highest score wins. In case of a tie, the player with more pawns finished wins.</p>
       </div>
     );
 

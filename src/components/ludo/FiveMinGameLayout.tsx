@@ -108,7 +108,9 @@ function PlayerPod({
                 {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
-        <h3 className="text-base md:text-lg font-bold truncate capitalize w-full text-center mb-1">{player.name}</h3>
+        <div className="w-full text-center h-8 flex items-center justify-center">
+            <h3 className="text-base md:text-lg font-bold truncate capitalize">{player.name}</h3>
+        </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
             {isCurrentTurn ? (
@@ -124,9 +126,9 @@ function PlayerPod({
             />
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                        <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
-                    </button>
+                    <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                    </div>
                 </div>
             )}
 
@@ -358,7 +360,7 @@ export function FiveMinGameLayout({
           <ul className="list-disc pl-5 space-y-1">
             <li>To move a pawn out of your yard onto the starting square, you must roll a 6.</li>
             <li>If you roll a 6, you get an additional roll in that turn.</li>
-            <li>If you roll three 6s consecutively, your turn ends, and you cannot move.</li>
+            <li>If you roll two 6s consecutively, your third roll will not be a 6. Your turn continues with the number rolled.</li>
           </ul>
         </div>
         <div>
@@ -387,7 +389,7 @@ export function FiveMinGameLayout({
     const quickRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
         <p><strong>Objective:</strong> Be the first to move just ONE of your 4 pawns to the home triangle.</p>
-        <p><strong>Starting a Pawn:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square.</p>
+        <p><strong>Starting a Pawn:</strong> Pawns start on the board. You do not need a 6 to start.</p>
         <p><strong>Glass Walls:</strong> Each player's home entry is blocked by a glass wall (`🚫`). You cannot enter your home run until your wall is broken.</p>
         <p><strong>Breaking Walls & Capturing:</strong> To break your glass wall, you must capture an opponent's pawn. This will shatter your wall with a sound and permanently open your home entry.</p>
         <ul className="list-disc pl-5 space-y-1">
