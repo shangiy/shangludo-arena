@@ -51,7 +51,7 @@ const MAIN_PATH = [
     p(7, 14), // turn
     p(6, 14), p(6, 13), p(6, 12), p(6, 11), p(6, 10), p(6, 9),
     p(5, 8), p(4, 8), p(3, 8), p(2, 8), p(1, 8), p(0, 8),
-    p(0, 7), // turn
+    p(0, 7), // turn to red's home run
 ];
 
 const homeRuns: Record<PlayerColor, number[]> = {

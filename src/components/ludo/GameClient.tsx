@@ -625,7 +625,8 @@ export default function GameClient() {
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
 
-        if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+        if (gameMode === 'powerup' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
+            // Blockade rule for powerup mode
         } else {
           moves.push({ pawn, newPosition: startPos });
         }
@@ -648,7 +649,8 @@ export default function GameClient() {
             newPosition = currentPath[currentPathIndex + roll];
             const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-            if ((gameMode !== 'classic' && gameMode !== 'powerup') && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+            if (gameMode === 'powerup' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+              // Blockade rule for powerup mode
             } else {
               moves.push({ pawn, newPosition });
             }
@@ -859,7 +861,8 @@ export default function GameClient() {
               let opponentPawnsAtPos = newPawns[color].filter(
                 (p: Pawn) => p.position === newPosition
               );
-              if (opponentPawnsAtPos.length > 0 && opponentPawnsAtPos.length < 2) {
+              // Only capture if there's a single opponent pawn
+              if (opponentPawnsAtPos.length === 1) {
                   capturedPawn = true;
                   addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                   newPawns[color] = newPawns[color].map((p: Pawn) => {
@@ -948,14 +951,15 @@ export default function GameClient() {
     const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
     const positions: { [key: number]: Pawn[] } = {};
   
+    // Group pawns by position
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
       if (pawns[color]) {
         pawns[color].forEach(pawn => {
             if (pawn.position !== -1 && !pawn.isHome) {
-            if (!positions[pawn.position]) {
-                positions[pawn.position] = [];
-            }
-            positions[pawn.position].push(pawn);
+              if (!positions[pawn.position]) {
+                  positions[pawn.position] = [];
+              }
+              positions[pawn.position].push(pawn);
             }
         });
       }
@@ -975,7 +979,10 @@ export default function GameClient() {
                 const stackCount = pawnsAtSamePos.length;
                 const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
                 
-                allPawns.push({ pawn, highlight, stackCount: (gameMode !== 'classic' && gameMode !== 'powerup') && stackCount > 1 ? stackCount : 0, stackIndex });
+                // Blockades are only relevant for powerup mode visually
+                const showStackCount = gameMode === 'powerup' && stackCount > 1;
+
+                allPawns.push({ pawn, highlight, stackCount: showStackCount ? stackCount : 0, stackIndex });
             });
         }
     });
@@ -1244,5 +1251,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    

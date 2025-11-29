@@ -91,8 +91,8 @@ export function chooseMove(
         if (isClassic && roll !== 6) continue;
         
         const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
-        // Blockade check
-        if (!isClassic && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
+        // Blockade check only for powerup
+        if (gameState.gameMode === 'powerup' && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
           // Can't move out to create illegal blockade
         } else {
           moves.push({ pawn, newPosition: startSquare });
@@ -121,8 +121,9 @@ export function chooseMove(
         }
         
         const ownAtDest = playerPawns.filter(p => p.position === newPos).length;
-        if (!isClassic && !safeSquares.has(newPos) && ownAtDest >= 2) {
-          // moving into own blockade (non-classic) - skip
+        // Blockade logic only for powerup
+        if (gameState.gameMode === 'powerup' && !safeSquares.has(newPos) && ownAtDest >= 2) {
+          // moving into own blockade (powerup) - skip
         } else {
           moves.push({ pawn, newPosition: newPos });
         }
@@ -148,7 +149,7 @@ export function chooseMove(
     // If there's a capture move available, consider it against bringing a pawn out
     const captureMove = possibleMoves.find(move => {
       const opponents = findOpponentsOnSquare(gameState.pawns, move.newPosition, playerId);
-      return opponents.length > 0 && !safeSquares.has(move.newPosition as number);
+      return opponents.length === 1 && !safeSquares.has(move.newPosition as number);
     });
 
     if (enterYardMove && !captureMove) {
@@ -168,10 +169,10 @@ export function chooseMove(
     // priority: finishing (highest)
     if (newIdx === playerPath.length - 1) score += 1200;
 
-    // capturing opponents (strong priority)
+    // capturing opponents (strong priority) - only single pawns
     const opponents = findOpponentsOnSquare(gameState.pawns, newPosition, playerId);
-    if (opponents.length > 0 && !safeSquares.has(newPosition as number)) {
-      score += 800 + opponents.length * 150;
+    if (opponents.length === 1 && !safeSquares.has(newPosition as number)) {
+      score += 800;
     }
     
     // Quick/5-min Mode: Restarting lap is very bad
@@ -189,11 +190,14 @@ export function chooseMove(
     if (newIdx !== -1 && oldIdx !== -1) score += (newIdx - oldIdx) * 12;
     if (oldIdx === -1 && newIdx !== -1) score += newIdx * 6;
 
-    // discourage breaking an existing safe blockade unless strongly beneficial
-    const ownAtOld = playerPawns.filter(p => p.position === pawn.position).length;
-    if (oldIdx !== -1 && safeSquares.has(pawn.position as number) && ownAtOld >= 2) {
-      score -= 300;
+    // discourage breaking an existing safe blockade (in powerup mode)
+    if(gameState.gameMode === 'powerup') {
+        const ownAtOld = playerPawns.filter(p => p.position === pawn.position).length;
+        if (oldIdx !== -1 && safeSquares.has(pawn.position as number) && ownAtOld >= 2) {
+          score -= 300;
+        }
     }
+
 
     // small random to break exact ties
     score += Math.random();
@@ -269,7 +273,7 @@ export function computeRanking(
     let score = 0;
     if (gameMode === '5-min') {
       score = scores[playerId] ?? 0;
-    } else if (gameMode === 'classic') {
+    } else if (gameMode === 'classic' || gameMode === 'powerup') {
       score = finished;
     } else { // quick
       score = progressPercentage;

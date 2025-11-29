@@ -256,7 +256,6 @@ export function ClassicGameLayout({
           <h4 className="font-bold mb-2">Special Squares</h4>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">Safe Zones:</strong> Squares marked with a star are safe zones. Pawns on these squares cannot be captured.</li>
-            <li><strong className="text-foreground">Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Opponent's pawns cannot pass a blockade. You cannot move a pawn to a square if you already have a blockade there.</li>
             <li><strong className="text-foreground">Home Column:</strong> After a pawn travels the entire board, it enters its colored home column. Opponents cannot enter your home column.</li>
           </ul>
         </div>
@@ -306,6 +305,7 @@ export function ClassicGameLayout({
           <p><strong>Objective:</strong> Be the first to get all 4 of your pawns home, using special powers to your advantage!</p>
           <p><strong>Starting:</strong> All pawns start on the board, ready to move immediately. No need to roll a 6.</p>
           <p><strong>Power-Up Spaces:</strong> Land on a space with a star to get a random power-up. You can only hold one at a time. Use it on your turn before rolling the dice.</p>
+          <p><strong>Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Opponent's pawns cannot pass a blockade. You cannot move a pawn to a square if you already have a blockade there.</p>
           <p><strong>Power-Ups Include:</strong></p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Shield (Passive):</strong> Your pawn cannot be captured for one full round of the board. The shield is visible.</li>
@@ -566,5 +566,3 @@ export function ClassicGameLayout({
       </div>
   );
 }
-
-    
