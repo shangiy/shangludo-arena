@@ -24,13 +24,11 @@ const gridCellStyle =
 export function GameBoard({
   children,
   showSecondarySafes,
-  scores,
   gameMode,
   glassWalls
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
-  scores: Record<PlayerColor, number>;
   gameMode: string;
   glassWalls: Record<PlayerColor, boolean>;
 }) {
@@ -50,14 +48,6 @@ export function GameBoard({
     blue: 'bg-blue-500',
   };
   
-  const YARD_SCORE_TEXT_COLORS: Record<PlayerColor, string> = {
-    red: 'text-white',
-    green: 'text-white',
-    yellow: 'text-gray-800',
-    blue: 'text-white',
-  };
-
-
   const getCellContent = (index: number) => {
     const x = index % 15;
     const y = Math.floor(index / 15);
@@ -203,11 +193,6 @@ export function GameBoard({
                 <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
             ))}
         </div>
-        {gameMode === '5-min' && (
-          <div className={cn("absolute inset-0 flex items-center justify-center text-4xl font-bold", YARD_SCORE_TEXT_COLORS[color])}>
-            {scores[color]}
-          </div>
-        )}
       </div>
     );
 
@@ -337,7 +322,7 @@ export function Pawn({
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(${translateX - 50}%, ${translateY - 50}%) scale(${scale})`,
+        transform: `translate(${translateX}%, ${translateY}%)`,
       }}
       className="p-0.5 pointer-events-auto flex items-center justify-center"
       onClick={() => onPawnClick({ id, color, position, isHome })}

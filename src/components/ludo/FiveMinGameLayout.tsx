@@ -422,7 +422,7 @@ export function FiveMinGameLayout({
             </AlertDialogContent>
           </AlertDialog>
           
-          <div className="hidden md:flex flex-col items-center">
+          <div className="flex-col items-center hidden md:flex">
             <div className="text-center">
               <p className="text-xs font-semibold text-muted-foreground leading-tight">{gameMode === '5-min' ? '5-Minutes' : 'Quick Play'}</p>
               <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
@@ -622,9 +622,9 @@ export function FiveMinGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-2 md:grid md:grid-cols-[auto_1fr_auto] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-16 pb-4 h-screen">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-16 pb-4 h-screen">
 
-          <div className="w-full justify-around mb-2 hidden md:flex md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
+          <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end md:flex hidden">
              <PlayerPod
                 player={redPlayer}
                 color="red"
@@ -640,7 +640,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
               />
           </div>
-           <div className="w-full justify-around hidden md:flex md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
+           <div className="md:col-start-3 md:row-start-1 md:justify-self-start md:self-end md:flex hidden">
               <PlayerPod
                 player={greenPlayer}
                 color="green"
@@ -657,7 +657,7 @@ export function FiveMinGameLayout({
               />
           </div>
 
-          <div className="flex w-full justify-around mb-4 md:hidden">
+          <div className="flex w-full justify-around mb-2 md:hidden">
               <PlayerPod
                 player={redPlayer}
                 color="red"
@@ -689,15 +689,16 @@ export function FiveMinGameLayout({
           </div>
           
           <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-2">
-              <div className="w-full flex justify-center md:hidden mb-1">
+              <div className="w-full flex justify-center mb-1">
                 {gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
               </div>
               <div className="relative w-full aspect-square">
                 {children}
+                <Scoreboard pawns={pawns} players={gameSetup.players} scores={scores} gameMode={gameMode} />
               </div>
           </div>
           
-          <div className="flex w-full justify-around mt-8 md:hidden">
+          <div className="flex w-full justify-around mt-10 md:hidden">
               <PlayerPod
                 player={bluePlayer}
                 color="blue"
@@ -728,7 +729,7 @@ export function FiveMinGameLayout({
               />
           </div>
 
-          <div className="w-full justify-around hidden md:flex md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
+          <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start md:flex hidden">
              <PlayerPod
                 player={bluePlayer}
                 color="blue"
@@ -744,7 +745,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
               />
           </div>
-           <div className="w-full justify-around hidden md:flex md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
+           <div className="md:col-start-3 md:row-start-3 md:justify-self-start md:self-start md:flex hidden">
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
