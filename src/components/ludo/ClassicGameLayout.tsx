@@ -28,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 import { useTheme } from "@/hooks/use-theme";
 import { Dice } from "./Dice";
+import { Dice3D } from "./Dice3D";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 
 type PlayerPodProps = {
@@ -41,6 +42,7 @@ type PlayerPodProps = {
   diceValue: number | null;
   phase: string;
   showNotifications: boolean;
+  gameMode: string;
 };
 
 const turnIndicatorClasses: Record<PlayerColor, string> = {
@@ -61,6 +63,7 @@ function PlayerPod({
   diceRollDuration,
   onRollStart,
   onDiceRoll,
+  gameMode,
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
@@ -69,6 +72,35 @@ function PlayerPod({
 
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
   
+  const renderDice = () => {
+    if (gameMode === 'powerup') {
+        return (
+            <Dice3D
+                rolling={isRolling && isCurrentTurn}
+                onRollStart={onRollStart}
+                onRollEnd={onDiceRoll}
+                color={color}
+                duration={diceRollDuration}
+                isHumanTurn={isHumanTurnAndRollingPhase}
+                diceValue={isCurrentTurn ? diceValue : null}
+                playerName={player.name}
+            />
+        );
+    }
+    return (
+        <Dice
+            rolling={isRolling}
+            onRollStart={onRollStart}
+            onRollEnd={onDiceRoll}
+            color={color}
+            duration={diceRollDuration}
+            isHumanTurn={isHumanTurnAndRollingPhase}
+            diceValue={diceValue}
+            playerName={player.name}
+        />
+    );
+  }
+
   return (
     <div className={cn(
         "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
@@ -80,22 +112,13 @@ function PlayerPod({
         
         <div className="flex-1 flex flex-col justify-center items-center">
             {isCurrentTurn ? (
-            <Dice
-                rolling={isRolling}
-                onRollStart={onRollStart}
-                onRollEnd={onDiceRoll}
-                color={color}
-                duration={diceRollDuration}
-                isHumanTurn={isHumanTurnAndRollingPhase}
-                diceValue={diceValue}
-                playerName={player.name}
-            />
+                renderDice()
             ) : (
-            <div className="flex flex-col items-center justify-center gap-2 h-full">
-                <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
-                    <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                <div className="flex flex-col items-center justify-center gap-2 h-full">
+                    <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                    </div>
                 </div>
-            </div>
             )}
 
             <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
@@ -214,7 +237,7 @@ export function ClassicGameLayout({
   onToggleSecondarySafePoints,
   phase,
 }: ClassicGameLayoutProps) {
-    const { players } = gameSetup;
+    const { players, gameMode } = gameSetup;
     const { theme, toggleTheme } = useTheme();
     const redPlayer = players.find(p => p.color === 'red') || { color: 'red', name: 'Empty', type: 'none' };
     const greenPlayer = players.find(p => p.color === 'green') || { color: 'green', name: 'Empty', type: 'none' };
@@ -516,6 +539,7 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
+                  gameMode={gameMode}
                 />
                  <PlayerPod
                   player={bluePlayer}
@@ -528,6 +552,7 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
+                  gameMode={gameMode}
                 />
             </div>
 
@@ -548,6 +573,7 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
+                  gameMode={gameMode}
                 />
                 <PlayerPod
                   player={yellowPlayer}
@@ -560,6 +586,7 @@ export function ClassicGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
+                  gameMode={gameMode}
                 />
             </div>
         </main>
