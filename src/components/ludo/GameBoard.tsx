@@ -27,8 +27,6 @@ export function GameBoard({
   showSecondarySafes,
   gameMode,
   glassWalls,
-  scores,
-  players
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
@@ -186,9 +184,6 @@ export function GameBoard({
 
     // 🏡 Yard rendering
     const renderYard = (color: PlayerColor) => {
-      const playerDetails = players?.find(p => p.color === color);
-      const score = scores ? scores[color] : null;
-
       return (
         <div
           className={cn(
@@ -201,18 +196,6 @@ export function GameBoard({
               {Array(4).fill(0).map((_, i) => (
                   <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
               ))}
-          </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center p-1">
-              {playerDetails && (
-                <span className="font-semibold capitalize truncate text-white text-sm md:text-base" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.7)' }}>
-                  {playerDetails.name}
-                </span>
-              )}
-              {score !== null && (
-                <span className="font-bold text-2xl md:text-3xl text-black" style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.5)' }}>
-                  {score}
-                </span>
-              )}
           </div>
         </div>
       );

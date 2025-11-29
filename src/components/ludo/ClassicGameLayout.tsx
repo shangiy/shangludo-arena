@@ -33,6 +33,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTr
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
   color: PlayerColor;
+  score?: number;
   isCurrentTurn: boolean;
   isRolling: boolean;
   diceRollDuration: number;
@@ -62,6 +63,7 @@ const turnStrokeColorClasses: Record<PlayerColor, string> = {
 function PlayerPod({
   player,
   color,
+  score,
   isCurrentTurn,
   diceValue,
   phase,
@@ -115,7 +117,7 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-36 max-w-[8rem] md:max-w-none h-32 md:h-44 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-36 max-w-[8rem] md:max-w-none h-44 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         {showTimer && (
@@ -136,8 +138,11 @@ function PlayerPod({
                 {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
-        <div className="w-full text-center h-6 flex items-center justify-center">
+        <div className="w-full text-center h-12 flex flex-col items-center justify-center">
             <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
+            {gameMode === '5-min' && score !== undefined && (
+              <p className="text-xl font-bold text-foreground/80">{score}</p>
+            )}
         </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
@@ -587,6 +592,7 @@ export function ClassicGameLayout({
               <PlayerPod
                   player={redPlayer}
                   color="red"
+                  score={scores?.red}
                   isCurrentTurn={currentTurn === 'red'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
@@ -603,6 +609,7 @@ export function ClassicGameLayout({
               <PlayerPod
                   player={greenPlayer}
                   color="green"
+                  score={scores?.green}
                   isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
@@ -633,6 +640,7 @@ export function ClassicGameLayout({
                 <PlayerPod
                     player={bluePlayer}
                     color="blue"
+                    score={scores?.blue}
                     isCurrentTurn={currentTurn === 'blue'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
@@ -649,6 +657,7 @@ export function ClassicGameLayout({
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
+                score={scores?.yellow}
                 isCurrentTurn={currentTurn === 'yellow'}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}
