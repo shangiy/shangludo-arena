@@ -654,7 +654,7 @@ export function FiveMinGameLayout({
               />
           </div>
 
-          <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
+          <div className="hidden md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
              <PlayerPod
                 player={redPlayer}
                 color="red"
@@ -670,7 +670,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
               />
           </div>
-          <div className="md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
+          <div className="hidden md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
               <PlayerPod
                 player={greenPlayer}
                 color="green"
@@ -686,7 +686,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
               />
           </div>
-           <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
+           <div className="hidden md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
               <PlayerPod
                 player={bluePlayer}
                 color="blue"
@@ -702,7 +702,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
               />
           </div>
-           <div className="md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
+           <div className="hidden md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
