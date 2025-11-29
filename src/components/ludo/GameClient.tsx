@@ -128,7 +128,7 @@ function GameFooter() {
                     <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
                         <div className="w-full bg-[#111827] text-gray-300 py-2">
                             <div className="max-w-7xl mx-auto flex justify-center items-center">
-                                <p className="text-xs">🎲 © 2025 Shangludo . Developed by Coder+. All rights reserved.</p>
+                                <p className="text-xs">🎲 © 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
                             </div>
                         </div>
                     </a>
@@ -1243,5 +1243,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
