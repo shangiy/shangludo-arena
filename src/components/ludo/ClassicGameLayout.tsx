@@ -449,11 +449,6 @@ export function ClassicGameLayout({
                 <p className="text-xs font-semibold text-muted-foreground leading-tight capitalize">{gameMode === '5-min' ? '5-Minutes' : gameMode} Play</p>
                 <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
             </div>
-             {gameMode === '5-min' && gameTimer !== undefined && (
-                <div className="hidden md:block">
-                  <GameTimer remaining={gameTimer} />
-                </div>
-              )}
           </div>
 
           <div className="flex items-center gap-2">
