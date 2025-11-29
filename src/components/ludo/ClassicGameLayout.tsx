@@ -525,79 +525,79 @@ export function ClassicGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12">
-            {/* Left Pods: Red (top) and Blue (bottom) */}
-            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 order-1 md:order-none">
-                <div className="order-1 md:order-1">
-                   <PlayerPod
-                    player={redPlayer}
-                    color="red"
-                    isCurrentTurn={currentTurn === 'red'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    gameMode={gameMode}
-                  />
-                 </div>
-                 <div className="order-3 md:order-2">
-                   <PlayerPod
-                    player={bluePlayer}
-                    color="blue"
-                    isCurrentTurn={currentTurn === 'blue'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    gameMode={gameMode}
-                  />
-                 </div>
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12 h-screen">
+          <div className="flex w-full justify-around md:contents">
+            <div className="md:col-start-1 md:row-start-1 md:flex md:justify-end md:items-end">
+              <PlayerPod
+                player={redPlayer}
+                color="red"
+                isCurrentTurn={currentTurn === 'red'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                gameMode={gameMode}
+              />
             </div>
 
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square order-2 md:order-none">
-                {children}
-                <Scoreboard pawns={pawns} players={gameSetup.players} />
+            <div className="md:col-start-3 md:row-start-1 md:flex md:justify-start md:items-end">
+              <PlayerPod
+                player={greenPlayer}
+                color="green"
+                isCurrentTurn={currentTurn === 'green'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                gameMode={gameMode}
+              />
             </div>
+          </div>
+          
+          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-2">
+              {children}
+              <Scoreboard pawns={pawns} players={gameSetup.players} />
+          </div>
             
-            {/* Right Pods: Green (top) and Yellow (bottom) */}
-            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 order-1 md:order-none">
-                <div className="order-2 md:order-1">
-                  <PlayerPod
-                    player={greenPlayer}
-                    color="green"
-                    isCurrentTurn={currentTurn === 'green'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    gameMode={gameMode}
-                  />
-                </div>
-                <div className="order-4 md:order-2">
-                  <PlayerPod
-                    player={yellowPlayer}
-                    color="yellow"
-                    isCurrentTurn={currentTurn === 'yellow'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    gameMode={gameMode}
-                  />
-                </div>
+          <div className="flex w-full justify-around md:contents">
+            <div className="md:col-start-1 md:row-start-3 md:flex md:justify-end md:items-start">
+              <PlayerPod
+                player={bluePlayer}
+                color="blue"
+                isCurrentTurn={currentTurn === 'blue'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                gameMode={gameMode}
+              />
             </div>
+
+            <div className="md:col-start-3 md:row-start-3 md:flex md:justify-start md:items-start">
+              <PlayerPod
+                player={yellowPlayer}
+                color="yellow"
+                isCurrentTurn={currentTurn === 'yellow'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                gameMode={gameMode}
+              />
+            </div>
+          </div>
         </main>
       </div>
   );
