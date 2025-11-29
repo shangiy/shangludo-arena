@@ -23,7 +23,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 import { useTheme } from "@/hooks/use-theme";
@@ -43,6 +42,7 @@ type PlayerPodProps = {
   phase: string;
   showNotifications: boolean;
   gameMode: string;
+  turnTimerProgress?: number;
 };
 
 const turnIndicatorClasses: Record<PlayerColor, string> = {
@@ -50,6 +50,13 @@ const turnIndicatorClasses: Record<PlayerColor, string> = {
     green: 'border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)] bg-green-500/5',
     yellow: 'border-yellow-400 shadow-[0_0_15px_rgba(245,158,11,0.7)] bg-yellow-400/5',
     blue: 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.7)] bg-blue-500/5',
+};
+
+const turnStrokeColorClasses: Record<PlayerColor, string> = {
+  red: 'stroke-red-500',
+  green: 'stroke-green-500',
+  yellow: 'stroke-yellow-400',
+  blue: 'stroke-blue-500',
 };
 
 function PlayerPod({
@@ -64,6 +71,7 @@ function PlayerPod({
   onRollStart,
   onDiceRoll,
   gameMode,
+  turnTimerProgress
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
@@ -73,7 +81,9 @@ function PlayerPod({
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
   
   const renderDice = () => {
-    if (gameMode === 'powerup') {
+    // 5-min mode always uses 3D dice, other modes can use 2D or 3D
+    const use3DDice = gameMode === '5-min' || gameMode === 'powerup';
+    if (use3DDice) {
         return (
             <Dice3D
                 rolling={isRolling && isCurrentTurn}
@@ -101,12 +111,33 @@ function PlayerPod({
     );
   }
 
+  const showTimer = isCurrentTurn && turnTimerProgress && turnTimerProgress < 100;
+  const isUrgent = turnTimerProgress && turnTimerProgress < 25;
+
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-36 max-w-[8rem] md:max-w-none h-32 md:h-44 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
-        <div className="w-full text-center h-8 flex items-center justify-center">
+        {showTimer && (
+           <div className="absolute inset-0 pointer-events-none">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path
+                        d="M 2.5,2.5 L 97.5,2.5 L 97.5,97.5 L 2.5,97.5 Z"
+                        fill="none"
+                        className={cn("transition-all", isUrgent ? "stroke-red-500" : turnStrokeColorClasses[color])}
+                        strokeWidth="5"
+                        strokeDasharray="380"
+                        strokeDashoffset={380 * (1 - turnTimerProgress / 100)}
+                        style={{
+                            transition: 'stroke-dashoffset 1s linear, stroke 0.3s'
+                        }}
+                    />
+                </svg>
+                {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
+           </div>
+        )}
+        <div className="w-full text-center h-6 flex items-center justify-center">
             <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
         </div>
         
@@ -132,7 +163,26 @@ function PlayerPod({
   );
 }
 
-function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[] }) {
+function GameTimer({ remaining }: { remaining: number }) {
+  const minutes = Math.floor(remaining / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+  
+  const isLowTime = remaining < 60000;
+  const isUrgent = remaining < 15000;
+
+  return (
+    <div className={cn(
+      "flex items-center justify-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border",
+      isLowTime && "text-red-500 border-red-500/50 bg-red-500/10",
+      isUrgent && "animate-pulse"
+    )}>
+        <Timer className="h-5 w-5" />
+        <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
+    </div>
+  );
+}
+
+function Scoreboard({ pawns, players, scores, gameMode }: { pawns: Record<PlayerColor, Pawn[]>, players: PlayerSetup[], scores?: Record<PlayerColor, number>, gameMode: string }) {
     const activePlayers = players.filter(p => p.type !== 'none');
     
     const getProgressPercentage = (color: PlayerColor) => {
@@ -141,7 +191,7 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
     
         const path = PATHS[color];
         const totalPathLength = path.length - 1; 
-        const maxProgress = 4 * totalPathLength;
+        const maxProgress = (gameMode === 'quick' ? 1 : 4) * totalPathLength;
     
         let currentProgress = 0;
         playerPawns.forEach(pawn => {
@@ -174,13 +224,15 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
               const player = playerMap.get(color);
               if (!player) return <div key={color} />;
               
-              const percentage = getProgressPercentage(color);
+              const displayValue = gameMode === '5-min' && scores
+                ? scores[color]
+                : `${getProgressPercentage(color)}%`;
 
               return (
                 <div key={color} className={cn("flex p-2", justify, items)}>
                     <div className="flex flex-col items-center justify-center gap-1 text-sm p-1 text-center">
                         <span className="font-semibold capitalize truncate text-white">{player.name}</span>
-                        <span className="font-bold text-base text-black">{percentage}%</span>
+                        <span className="font-bold text-base text-black">{displayValue}</span>
                     </div>
                 </div>
               );
@@ -212,6 +264,13 @@ type ClassicGameLayoutProps = {
   addSecondarySafePoints: boolean;
   onToggleSecondarySafePoints: () => void;
   phase: string;
+  gameTimer?: number;
+  gameTimerDuration?: number;
+  onGameTimerDurationChange?: (duration: number) => void;
+  turnTimer?: number;
+  turnTimerDuration?: number;
+  onTurnTimerDurationChange?: (duration: number) => void;
+  scores?: Record<PlayerColor, number>;
 };
 
 export function ClassicGameLayout({
@@ -235,6 +294,13 @@ export function ClassicGameLayout({
   addSecondarySafePoints,
   onToggleSecondarySafePoints,
   phase,
+  gameTimer,
+  gameTimerDuration,
+  onGameTimerDurationChange,
+  turnTimer,
+  turnTimerDuration,
+  onTurnTimerDurationChange,
+  scores,
 }: ClassicGameLayoutProps) {
     const { players, gameMode } = gameSetup;
     const { theme, toggleTheme } = useTheme();
@@ -245,12 +311,18 @@ export function ClassicGameLayout({
     
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration ? gameTimerDuration / 60000 : 5);
+    const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration ? turnTimerDuration / 1000 : 10);
     
     const handleApplyAllChanges = () => {
       onDiceRollDurationChange(newDiceRollDuration * 1000);
+      if (onGameTimerDurationChange) onGameTimerDurationChange(newGameTimerDuration * 60000);
+      if (onTurnTimerDurationChange) onTurnTimerDurationChange(newTurnTimerDuration * 1000);
       onGameSetupChange(gameSetup);
       setIsSettingsOpen(false);
     };
+
+    const turnTimerProgress = turnTimer && turnTimerDuration ? (turnTimer / turnTimerDuration) * 100 : 100;
 
     const classicRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
@@ -371,6 +443,14 @@ export function ClassicGameLayout({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          
+          <div className="flex-col items-center hidden md:flex">
+             <div className="text-center">
+                <p className="text-xs font-semibold text-muted-foreground leading-tight capitalize">{gameMode === '5-min' ? '5-Minutes' : gameMode} Play</p>
+                <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
+            </div>
+             {gameMode === '5-min' && gameTimer !== undefined && <GameTimer remaining={gameTimer} />}
+          </div>
 
           <div className="flex items-center gap-2">
             <TooltipProvider>
@@ -498,6 +578,45 @@ export function ClassicGameLayout({
                               </TooltipContent>
                             </Tooltip>
                           </div>
+                          {gameMode === '5-min' && (
+                            <>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
+                                    <Timer className="h-4 w-4" />
+                                    Game Time (min)
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                    id="game-timer"
+                                    type="number"
+                                    min="1"
+                                    max="60"
+                                    className="w-20"
+                                    value={newGameTimerDuration}
+                                    onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
+                                    <Timer className="h-4 w-4" />
+                                    Turn Time Limit (s)
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                    id="turn-timer"
+                                    type="number"
+                                    min="5"
+                                    max="60"
+                                    step="5"
+                                    className="w-20"
+                                    value={newTurnTimerDuration}
+                                    onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
+                                    />
+                                </div>
+                            </div>
+                            </>
+                          )}
                           <div className="space-y-2">
                             <Label>Number of Dice</Label>
                             <RadioGroup
@@ -525,25 +644,42 @@ export function ClassicGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12 h-screen">
-          <div className="flex w-full justify-around md:contents">
-            <div className="md:col-start-1 md:row-start-1 md:flex md:justify-end md:items-end">
-              <PlayerPod
-                player={redPlayer}
-                color="red"
-                isCurrentTurn={currentTurn === 'red'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                gameMode={gameMode}
-              />
-            </div>
-
-            <div className="md:col-start-3 md:row-start-1 md:flex md:justify-start md:items-end">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-2 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-16 pb-4 h-screen">
+          <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
+              <div className="flex justify-around items-center w-full md:w-auto order-1 md:order-none mb-2 md:mb-0">
+                <PlayerPod
+                    player={redPlayer}
+                    color="red"
+                    isCurrentTurn={currentTurn === 'red'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    gameMode={gameMode}
+                    turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
+                />
+                <div className="md:hidden">
+                    <PlayerPod
+                        player={greenPlayer}
+                        color="green"
+                        isCurrentTurn={currentTurn === 'green'}
+                        isRolling={isRolling}
+                        diceRollDuration={diceRollDuration}
+                        onRollStart={onRollStart}
+                        onDiceRoll={onDiceRoll}
+                        diceValue={diceValue}
+                        phase={phase}
+                        showNotifications={showNotifications}
+                        gameMode={gameMode}
+                        turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
+                    />
+                </div>
+              </div>
+          </div>
+           <div className="hidden md:flex md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
               <PlayerPod
                 player={greenPlayer}
                 color="green"
@@ -556,33 +692,57 @@ export function ClassicGameLayout({
                 phase={phase}
                 showNotifications={showNotifications}
                 gameMode={gameMode}
+                turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
               />
-            </div>
           </div>
           
-          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-2">
-              {children}
-              <Scoreboard pawns={pawns} players={gameSetup.players} />
+          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-2 order-2 md:order-none">
+              {gameMode === '5-min' && gameTimer !== undefined && (
+                <div className="w-full flex justify-center mb-1">
+                  <GameTimer remaining={gameTimer} />
+                </div>
+              )}
+              <div className="relative w-full aspect-square">
+                {children}
+                <Scoreboard pawns={pawns} players={gameSetup.players} scores={scores} gameMode={gameMode} />
+              </div>
           </div>
-            
-          <div className="flex w-full justify-around md:contents">
-            <div className="md:col-start-1 md:row-start-3 md:flex md:justify-end md:items-start">
-              <PlayerPod
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                gameMode={gameMode}
-              />
+          
+          <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
+            <div className="flex justify-around items-center w-full md:w-auto order-3 md:order-none mt-2 md:mt-0">
+                <PlayerPod
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    gameMode={gameMode}
+                    turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                />
+                <div className="md:hidden">
+                    <PlayerPod
+                        player={yellowPlayer}
+                        color="yellow"
+                        isCurrentTurn={currentTurn === 'yellow'}
+                        isRolling={isRolling}
+                        diceRollDuration={diceRollDuration}
+                        onRollStart={onRollStart}
+                        onDiceRoll={onDiceRoll}
+                        diceValue={diceValue}
+                        phase={phase}
+                        showNotifications={showNotifications}
+                        gameMode={gameMode}
+                        turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
+                    />
+                </div>
             </div>
-
-            <div className="md:col-start-3 md:row-start-3 md:flex md:justify-start md:items-start">
+          </div>
+           <div className="hidden md:flex md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
@@ -595,8 +755,8 @@ export function ClassicGameLayout({
                 phase={phase}
                 showNotifications={showNotifications}
                 gameMode={gameMode}
+                turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
               />
-            </div>
           </div>
         </main>
       </div>

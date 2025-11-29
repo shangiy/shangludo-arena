@@ -10,7 +10,6 @@ import {
   Pawn as PawnComponent,
 } from '@/components/ludo/GameBoard';
 import { ClassicGameLayout } from '@/components/ludo/ClassicGameLayout';
-import { FiveMinGameLayout } from '@/components/ludo/FiveMinGameLayout';
 import {
   PLAYER_COLORS,
   PATHS,
@@ -1108,8 +1107,7 @@ export default function GameClient() {
   
     const gameBoard = (
       <GameBoard 
-        showSecondarySafes={addSecondarySafePoints} 
-        scores={scores} 
+        showSecondarySafes={addSecondarySafePoints}
         gameMode={gameMode} 
         glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
       >
@@ -1120,10 +1118,7 @@ export default function GameClient() {
     const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER' && phase !== 'ANIMATING_MOVE';
     const isBoardBlurred = phase === 'PAUSED' || phase === 'RESUMING' || phase === 'SETUP' || countdown !== null || phase === 'GAME_OVER';
 
-    const useClassicLayout = gameMode === 'classic' || gameMode === 'powerup' || gameMode === 'quick';
-
-    if (useClassicLayout) {
-      return (
+    return (
         gameSetup && (
           <ClassicGameLayout
             gameSetup={gameSetup}
@@ -1145,6 +1140,13 @@ export default function GameClient() {
             addSecondarySafePoints={addSecondarySafePoints}
             onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             phase={phase}
+            scores={gameMode === '5-min' ? scores : undefined}
+            gameTimer={gameMode === '5-min' ? gameTimer : undefined}
+            gameTimerDuration={gameMode === '5-min' ? gameTimerDuration : undefined}
+            onGameTimerDurationChange={gameMode === '5-min' ? handleGameTimerDurationChange : undefined}
+            turnTimer={gameMode === '5-min' ? turnTimer : undefined}
+            turnTimerDuration={gameMode === '5-min' ? turnTimerDuration : undefined}
+            onTurnTimerDurationChange={gameMode === '5-min' ? handleTurnTimerDurationChange : undefined}
           >
             <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && phase !== 'ANIMATING_MOVE' && 'blur-sm transition-all')}>
               {gameBoard}
@@ -1152,44 +1154,6 @@ export default function GameClient() {
           </ClassicGameLayout>
         )
       );
-    }
-    
-    return (
-      gameSetup && (
-        <FiveMinGameLayout
-          gameSetup={gameSetup}
-          pawns={pawns}
-          onGameSetupChange={handleGameSetup}
-          currentTurn={currentTurn}
-          turnTimer={turnTimer}
-          turnTimerDuration={turnTimerDuration}
-          onTurnTimerDurationChange={handleTurnTimerDurationChange}
-          gameTimer={gameTimer}
-          gameTimerDuration={gameTimerDuration}
-          onGameTimerDurationChange={handleGameTimerDurationChange}
-          isRolling={isRolling}
-          diceRollDuration={diceRollDuration}
-          onDiceRollDurationChange={handleDiceRollDurationChange}
-          onRollStart={startRoll}
-          onDiceRoll={handleDiceRollEnd}
-          diceValue={diceValue}
-          onResetAndGoHome={handleResetAndGoHome}
-          onPauseGame={handlePauseGame}
-          muteSound={muteSound}
-          onToggleMuteSound={() => setMuteSound(prev => !prev)}
-          showNotifications={showNotifications}
-          onToggleShowNotifications={() => setShowNotifications(prev => !prev)}
-          addSecondarySafePoints={addSecondarySafePoints}
-          onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
-          phase={phase}
-          scores={scores}
-        >
-          <div className={cn(!isBoardInteractive && 'pointer-events-none', isBoardBlurred && phase !== 'ANIMATING_MOVE' && 'blur-sm transition-all')}>
-            {gameBoard}
-          </div>
-        </FiveMinGameLayout>
-      )
-    );
   };
 
 
