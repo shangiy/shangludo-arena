@@ -40,6 +40,7 @@ import type { GameSetup } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 import { cn } from '@/lib/utils';
 import { GlassShatterOverlay } from './GlassShatterOverlay';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'ANIMATING_MOVE' | 'AI_THINKING' | 'GAME_OVER' | 'PAUSED' | 'RESUMING';
 
@@ -121,11 +122,22 @@ const powerUpSetup: GameSetup = {
 
 function GameFooter() {
     return (
-        <footer className="w-full bg-[#111827] text-gray-300 py-2">
-            <div className="max-w-7xl mx-auto flex justify-center items-center">
-                 <p className="text-xs">🎲 © 2025 Shangludo . Developed by Coder+. All rights reserved.</p>
-            </div>
-        </footer>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
+                        <footer className="w-full bg-[#111827] text-gray-300 py-2">
+                            <div className="max-w-7xl mx-auto flex justify-center items-center">
+                                <p className="text-xs">🎲 © 2025 Shangludo . Developed by Coder+. All rights reserved.</p>
+                            </div>
+                        </footer>
+                    </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>https://mushangis-portfolio.onrender.com/</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     );
 }
 
