@@ -84,7 +84,7 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         {showTimer && (
@@ -123,19 +123,19 @@ function PlayerPod({
             />
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-md text-xl font-bold">
-                        <Dice5 className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground/20" />
+                    <div className="w-12 h-12 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-12 h-12 text-muted-foreground/20" />
                     </div>
                 </div>
             )}
 
-            <div className="w-full space-y-1 z-10 h-8 flex flex-col items-center justify-center text-center">
-                {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
-                    <p className="text-xs font-semibold capitalize text-center">
-                        Select a pawn to move.
-                    </p>
-                )}
-            </div>
+        </div>
+        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+            {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
+                <p className="text-xs font-semibold capitalize text-center">
+                    Select a pawn to move.
+                </p>
+            )}
         </div>
     </div>
   );
@@ -624,10 +624,27 @@ export function FiveMinGameLayout({
 
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12">
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
-                 <PlayerPod
-                    player={redPlayer}
-                    color="red"
-                    isCurrentTurn={currentTurn === 'red'}
+                <div className="md:order-1">
+                   <PlayerPod
+                      player={redPlayer}
+                      color="red"
+                      isCurrentTurn={currentTurn === 'red'}
+                      isRolling={isRolling}
+                      diceRollDuration={diceRollDuration}
+                      onRollStart={onRollStart}
+                      onDiceRoll={onDiceRoll}
+                      diceValue={diceValue}
+                      phase={phase}
+                      showNotifications={showNotifications}
+                      score={scores.red}
+                      turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
+                  />
+                </div>
+                <div className="order-3 md:order-2">
+                   <PlayerPod
+                    player={greenPlayer}
+                    color="green"
+                    isCurrentTurn={currentTurn === 'green'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -635,64 +652,53 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.red}
-                    turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
-                />
-                 <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
-                  isRolling={isRolling}
-                  diceRollDuration={diceRollDuration}
-                  onRollStart={onRollStart}
-                  onDiceRoll={onDiceRoll}
-                  diceValue={diceValue}
-                  phase={phase}
-                  showNotifications={showNotifications}
-                  score={scores.green}
-                  turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
-                />
+                    score={scores.green}
+                    turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
+                  />
+                </div>
             </div>
 
-            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] flex flex-col justify-center">
+            <div className="relative w-full max-w-[90vw] md:max-w-[70vh] flex flex-col justify-center order-1 md:order-2">
                 {children}
                 <Scoreboard scores={scores} players={gameSetup.players} pawns={pawns} gameMode={gameMode} />
             </div>
 
-            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
-                <PlayerPod
-                    player={bluePlayer}
-                    color="blue"
-                    isCurrentTurn={currentTurn === 'blue'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    score={scores.blue}
-                    turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
-                />
-                <PlayerPod
-                    player={yellowPlayer}
-                    color="yellow"
-                    isCurrentTurn={currentTurn === 'yellow'}
-                    isRolling={isRolling}
-                    diceRollDuration={diceRollDuration}
-                    onRollStart={onRollStart}
-                    onDiceRoll={onDiceRoll}
-      
-                    diceValue={diceValue}
-                    phase={phase}
-                    showNotifications={showNotifications}
-                    score={scores.yellow}
-                    turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
-                />
+            <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500 order-2 md:order-3">
+                <div className="order-4 md:order-1">
+                  <PlayerPod
+                      player={bluePlayer}
+                      color="blue"
+                      isCurrentTurn={currentTurn === 'blue'}
+                      isRolling={isRolling}
+                      diceRollDuration={diceRollDuration}
+                      onRollStart={onRollStart}
+                      onDiceRoll={onDiceRoll}
+                      diceValue={diceValue}
+                      phase={phase}
+                      showNotifications={showNotifications}
+                      score={scores.blue}
+                      turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                  />
+                </div>
+                <div className="order-2 md:order-2">
+                  <PlayerPod
+                      player={yellowPlayer}
+                      color="yellow"
+                      isCurrentTurn={currentTurn === 'yellow'}
+                      isRolling={isRolling}
+                      diceRollDuration={diceRollDuration}
+                      onRollStart={onRollStart}
+                      onDiceRoll={onDiceRoll}
+        
+                      diceValue={diceValue}
+                      phase={phase}
+                      showNotifications={showNotifications}
+                      score={scores.yellow}
+                      turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
+                  />
+                </div>
             </div>
         </main>
       </div>
   );
 }
-
-    
