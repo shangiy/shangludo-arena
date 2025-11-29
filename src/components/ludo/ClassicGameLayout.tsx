@@ -81,8 +81,7 @@ function PlayerPod({
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
   
   const renderDice = () => {
-    // 5-min mode always uses 3D dice, other modes can use 2D or 3D
-    const use3DDice = gameMode === '5-min' || gameMode === 'powerup';
+    const use3DDice = gameMode === '5-min' || gameMode === 'powerup' || gameMode === 'quick';
     if (use3DDice) {
         return (
             <Dice3D
