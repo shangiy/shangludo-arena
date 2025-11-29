@@ -325,15 +325,16 @@ export function QuickGameLayout({
     const powerUpRules = (
         <div className="space-y-4 text-sm text-muted-foreground">
           <p><strong>Objective:</strong> Be the first to get all 4 of your pawns home, using special powers to your advantage!</p>
-          <p><strong>Power-Up Spaces:</strong> Special spaces on the board grant you a random power-up when you land on them. You can hold one power-up at a time.</p>
+          <p><strong>Starting:</strong> All pawns start on the board, ready to move immediately. No need to roll a 6.</p>
+          <p><strong>Power-Up Spaces:</strong> Land on a space with a star to get a random power-up. You can only hold one at a time. Use it on your turn before rolling the dice.</p>
           <p><strong>Power-Ups Include:</strong></p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Shield:</strong> Your pawn cannot be captured for one full round.</li>
-            <li><strong>Teleport:</strong> Instantly move one pawn to the next safe zone on the path.</li>
-            <li><strong>Double Roll:</strong> Your next roll is doubled. If you roll a 3, you move 6 spaces.</li>
-            <li><strong>Strike:</strong> Choose any opponent's pawn on the board (not on a safe zone) and send it back to their yard.</li>
+            <li><strong>Shield (Passive):</strong> Your pawn cannot be captured for one full round of the board. The shield is visible.</li>
+            <li><strong>Teleport (Immediate):</strong> Instantly move one of your pawns to the next safe zone on its path.</li>
+            <li><strong>Double Roll (Next Turn):</strong> Your next dice roll's value is doubled. If you roll a 3, you move 6 spaces.</li>
+            <li><strong>Strike (Immediate):</strong> Choose any single opponent's pawn on the board (not on a safe zone or in their yard) and send it back to their yard. This does not grant an extra turn.</li>
           </ul>
-          <p><strong>Gameplay:</strong> Standard Ludo rules apply, but with the added chaos of power-ups. Use them wisely to secure your victory!</p>
+          <p><strong>Gameplay:</strong> Standard Ludo rules apply for movement and capturing. Use your power-ups strategically to gain an edge, defend your pawns, or disrupt your opponents. Winning is still about getting all your pawns home first!</p>
         </div>
       );
   
@@ -613,5 +614,3 @@ export function QuickGameLayout({
       </div>
   );
 }
-
-    

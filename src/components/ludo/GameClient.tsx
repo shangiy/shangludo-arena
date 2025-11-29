@@ -60,7 +60,7 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
         .map((_, i) => ({
             id: i,
             color,
-            position: gameMode === '5-min' ? START_POSITIONS[color] : -1,
+            position: gameMode === '5-min' || gameMode === 'powerup' ? START_POSITIONS[color] : -1,
             isHome: false,
         }));
     }
@@ -93,6 +93,20 @@ const quickPlaySetup: GameSetup = {
       humanPlayerColor: 'red',
       diceRollDuration: '2000',
     };
+    
+const powerUpSetup: GameSetup = {
+    gameMode: 'powerup',
+    players: [
+      { color: 'red', name: 'Red Player', type: 'human' },
+      { color: 'green', name: 'Green AI', type: 'ai' },
+      { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
+      { color: 'blue', name: 'Blue AI', type: 'ai' },
+    ],
+    turnOrder: ['red', 'green', 'yellow', 'blue'],
+    humanPlayerColor: 'red',
+    diceRollDuration: '2000',
+};
+
 
 function GameFooter() {
     return (
@@ -225,6 +239,8 @@ export default function GameClient() {
         handleGameSetup(quickPlaySetup);
       } else if (gameMode === '5-min') {
         handleGameSetup(fiveMinSetup);
+      } else if (gameMode === 'powerup') {
+        handleGameSetup(powerUpSetup);
       }
     }
   }, [gameMode]);
@@ -328,6 +344,8 @@ export default function GameClient() {
         handleGameSetup(quickPlaySetup);
       } else if (gameMode === '5-min') {
         handleGameSetup(fiveMinSetup);
+      } else if (gameMode === 'powerup') {
+        handleGameSetup(powerUpSetup);
       } else {
         setPhase('SETUP');
       }
@@ -434,7 +452,7 @@ export default function GameClient() {
     let displayScoreType = 'progress';
     if (gameMode === '5-min') {
       displayScoreType = 'score';
-    } else if (gameMode === 'classic') {
+    } else if (gameMode === 'classic' || gameMode === 'powerup') {
       displayScoreType = 'finished';
     } else { // quick mode
       const finishedPawns = pawns[ranking[0]?.playerId]?.filter(p => p.isHome).length || 0;
@@ -604,7 +622,7 @@ export default function GameClient() {
             newPosition = currentPath[currentPathIndex + roll];
             const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
-            if (gameMode !== 'classic' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
+            if ((gameMode !== 'classic' && gameMode !== 'powerup') && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
               // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
             } else {
               moves.push({ pawn, newPosition });
@@ -817,7 +835,7 @@ export default function GameClient() {
                           if (gameMode === '5-min') {
                              setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
                           }
-                          return { ...p, position: (gameMode === '5-min' || gameMode === 'quick' ? -1 : START_POSITIONS[p.color]) };
+                          return { ...p, position: (gameMode === '5-min' || gameMode === 'quick' || gameMode === 'powerup' ? -1 : START_POSITIONS[p.color]) };
                       }
                       return p;
                   });
@@ -832,7 +850,7 @@ export default function GameClient() {
           if (gameMode === 'quick') {
               return newPawns[currentTurn].some((p: Pawn) => p.isHome);
           }
-          if (gameMode === '5-min') {
+          if (gameMode === '5-min' || gameMode === 'classic' || gameMode === 'powerup') {
               return newPawns[currentTurn].every((p: Pawn) => p.isHome);
           }
           return newPawns[currentTurn].every((p: Pawn) => p.isHome);
@@ -922,7 +940,7 @@ export default function GameClient() {
                 const stackCount = pawnsAtSamePos.length;
                 const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
                 
-                allPawns.push({ pawn, highlight, stackCount: gameMode !== 'classic' && stackCount > 1 ? stackCount : 0, stackIndex });
+                allPawns.push({ pawn, highlight, stackCount: (gameMode !== 'classic' && gameMode !== 'powerup') && stackCount > 1 ? stackCount : 0, stackIndex });
             });
         }
     });
@@ -1025,7 +1043,7 @@ export default function GameClient() {
     );
   }
 
-  if (phase === 'SETUP' && gameMode === 'classic') {
+  if (phase === 'SETUP' && (gameMode === 'classic' || gameMode === 'powerup')) {
       return (
         <div className="relative min-h-screen bg-gray-100 flex flex-col">
             <main className="flex-1 flex items-center justify-center p-4">
@@ -1075,7 +1093,7 @@ export default function GameClient() {
     const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER' && phase !== 'ANIMATING_MOVE';
     const isBoardBlurred = phase === 'PAUSED' || phase === 'RESUMING' || phase === 'SETUP' || countdown !== null || phase === 'GAME_OVER';
 
-    if (gameMode === 'classic') {
+    if (gameMode === 'classic' || gameMode === 'powerup') {
       return (
         gameSetup && (
           <ClassicGameLayout
