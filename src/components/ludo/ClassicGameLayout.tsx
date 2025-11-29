@@ -120,14 +120,13 @@ function PlayerPod({
                     </div>
                 </div>
             )}
-
-            <div className="w-full space-y-1 z-10 h-8 flex flex-col items-center justify-center text-center">
-                {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
-                    <p className="text-xs font-semibold capitalize text-center">
-                        Select a pawn to move.
-                    </p>
-                )}
-            </div>
+        </div>
+        <div className="w-full space-y-1 z-10 h-8 flex flex-col items-center justify-center text-center">
+            {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
+                <p className="text-xs font-semibold capitalize text-center">
+                    Select a pawn to move.
+                </p>
+            )}
         </div>
     </div>
   );
@@ -542,9 +541,9 @@ export function ClassicGameLayout({
                   gameMode={gameMode}
                 />
                  <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -563,9 +562,9 @@ export function ClassicGameLayout({
             
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
                 <PlayerPod
-                  player={greenPlayer}
-                  color="green"
-                  isCurrentTurn={currentTurn === 'green'}
+                  player={bluePlayer}
+                  color="blue"
+                  isCurrentTurn={currentTurn === 'blue'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}

@@ -639,9 +639,9 @@ export function FiveMinGameLayout({
                     turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
                 />
                  <PlayerPod
-                  player={bluePlayer}
-                  color="blue"
-                  isCurrentTurn={currentTurn === 'blue'}
+                  player={greenPlayer}
+                  color="green"
+                  isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
                   onRollStart={onRollStart}
@@ -649,8 +649,8 @@ export function FiveMinGameLayout({
                   diceValue={diceValue}
                   phase={phase}
                   showNotifications={showNotifications}
-                  score={scores.blue}
-                  turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                  score={scores.green}
+                  turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
                 />
             </div>
 
@@ -661,9 +661,9 @@ export function FiveMinGameLayout({
 
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-start md:gap-4 transition-all duration-500">
                 <PlayerPod
-                    player={greenPlayer}
-                    color="green"
-                    isCurrentTurn={currentTurn === 'green'}
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
                     onRollStart={onRollStart}
@@ -671,8 +671,8 @@ export function FiveMinGameLayout({
                     diceValue={diceValue}
                     phase={phase}
                     showNotifications={showNotifications}
-                    score={scores.green}
-                    turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
+                    score={scores.blue}
+                    turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
                 />
                 <PlayerPod
                     player={yellowPlayer}
