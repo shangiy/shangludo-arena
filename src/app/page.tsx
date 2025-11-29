@@ -8,7 +8,7 @@ import { FindFriendForm } from '@/components/ludo/FindFriendForm';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { XIcon } from '@/components/icons/XIcon';
-import { StrongArmIcon } from '@/components/icons/StrongArmIcon';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -142,7 +142,7 @@ export default function Home() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="bg-purple-400/10 p-3 rounded-full">
-                    <StrongArmIcon className="h-6 w-6 text-purple-500" />
+                    <Image src="/powerup-logo.png" alt="Power-Up" width={24} height={24} />
                   </div>
                   <CardTitle className="font-headline">Power-Up</CardTitle>
                 </div>
@@ -291,3 +291,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
