@@ -84,7 +84,7 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-36 max-w-[8rem] md:max-w-none h-32 md:h-44 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         {showTimer && (
@@ -105,7 +105,7 @@ function PlayerPod({
                 {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
-        <div className="w-full text-center h-8 flex items-center justify-center">
+        <div className="w-full text-center h-6 flex items-center justify-center">
             <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
         </div>
         
@@ -150,7 +150,7 @@ function GameTimer({ remaining }: { remaining: number }) {
 
   return (
     <div className={cn(
-      "flex items-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border transition-colors",
+      "flex items-center justify-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border",
       isLowTime && "text-red-500 border-red-500/50 bg-red-500/10",
       isUrgent && "animate-pulse"
     )}>
@@ -422,8 +422,7 @@ export function FiveMinGameLayout({
             </AlertDialogContent>
           </AlertDialog>
           
-          <div className="flex flex-col items-center">
-            {gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
+          <div className="flex flex-col items-center opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto">
             <div className="text-center">
               <p className="text-xs font-semibold text-muted-foreground leading-tight">{gameMode === '5-min' ? '5-Minutes' : 'Quick Play'}</p>
               <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
@@ -622,8 +621,41 @@ export function FiveMinGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[auto_1fr_auto] max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12 h-screen">
-          <div className="flex w-full justify-around md:contents">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12 h-screen">
+          
+          <div className="flex w-full justify-between md:hidden">
+              <PlayerPod
+                player={redPlayer}
+                color="red"
+                isCurrentTurn={currentTurn === 'red'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                score={scores.red}
+                turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
+              />
+              <PlayerPod
+                player={greenPlayer}
+                color="green"
+                isCurrentTurn={currentTurn === 'green'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                score={scores.green}
+                turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
+              />
+          </div>
+
+          <div className="hidden md:contents">
+             {/* Desktop: Red Pod */}
             <div className="md:col-start-1 md:row-start-1 md:flex md:justify-end md:items-end">
               <PlayerPod
                 player={redPlayer}
@@ -640,7 +672,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
               />
             </div>
-            
+            {/* Desktop: Green Pod */}
             <div className="md:col-start-3 md:row-start-1 md:flex md:justify-start md:items-end">
               <PlayerPod
                 player={greenPlayer}
@@ -657,14 +689,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
               />
             </div>
-          </div>
-          
-          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-2">
-              {children}
-              <Scoreboard scores={scores} players={gameSetup.players} pawns={pawns} gameMode={gameMode} />
-          </div>
-
-          <div className="flex w-full justify-around md:contents">
+            {/* Desktop: Blue Pod */}
             <div className="md:col-start-1 md:row-start-3 md:flex md:justify-end md:items-start">
               <PlayerPod
                 player={bluePlayer}
@@ -681,7 +706,7 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
               />
             </div>
-            
+            {/* Desktop: Yellow Pod */}
             <div className="md:col-start-3 md:row-start-3 md:flex md:justify-start md:items-start">
               <PlayerPod
                 player={yellowPlayer}
@@ -698,6 +723,47 @@ export function FiveMinGameLayout({
                 turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
               />
             </div>
+          </div>
+          
+          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-start-2 flex flex-col items-center">
+              <div className="w-full md:hidden">
+                {gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
+              </div>
+              <div className="relative w-full aspect-square">
+                {children}
+                <Scoreboard scores={scores} players={gameSetup.players} pawns={pawns} gameMode={gameMode} />
+              </div>
+          </div>
+
+          <div className="flex w-full justify-between md:hidden">
+              <PlayerPod
+                player={bluePlayer}
+                color="blue"
+                isCurrentTurn={currentTurn === 'blue'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                score={scores.blue}
+                turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+              />
+              <PlayerPod
+                player={yellowPlayer}
+                color="yellow"
+                isCurrentTurn={currentTurn === 'yellow'}
+                isRolling={isRolling}
+                diceRollDuration={diceRollDuration}
+                onRollStart={onRollStart}
+                onDiceRoll={onDiceRoll}
+                diceValue={diceValue}
+                phase={phase}
+                showNotifications={showNotifications}
+                score={scores.yellow}
+                turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
+              />
           </div>
         </main>
       </div>
