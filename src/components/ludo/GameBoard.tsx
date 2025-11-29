@@ -310,6 +310,13 @@ export function Pawn({
       zIndex += 5; 
     }
   }
+
+  const glowClasses: Record<PlayerColor, string> = {
+      red: 'animate-glow-red',
+      green: 'animate-glow-green',
+      yellow: 'animate-glow-yellow',
+      blue: 'animate-glow-blue',
+  }
   
   return (
     <motion.div
@@ -320,12 +327,12 @@ export function Pawn({
       transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
-        top: `${top}%`,
-        left: `${left}%`,
+        top: `calc(${top}% + 50%)`,
+        left: `calc(${left}% + 50%)`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
+        transform: `translate(-50%, -50%) translate(${translateX}%, ${translateY}%) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto flex items-center justify-center"
       onClick={() => onPawnClick({ id, color, position, isHome })}
@@ -334,7 +341,8 @@ export function Pawn({
         className={cn(
           'w-full h-full rounded-full flex items-center justify-center text-white font-bold text-xs border-2 shadow-lg cursor-pointer transition-all',
           'relative',
-          highlight && 'ring-4 ring-offset-0 ring-white scale-110'
+          highlight && !isHome && position !== -1 && 'ring-4 ring-offset-0 ring-white scale-110',
+          highlight && position === -1 && glowClasses[color]
         )}
       >
         <PawnIcon color={color} className="w-full h-full drop-shadow-md" />
@@ -347,3 +355,4 @@ export function Pawn({
     </motion.div>
   );
 }
+
