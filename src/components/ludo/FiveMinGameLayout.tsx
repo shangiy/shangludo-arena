@@ -123,13 +123,13 @@ function PlayerPod({
             />
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <div className="w-12 h-12 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
-                        <Dice5 className="w-12 h-12 md:w-24 md:h-24 text-muted-foreground/20" />
+                    <div className="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground/20" />
                     </div>
                 </div>
             )}
 
-            <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+            <div className="w-full space-y-1 z-10 h-8 flex flex-col items-center justify-center text-center">
                 {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
                     <p className="text-xs font-semibold capitalize text-center">
                         Select a pawn to move.
@@ -694,3 +694,5 @@ export function FiveMinGameLayout({
       </div>
   );
 }
+
+    

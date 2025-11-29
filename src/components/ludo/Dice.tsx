@@ -94,7 +94,7 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
         </motion.button>
       </AnimatePresence>
 
-      <div className="text-center h-8 flex items-center justify-center">
+      <div className="text-center h-6 flex items-end justify-center">
         {isHumanTurn && !rolling && diceValue === null && (
           <button
             onClick={handleRoll}
@@ -112,3 +112,5 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
     </div>
   );
 }
+
+    
