@@ -93,9 +93,9 @@ function PlayerPod({
             />
             ) : (
             <div className="flex flex-col items-center justify-center gap-2 h-full">
-                <button className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold transition-transform hover:scale-105 active:scale-95">
-                        <EndLogo className="w-16 h-16 md:w-24 md:h-24" />
-                </button>
+                <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
+                    <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                </div>
             </div>
             )}
 
@@ -604,5 +604,3 @@ export function ClassicGameLayout({
       </div>
   );
 }
-
-    
