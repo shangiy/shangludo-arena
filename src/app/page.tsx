@@ -180,126 +180,129 @@ export default function Home() {
 
       </main>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
-              <div className="bg-[#111827] text-gray-300">
-                <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {/* About Me */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-white">About Me</h3>
-                      <p className="text-sm">
-                        A creative and passionate full-stack developer dedicated to building elegant, functional, and user-friendly web experiences. I thrive on turning complex problems into beautiful, intuitive designs.
-                      </p>
-                      <div className="flex space-x-4">
-                        <span className="hover:text-white"><XIcon className="h-5 w-5" /></span>
-                        <span className="hover:text-white"><Dribbble className="h-5 w-5" /></span>
-                        <span className="hover:text-white"><Linkedin className="h-5 w-5" /></span>
+      <div className="relative">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="bg-[#111827] text-gray-300">
+                  <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                      {/* About Me */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-white">About Me</h3>
+                        <p className="text-sm">
+                          A creative and passionate full-stack developer dedicated to building elegant, functional, and user-friendly web experiences. I thrive on turning complex problems into beautiful, intuitive designs.
+                        </p>
+                        <div className="flex space-x-4">
+                          <span className="hover:text-white"><XIcon className="h-5 w-5" /></span>
+                          <span className="hover:text-white"><Dribbble className="h-5 w-5" /></span>
+                          <span className="hover:text-white"><Linkedin className="h-5 w-5" /></span>
+                        </div>
+                      </div>
+
+                      {/* Useful Links */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-white">Useful Links</h3>
+                        <ul className="space-y-2 text-sm">
+                          <li>About</li>
+                          <li>Projects</li>
+                          <li>Portfolio</li>
+                          <li>Blog</li>
+                        </ul>
+                      </div>
+
+                      {/* Support & Legal */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-white">Support & Legal</h3>
+                        <ul className="space-y-2 text-sm">
+                          <li>FAQs</li>
+                          <li>Privacy Policy</li>
+                          <li>Terms of Service</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Quick Contact - Combined for smaller screens */}
+                      <div className="space-y-4 lg:hidden">
+                          <h3 className="text-lg font-semibold text-white">Contact Information</h3>
+                          <div className="flex items-start space-x-4">
+                              <MapPin className="h-5 w-5 mt-1 text-gray-400" />
+                              <div>
+                                  <p className="font-semibold">Location</p>
+                                  <p className="text-sm">Nairobi, Kenya</p>
+                              </div>
+                          </div>
+                          <div className="flex items-start space-x-4">
+                              <Clock className="h-5 w-5 mt-1 text-gray-400" />
+                              <div>
+                                  <p className="font-semibold">Availability</p>
+                                  <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
+                                  <p className="text-sm">Available for freelance projects</p>
+                              </div>
+                          </div>
+                          <div className="flex items-start space-x-4">
+                              <Phone className="h-5 w-5 mt-1 text-gray-400" />
+                              <div>
+                                  <p className="font-semibold">Quick Contact</p>
+                                  <p className="text-sm">mushangip0@gmail.com</p>
+                                  <p className="text-sm">+254 727 607 824</p>
+                              </div>
+                          </div>
+                      </div>
+
+                    </div>
+
+                    <div className="mt-8 border-t border-gray-700 pt-8 hidden lg:grid lg:grid-cols-3 gap-8">
+                      <div className="flex items-start space-x-4">
+                          <MapPin className="h-5 w-5 mt-1 text-gray-400" />
+                          <div>
+                              <p className="font-semibold text-white">Location</p>
+                              <p className="text-sm">Nairobi, Kenya</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start space-x-4">
+                          <Clock className="h-5 w-5 mt-1 text-gray-400" />
+                          <div>
+                              <p className="font-semibold text-white">Availability</p>
+                              <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
+                              <p className="text-sm">Available for freelance projects</p>
+                          </div>
+                      </div>
+                      <div className="flex items-start space-x-4">
+                          <Phone className="h-5 w-5 mt-1 text-gray-400" />
+                          <div>
+                              <p className="font-semibold text-white">Quick Contact</p>
+                              <p className="text-sm">mushangip0@gmail.com</p>
+                              <p className="text-sm">+254 727 607 824</p>
+                          </div>
                       </div>
                     </div>
-
-                    {/* Useful Links */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-white">Useful Links</h3>
-                      <ul className="space-y-2 text-sm">
-                        <li>About</li>
-                        <li>Projects</li>
-                        <li>Portfolio</li>
-                        <li>Blog</li>
-                      </ul>
-                    </div>
-
-                    {/* Support & Legal */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-white">Support & Legal</h3>
-                      <ul className="space-y-2 text-sm">
-                        <li>FAQs</li>
-                        <li>Privacy Policy</li>
-                        <li>Terms of Service</li>
-                      </ul>
-                    </div>
-                    
-                    {/* Quick Contact - Combined for smaller screens */}
-                    <div className="space-y-4 lg:hidden">
-                        <h3 className="text-lg font-semibold text-white">Contact Information</h3>
-                        <div className="flex items-start space-x-4">
-                            <MapPin className="h-5 w-5 mt-1 text-gray-400" />
-                            <div>
-                                <p className="font-semibold">Location</p>
-                                <p className="text-sm">Nairobi, Kenya</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start space-x-4">
-                            <Clock className="h-5 w-5 mt-1 text-gray-400" />
-                            <div>
-                                <p className="font-semibold">Availability</p>
-                                <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
-                                <p className="text-sm">Available for freelance projects</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start space-x-4">
-                            <Phone className="h-5 w-5 mt-1 text-gray-400" />
-                            <div>
-                                <p className="font-semibold">Quick Contact</p>
-                                <p className="text-sm">mushangip0@gmail.com</p>
-                                <p className="text-sm">+254 727 607 824</p>
-                            </div>
-                        </div>
-                    </div>
-
                   </div>
 
-                  <div className="mt-8 border-t border-gray-700 pt-8 hidden lg:grid lg:grid-cols-3 gap-8">
-                    <div className="flex items-start space-x-4">
-                        <MapPin className="h-5 w-5 mt-1 text-gray-400" />
-                        <div>
-                            <p className="font-semibold text-white">Location</p>
-                            <p className="text-sm">Nairobi, Kenya</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start space-x-4">
-                        <Clock className="h-5 w-5 mt-1 text-gray-400" />
-                        <div>
-                            <p className="font-semibold text-white">Availability</p>
-                            <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
-                            <p className="text-sm">Available for freelance projects</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start space-x-4">
-                        <Phone className="h-5 w-5 mt-1 text-gray-400" />
-                        <div>
-                            <p className="font-semibold text-white">Quick Contact</p>
-                            <p className="text-sm">mushangip0@gmail.com</p>
-                            <p className="text-sm">+254 727 607 824</p>
-                        </div>
-                    </div>
+                  <div className="border-t border-gray-700">
+                      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center relative">
+                          <div className="flex items-center space-x-2">
+                              <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
+                                  🎲
+                              </div>
+                              <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
+                          </div>
+                      </div>
                   </div>
                 </div>
-
-                <div className="border-t border-gray-700">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-center items-center relative">
-                        <div className="flex items-center space-x-2">
-                            <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
-                                🎲
-                            </div>
-                            <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
-                        </div>
-
-                        <a href="#top" className="absolute right-4 -top-5 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
-                            <ArrowUp className="h-5 w-5" />
-                        </a>
-                    </div>
-                </div>
-              </div>
+              </a>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>https://mushangis-portfolio.onrender.com/</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+           <a href="#top" className="absolute right-4 -bottom-5 h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
+                <ArrowUp className="h-5 w-5" />
             </a>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>https://mushangis-portfolio.onrender.com/</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+        </div>
+      </div>
     </div>
   );
 }
