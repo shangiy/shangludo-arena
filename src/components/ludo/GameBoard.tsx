@@ -25,12 +25,14 @@ export function GameBoard({
   children,
   showSecondarySafes,
   gameMode,
-  glassWalls
+  glassWalls,
+  scores
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
   gameMode: string;
   glassWalls: Record<PlayerColor, boolean>;
+  scores?: Record<PlayerColor, number>;
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -193,6 +195,13 @@ export function GameBoard({
                 <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
             ))}
         </div>
+        {gameMode === '5-min' && scores && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-white text-3xl font-extrabold" style={{ WebkitTextStroke: '1.5px black', textStroke: '1.5px black' }}>
+              {scores[color]}
+            </span>
+          </div>
+        )}
       </div>
     );
 
@@ -336,11 +345,6 @@ export function Pawn({
         )}
       >
         <PawnIcon color={color} className="w-full h-full drop-shadow-md" />
-        {stackCount > 1 && !isSafeZone && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-white text-xs font-bold z-10">
-            {stackCount}
-          </span>
-        )}
       </div>
     </motion.div>
   );
