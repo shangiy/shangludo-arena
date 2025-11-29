@@ -27,6 +27,8 @@ export function GameBoard({
   showSecondarySafes,
   gameMode,
   glassWalls,
+  scores,
+  players,
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
@@ -209,6 +211,27 @@ export function GameBoard({
     return <div className={cn('h-full w-full', borderClasses, 'bg-transparent')} />;
   };
 
+  const ScoreOverlay = ({ color, name, score }: { color: PlayerColor; name?: string; score?: number }) => {
+    if (!name || score === undefined) return null;
+
+    const positionClasses: Record<PlayerColor, string> = {
+      red: 'top-0 left-0',
+      green: 'top-0 right-0',
+      blue: 'bottom-0 left-0',
+      yellow: 'bottom-0 right-0',
+    };
+
+    return (
+      <div className={cn(
+        'absolute w-[40%] h-[40%] flex flex-col items-center justify-center pointer-events-none',
+        positionClasses[color]
+      )}>
+        <p className="text-white font-bold text-sm md:text-base capitalize truncate drop-shadow-lg">{name}</p>
+        <p className="text-black font-extrabold text-2xl md:text-4xl drop-shadow-lg">{score}</p>
+      </div>
+    );
+  };
+
   return (
     <div
       className="aspect-square w-full max-w-[65vh] mx-auto relative p-2 rounded-xl bg-white shadow-2xl border-4 border-gray-800"
@@ -224,6 +247,19 @@ export function GameBoard({
       <div className="absolute inset-0 grid grid-cols-15 grid-rows-15 pointer-events-none">
         {children}
       </div>
+      
+      {gameMode === '5-min' && players && scores && (
+        <div className="absolute inset-0 pointer-events-none">
+          {players.map(player => (
+            <ScoreOverlay 
+              key={player.color}
+              color={player.color}
+              name={player.name}
+              score={scores[player.color]}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

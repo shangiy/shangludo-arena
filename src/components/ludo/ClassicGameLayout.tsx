@@ -33,7 +33,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTr
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
   color: PlayerColor;
-  score?: number;
   isCurrentTurn: boolean;
   isRolling: boolean;
   diceRollDuration: number;
@@ -63,7 +62,6 @@ const turnStrokeColorClasses: Record<PlayerColor, string> = {
 function PlayerPod({
   player,
   color,
-  score,
   isCurrentTurn,
   diceValue,
   phase,
@@ -140,9 +138,6 @@ function PlayerPod({
         )}
         <div className="w-full text-center h-12 flex flex-col items-center justify-center">
             <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
-            {gameMode === '5-min' && score !== undefined && (
-              <p className="text-xl font-bold text-foreground/80">{score}</p>
-            )}
         </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
@@ -213,7 +208,6 @@ type ClassicGameLayoutProps = {
   turnTimer?: number;
   turnTimerDuration?: number;
   onTurnTimerDurationChange?: (duration: number) => void;
-  scores?: Record<PlayerColor, number>;
 };
 
 export function ClassicGameLayout({
@@ -243,7 +237,6 @@ export function ClassicGameLayout({
   turnTimer,
   turnTimerDuration,
   onTurnTimerDurationChange,
-  scores,
 }: ClassicGameLayoutProps) {
     const { players, gameMode } = gameSetup;
     const { theme, toggleTheme } = useTheme();
@@ -592,7 +585,6 @@ export function ClassicGameLayout({
               <PlayerPod
                   player={redPlayer}
                   color="red"
-                  score={scores?.red}
                   isCurrentTurn={currentTurn === 'red'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
@@ -609,7 +601,6 @@ export function ClassicGameLayout({
               <PlayerPod
                   player={greenPlayer}
                   color="green"
-                  score={scores?.green}
                   isCurrentTurn={currentTurn === 'green'}
                   isRolling={isRolling}
                   diceRollDuration={diceRollDuration}
@@ -640,7 +631,6 @@ export function ClassicGameLayout({
                 <PlayerPod
                     player={bluePlayer}
                     color="blue"
-                    score={scores?.blue}
                     isCurrentTurn={currentTurn === 'blue'}
                     isRolling={isRolling}
                     diceRollDuration={diceRollDuration}
@@ -657,7 +647,6 @@ export function ClassicGameLayout({
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
-                score={scores?.yellow}
                 isCurrentTurn={currentTurn === 'yellow'}
                 isRolling={isRolling}
                 diceRollDuration={diceRollDuration}

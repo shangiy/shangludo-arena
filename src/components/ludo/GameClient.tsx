@@ -126,9 +126,14 @@ function GameFooter() {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
-                        <div className="w-full bg-[#111827] text-gray-300 py-2">
-                            <div className="max-w-7xl mx-auto flex justify-center items-center">
-                                <p className="text-xs">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
+                      <div className="w-full bg-[#111827] text-gray-300 py-2">
+                            <div className="max-w-7xl mx-auto flex justify-center items-center relative">
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
+                                        🎲
+                                    </div>
+                                    <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
+                                </div>
                             </div>
                         </div>
                     </a>
@@ -1121,6 +1126,8 @@ export default function GameClient() {
         showSecondarySafes={addSecondarySafePoints}
         gameMode={gameMode} 
         glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
+        scores={gameMode === '5-min' ? scores : undefined}
+        players={gameSetup?.players}
       >
         {boardContent}
       </GameBoard>
@@ -1151,7 +1158,6 @@ export default function GameClient() {
             addSecondarySafePoints={addSecondarySafePoints}
             onToggleSecondarySafePoints={() => setAddSecondarySafePoints(prev => !prev)}
             phase={phase}
-            scores={gameMode === '5-min' ? scores : undefined}
             gameTimer={gameMode === '5-min' ? gameTimer : undefined}
             gameTimerDuration={gameMode === '5-min' ? gameTimerDuration : undefined}
             onGameTimerDurationChange={gameMode === '5-min' ? handleGameTimerDurationChange : undefined}
