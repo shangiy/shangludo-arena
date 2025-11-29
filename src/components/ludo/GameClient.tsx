@@ -620,7 +620,7 @@ export default function GameClient() {
       if (pawn.isHome) return;
 
       if (pawn.position === -1) {
-        if (roll !== 6 && gameMode === 'classic') return;
+        if (roll !== 6 && (gameMode === 'classic' || gameMode === '5-min')) return;
 
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
@@ -885,6 +885,7 @@ export default function GameClient() {
                             }
                             if (gameMode === '5-min') {
                                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
+                                return { ...p, position: -1 };
                             }
                             return { ...p, position: (gameMode === 'classic' ? -1 : START_POSITIONS[p.color]) };
                         }

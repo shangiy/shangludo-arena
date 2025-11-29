@@ -623,100 +623,39 @@ export function FiveMinGameLayout({
 
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12 h-screen">
           
-          <div className="flex w-full justify-around md:hidden">
-              <PlayerPod
-                player={redPlayer}
-                color="red"
-                isCurrentTurn={currentTurn === 'red'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.red}
-                turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
-              />
-              <PlayerPod
-                player={greenPlayer}
-                color="green"
-                isCurrentTurn={currentTurn === 'green'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.green}
-                turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
-              />
-          </div>
-
-          <div className="hidden md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
-             <PlayerPod
-                player={redPlayer}
-                color="red"
-                isCurrentTurn={currentTurn === 'red'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.red}
-                turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
-              />
-          </div>
-          <div className="hidden md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
-              <PlayerPod
-                player={greenPlayer}
-                color="green"
-                isCurrentTurn={currentTurn === 'green'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.green}
-                turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
-              />
-          </div>
-           <div className="hidden md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
-              <PlayerPod
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.blue}
-                turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
-              />
-          </div>
-           <div className="hidden md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
-              <PlayerPod
-                player={yellowPlayer}
-                color="yellow"
-                isCurrentTurn={currentTurn === 'yellow'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.yellow}
-                turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
-              />
+          <div className="flex w-full justify-around md:contents">
+              <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
+                  <PlayerPod
+                    player={redPlayer}
+                    color="red"
+                    isCurrentTurn={currentTurn === 'red'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.red}
+                    turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
+                  />
+              </div>
+              <div className="md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
+                  <PlayerPod
+                    player={greenPlayer}
+                    color="green"
+                    isCurrentTurn={currentTurn === 'green'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.green}
+                    turnTimerProgress={currentTurn === 'green' ? turnTimerProgress : 100}
+                  />
+              </div>
           </div>
           
           <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-2">
@@ -729,35 +668,39 @@ export function FiveMinGameLayout({
               </div>
           </div>
 
-          <div className="flex w-full justify-around md:hidden">
-              <PlayerPod
-                player={bluePlayer}
-                color="blue"
-                isCurrentTurn={currentTurn === 'blue'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.blue}
-                turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
-              />
-              <PlayerPod
-                player={yellowPlayer}
-                color="yellow"
-                isCurrentTurn={currentTurn === 'yellow'}
-                isRolling={isRolling}
-                diceRollDuration={diceRollDuration}
-                onRollStart={onRollStart}
-                onDiceRoll={onDiceRoll}
-                diceValue={diceValue}
-                phase={phase}
-                showNotifications={showNotifications}
-                score={scores.yellow}
-                turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
-              />
+          <div className="flex w-full justify-around md:contents">
+              <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
+                  <PlayerPod
+                    player={bluePlayer}
+                    color="blue"
+                    isCurrentTurn={currentTurn === 'blue'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.blue}
+                    turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
+                  />
+              </div>
+              <div className="md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
+                  <PlayerPod
+                    player={yellowPlayer}
+                    color="yellow"
+                    isCurrentTurn={currentTurn === 'yellow'}
+                    isRolling={isRolling}
+                    diceRollDuration={diceRollDuration}
+                    onRollStart={onRollStart}
+                    onDiceRoll={onDiceRoll}
+                    diceValue={diceValue}
+                    phase={phase}
+                    showNotifications={showNotifications}
+                    score={scores.yellow}
+                    turnTimerProgress={currentTurn === 'yellow' ? turnTimerProgress : 100}
+                  />
+              </div>
           </div>
         </main>
       </div>
