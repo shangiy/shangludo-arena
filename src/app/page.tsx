@@ -26,7 +26,7 @@ export default function Home() {
       <main className="flex-1">
         <section id="play" className="container px-4 sm:px-6 lg:px-8 pb-16 md:pb-24 pt-16 md:pt-24 text-center">
           <h1 className="font-headline text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-            The Ultimate Ludo
+            The Shangludo
           </h1>
           <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
             Join the arena, challenge your friends, and become a Ludo champion. Multiple game modes, endless fun.
