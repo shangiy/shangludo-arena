@@ -657,7 +657,7 @@ export function FiveMinGameLayout({
               />
           </div>
 
-          <div className="flex w-full justify-around mb-2 md:hidden">
+          <div className="flex w-full justify-around mb-4 md:hidden">
               <PlayerPod
                 player={redPlayer}
                 color="red"
@@ -689,12 +689,11 @@ export function FiveMinGameLayout({
           </div>
           
           <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-2">
-              <div className="w-full flex justify-center md:hidden">
+              <div className="w-full flex justify-center md:hidden mb-1">
                 {gameMode === '5-min' && <GameTimer remaining={gameTimer} />}
               </div>
               <div className="relative w-full aspect-square">
                 {children}
-                <Scoreboard scores={scores} players={gameSetup.players} pawns={pawns} gameMode={gameMode} />
               </div>
           </div>
           

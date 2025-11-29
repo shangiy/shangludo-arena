@@ -203,6 +203,11 @@ export function GameBoard({
                 <div key={i} className="rounded-full border-2 border-white/50 bg-white/30" />
             ))}
         </div>
+        {gameMode === '5-min' && (
+          <div className={cn("absolute inset-0 flex items-center justify-center text-4xl font-bold", YARD_SCORE_TEXT_COLORS[color])}>
+            {scores[color]}
+          </div>
+        )}
       </div>
     );
 
