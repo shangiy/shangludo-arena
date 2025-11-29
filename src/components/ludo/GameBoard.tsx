@@ -13,6 +13,7 @@ import {
   SECONDARY_BLUE_SAFE_ZONE,
   SECONDARY_YELLOW_SAFE_ZONE,
   GLASS_WALL_POSITIONS,
+  PATHS
 } from '@/lib/ludo-constants';
 import { StarIcon } from '../icons/StarIcon';
 import { PawnIcon } from '../icons/PawnIcon';
@@ -29,6 +30,7 @@ export function GameBoard({
   glassWalls,
   scores,
   players,
+  pawns,
 }: {
   children: ReactNode;
   showSecondarySafes: boolean;
@@ -36,6 +38,7 @@ export function GameBoard({
   glassWalls: Record<PlayerColor, boolean>;
   scores?: Record<PlayerColor, number>;
   players?: PlayerSetup[];
+  pawns?: Record<PlayerColor, PawnType[]>;
 }) {
   const cells = Array.from({ length: 15 * 15 });
 
@@ -211,8 +214,44 @@ export function GameBoard({
     return <div className={cn('h-full w-full', borderClasses, 'bg-transparent')} />;
   };
 
-  const ScoreOverlay = ({ color, name, score }: { color: PlayerColor; name?: string; score?: number }) => {
-    if (!name || score === undefined) return null;
+  const getProgressPercentage = (color: PlayerColor) => {
+    const playerPawns = pawns?.[color];
+    if (!playerPawns || playerPawns.length === 0) return 0;
+
+    const path = PATHS[color];
+    const totalPathLength = path.length - 1; 
+    let maxProgress;
+    let currentProgress = 0;
+    
+    if (gameMode === 'quick') {
+        maxProgress = totalPathLength;
+        const pawnPositions = playerPawns.map(p => {
+            if (p.isHome) return totalPathLength;
+            if (p.position === -1) return -1;
+            return path.indexOf(p.position);
+        });
+        const maxPosition = Math.max(...pawnPositions);
+        currentProgress = maxPosition >= 0 ? maxPosition : 0;
+    } else {
+        maxProgress = 4 * totalPathLength;
+        playerPawns.forEach(pawn => {
+            if (pawn.isHome) {
+                currentProgress += totalPathLength;
+            } else if (pawn.position !== -1) {
+                const pathIndex = path.indexOf(pawn.position);
+                if (pathIndex !== -1) {
+                    currentProgress += pathIndex;
+                }
+            }
+        });
+    }
+    
+    const percentage = (currentProgress / maxProgress) * 100;
+    return Math.floor(Math.min(100, percentage));
+  };
+
+  const ScoreOverlay = ({ color, name, score, pawns }: { color: PlayerColor; name?: string; score?: number, pawns?: PawnType[] }) => {
+    if (!name) return null;
 
     const positionClasses: Record<PlayerColor, string> = {
       red: 'top-0 left-0',
@@ -221,13 +260,24 @@ export function GameBoard({
       yellow: 'bottom-0 right-0',
     };
 
+    let displayScore: string;
+
+    if (gameMode === '5-min') {
+        displayScore = (score ?? 0).toString();
+    } else {
+        const progress = getProgressPercentage(color);
+        displayScore = `${progress}%`;
+    }
+    
+    const fontSize = gameMode === '5-min' ? 'text-xs' : 'text-sm';
+
     return (
       <div className={cn(
         'absolute w-[40%] h-[40%] flex flex-col items-center justify-center pointer-events-none',
         positionClasses[color]
       )}>
         <p className="text-white font-bold text-sm md:text-base capitalize truncate drop-shadow-lg">{name}</p>
-        <p className="text-black font-extrabold text-xs md:text-sm drop-shadow-lg">{score}</p>
+        <p className={cn("text-black font-extrabold drop-shadow-lg", fontSize)}>{displayScore}</p>
       </div>
     );
   };
@@ -248,14 +298,15 @@ export function GameBoard({
         {children}
       </div>
       
-      {gameMode === '5-min' && players && scores && (
+       {players && (scores || pawns) && (
         <div className="absolute inset-0 pointer-events-none">
           {players.map(player => (
             <ScoreOverlay 
               key={player.color}
               color={player.color}
               name={player.name}
-              score={scores[player.color]}
+              score={scores?.[player.color]}
+              pawns={pawns?.[player.color]}
             />
           ))}
         </div>

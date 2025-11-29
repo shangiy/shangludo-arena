@@ -1126,8 +1126,9 @@ export default function GameClient() {
         showSecondarySafes={addSecondarySafePoints}
         gameMode={gameMode} 
         glassWalls={gameMode === 'quick' ? glassWalls : {red: false, green: false, blue: false, yellow: false}}
-        scores={gameMode === '5-min' ? scores : undefined}
+        scores={scores}
         players={gameSetup?.players}
+        pawns={pawns}
       >
         {boardContent}
       </GameBoard>
