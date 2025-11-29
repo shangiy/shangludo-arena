@@ -157,6 +157,8 @@ export default function GameClient() {
   const [previousPhase, setPreviousPhase] = useState<GamePhase>('ROLLING');
   const [showGlassShatter, setShowGlassShatter] = useState(false);
   const [showEndGameDialog, setShowEndGameDialog] = useState(false);
+  const [consecutiveSixes, setConsecutiveSixes] = useState(0);
+
 
   
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -264,6 +266,7 @@ export default function GameClient() {
         glassWalls,
         turnTimerDuration,
         scores,
+        consecutiveSixes,
       };
       if (gameMode === '5-min') {
         gameState.gameTimer = gameTimer;
@@ -277,7 +280,8 @@ export default function GameClient() {
   }, [
       pawns, currentTurn, diceValue, phase, previousPhase, winner, gameSetup, 
       addSecondarySafePoints, showNotifications, muteSound, diceRollDuration, 
-      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, glassWalls
+      isMounted, gameTimer, gameTimerDuration, turnTimerDuration, scores, gameMode, glassWalls,
+      consecutiveSixes
   ]);
 
 
@@ -297,6 +301,8 @@ export default function GameClient() {
     setDiceRollDuration(savedState.diceRollDuration);
     setGlassWalls(savedState.glassWalls ?? {red: true, green: true, blue: true, yellow: true});
     if(savedState.scores !== undefined) setScores(savedState.scores);
+    if (savedState.consecutiveSixes !== undefined) setConsecutiveSixes(savedState.consecutiveSixes);
+
 
     const defaultTurnDuration = gameMode === '5-min' ? DEFAULT_FIVEMIN_TURN_TIMER_DURATION : DEFAULT_CLASSIC_TURN_TIMER_DURATION;
     const savedTurnDuration = savedState.turnTimerDuration;
@@ -392,6 +398,7 @@ export default function GameClient() {
     setEndGameSummary(null);
     setShowEndGameDialog(false);
     setGlassWalls({red: true, green: true, blue: true, yellow: true});
+    setConsecutiveSixes(0);
 
     if (gameMode === '5-min') {
       const newTurnDuration = DEFAULT_FIVEMIN_TURN_TIMER_DURATION;
@@ -491,6 +498,7 @@ export default function GameClient() {
     setPhase('ROLLING');
     setCurrentTurn(nextPlayerColor);
     setDiceValue(null);
+    setConsecutiveSixes(0);
     if (gameMode === '5-min') {
       setTurnTimer(turnTimerDuration);
     }
@@ -638,6 +646,17 @@ export default function GameClient() {
     setIsRolling(false);
     setDiceValue(value);
 
+    if (gameMode === 'classic' && value === 6) {
+      if (consecutiveSixes === 2) {
+          addMessage('System', `${players[currentTurn].name} rolled a third 6 and loses their turn.`);
+          setTimeout(() => nextTurn(), 1000);
+          return;
+      }
+      setConsecutiveSixes(prev => prev + 1);
+    } else {
+      setConsecutiveSixes(0);
+    }
+  
     const possibleMoves = getPossibleMoves(currentTurn, value);
     const getsAnotherTurn = value === 6;
 
@@ -865,7 +884,7 @@ export default function GameClient() {
 
       // Post-animation logic for turn change
       setTimeout(() => {
-        const getsAnotherTurn = rolledSix || capturedPawn || pawnReachedHome;
+        const getsAnotherTurn = (rolledSix || capturedPawn || pawnReachedHome) && !(gameMode === 'classic' && consecutiveSixes >= 2);
         if (getsAnotherTurn && !winner) {
           addMessage('System', `${players[currentTurn].name} gets another turn.`);
           setPhase('ROLLING');

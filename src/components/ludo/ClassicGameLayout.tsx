@@ -276,11 +276,38 @@ export function ClassicGameLayout({
 
     const classicRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
-        <p><strong>Objective:</strong> Be the first to move all 4 of your pawns from your yard to the home triangle.</p>
-        <p><strong>Rolling:</strong> You must roll a 6 to move a pawn out of your yard onto the starting square. A roll of 6 gives you another turn.</p>
-        <p><strong>Capturing:</strong> Landing on a square occupied by a single opponent pawn captures it, sending it back to their yard. You get another turn for capturing.</p>
-        <p><strong>Safe Zones:</strong> Pawns on star-marked safe zones cannot be captured.</p>
-        <p><strong>Winning:</strong> The first player to get all four of their pawns to the center home space wins the game.</p>
+        <div>
+          <h4 className="font-bold mb-2">Objective</h4>
+          <p>Be the first player to move all four of your pawns from your starting yard, around the entire board, and into your home column.</p>
+        </div>
+        <div>
+          <h4 className="font-bold mb-2">Starting the Game</h4>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>To move a pawn out of your yard onto the starting square, you must roll a 6.</li>
+            <li>If you roll a 6, you get an additional roll in that turn.</li>
+            <li>If you roll three 6s consecutively, your turn ends, and you cannot move.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-bold mb-2">Movement & Capturing</h4>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Pawns move clockwise around the track according to the number rolled.</li>
+            <li>If your pawn lands on a square occupied by a single opponent's pawn, the opponent's pawn is captured and sent back to their yard.</li>
+            <li>Capturing a pawn grants you an additional roll.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-bold mb-2">Special Squares</h4>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong className="text-foreground">Safe Zones:</strong> Squares marked with a star are safe zones. Pawns on these squares cannot be captured.</li>
+            <li><strong className="text-foreground">Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Other players' pawns cannot pass a blockade.</li>
+            <li><strong className="text-foreground">Home Column:</strong> After a pawn travels the entire board, it enters its colored home column. Opponents cannot enter your home column.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-bold mb-2">Winning the Game</h4>
+          <p>To win, you must move all four of your pawns into the center home triangle. You must roll the exact number to get a pawn home; overshooting is not allowed.</p>
+        </div>
       </div>
     );
   
