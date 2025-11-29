@@ -288,7 +288,7 @@ export function Pawn({
     top = y * cellSize;
     left = x * cellSize;
   }
-
+  
   const multiPawnOffsets = [
     { x: -15, y: -15 },
     { x: 15, y: -15 },
@@ -296,18 +296,17 @@ export function Pawn({
     { x: 15, y: 15 },
   ];
   
-  let translateX = '0%';
-  let translateY = '0%';
+  let translateX = 0;
+  let translateY = 0;
   let scale = 1;
   let zIndex = highlight ? 10 : isHome ? 0 : (stackIndex + 1);
 
   if (stackCount > 1) {
     scale = 0.8;
-    // If it's a safe zone with multiple different colors, arrange them side-by-side
     if (isSafeZone) {
       const offset = multiPawnOffsets[stackIndex % multiPawnOffsets.length];
-      translateX = `${offset.x}%`;
-      translateY = `${offset.y}%`;
+      translateX = offset.x;
+      translateY = offset.y;
       zIndex += 5; 
     }
   }
@@ -321,12 +320,12 @@ export function Pawn({
       transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
-        top: `${top + cellSize / 2}%`,
-        left: `${left + cellSize / 2}%`,
+        top: `${top}%`,
+        left: `${left}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(-50%, -50%) translateX(${translateX}) translateY(${translateY}) scale(${scale})`,
+        transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
