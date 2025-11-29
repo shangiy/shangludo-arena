@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull, Bolt } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -8,6 +8,7 @@ import { FindFriendForm } from '@/components/ludo/FindFriendForm';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { XIcon } from '@/components/icons/XIcon';
+import { StrongArmIcon } from '@/components/icons/StrongArmIcon';
 
 export default function Home() {
   return (
@@ -141,7 +142,7 @@ export default function Home() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="bg-purple-400/10 p-3 rounded-full">
-                    <Bolt className="h-6 w-6 text-purple-500" />
+                    <StrongArmIcon className="h-6 w-6 text-purple-500" />
                   </div>
                   <CardTitle className="font-headline">Power-Up</CardTitle>
                 </div>
