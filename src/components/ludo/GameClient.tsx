@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useRef, Suspense } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, Pause, Play } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GameBoard,
@@ -29,7 +29,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { EndLogo } from '../icons/EndLogo';
 import {
   Dialog,
   DialogContent,
@@ -38,7 +37,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../ui/dialog';
-import { GameSetup, GameSetupForm } from './GameSetupForm';
+import type { GameSetup } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 import { cn } from '@/lib/utils';
 import { GlassShatterOverlay } from './GlassShatterOverlay';
@@ -66,6 +65,19 @@ const initialPawns = (gameMode = 'classic', players: PlayerColor[] = ['red', 'gr
     }
   });
   return pawns;
+};
+
+const classicSetup: GameSetup = {
+    gameMode: 'classic',
+    players: [
+      { color: 'red', name: 'Red Player', type: 'human' },
+      { color: 'green', name: 'Green AI', type: 'ai' },
+      { color: 'yellow', 'name': 'Yellow AI', type: 'ai' },
+      { color: 'blue', name: 'Blue AI', type: 'ai' },
+    ],
+    turnOrder: ['red', 'green', 'yellow', 'blue'],
+    humanPlayerColor: 'red',
+    diceRollDuration: '2000',
 };
 
 const quickPlaySetup: GameSetup = {
@@ -159,8 +171,6 @@ export default function GameClient() {
   const [showEndGameDialog, setShowEndGameDialog] = useState(false);
   const [consecutiveSixes, setConsecutiveSixes] = useState(0);
 
-
-  
   const turnTimerRef = useRef<NodeJS.Timeout | null>(null);
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -219,7 +229,6 @@ export default function GameClient() {
         const savedState = JSON.parse(savedStateJSON);
         if (savedState && savedState.gameSetup?.gameMode === gameMode) {
           if (savedState.phase === 'PAUSED') {
-             // Defer showing the dialog until we're sure we have a valid saved state
             setShowResumeDialog(true);
           } else if (savedState.phase !== 'SETUP' && savedState.phase !== 'GAME_OVER') {
             resumeGameFromState(savedState);
@@ -234,13 +243,23 @@ export default function GameClient() {
     }
 
     if (!resumed && !showResumeDialog) {
-      if (gameMode === 'quick') {
-        handleGameSetup(quickPlaySetup);
-      } else if (gameMode === '5-min') {
-        handleGameSetup(fiveMinSetup);
-      } else if (gameMode === 'powerup') {
-        handleGameSetup(powerUpSetup);
+      let initialSetup;
+      switch(gameMode) {
+        case 'quick':
+          initialSetup = quickPlaySetup;
+          break;
+        case '5-min':
+          initialSetup = fiveMinSetup;
+          break;
+        case 'powerup':
+          initialSetup = powerUpSetup;
+          break;
+        case 'classic':
+        default:
+          initialSetup = classicSetup;
+          break;
       }
+      handleGameSetup(initialSetup);
     }
   }, [gameMode]);
   
@@ -283,7 +302,6 @@ export default function GameClient() {
 
 
   const addMessage = (sender: string, text: string, color?: PlayerColor) => {
-    // For this design, we don't show messages in the UI.
     console.log(`Message: [${sender}] ${text}`);
   };
 
@@ -314,7 +332,7 @@ export default function GameClient() {
     setCountdown(3);
     const interval = setInterval(() => {
         setCountdown(prev => {
-            if (prev === null) { // Should not happen but for type safety
+            if (prev === null) { 
                 clearInterval(interval);
                 return null;
             }
@@ -342,16 +360,23 @@ export default function GameClient() {
   const handleNewGame = () => {
       setShowResumeDialog(false);
       localStorage.removeItem(LUDO_GAME_STATE_KEY);
-      // Re-initialize based on mode
-      if (gameMode === 'quick') {
-        handleGameSetup(quickPlaySetup);
-      } else if (gameMode === '5-min') {
-        handleGameSetup(fiveMinSetup);
-      } else if (gameMode === 'powerup') {
-        handleGameSetup(powerUpSetup);
-      } else {
-        setPhase('SETUP');
+      let initialSetup;
+      switch(gameMode) {
+        case 'quick':
+          initialSetup = quickPlaySetup;
+          break;
+        case '5-min':
+          initialSetup = fiveMinSetup;
+          break;
+        case 'powerup':
+          initialSetup = powerUpSetup;
+          break;
+        case 'classic':
+        default:
+          initialSetup = classicSetup;
+          break;
       }
+      handleGameSetup(initialSetup);
   };
 
   const handleGameSetup = (setup: GameSetup) => {
@@ -458,13 +483,12 @@ export default function GameClient() {
       displayScoreType = 'score';
     } else if (gameMode === 'classic' || gameMode === 'powerup') {
       displayScoreType = 'finished';
-    } else { // quick mode
+    } else { 
       const finishedPawns = pawns[ranking[0]?.playerId]?.filter(p => p.isHome).length || 0;
       if (finishedPawns > 0) {
         displayScoreType = 'finished';
       }
     }
-
 
     const summary = {
       title,
@@ -523,7 +547,6 @@ export default function GameClient() {
         return;
     }
 
-    // Reset timer for the new phase
     setTurnTimer(turnTimerDuration); 
     
     turnTimerRef.current = setInterval(() => {
@@ -548,7 +571,7 @@ export default function GameClient() {
                    } else {
                        nextTurn();
                    }
-                } else { // ROLLING phase or other
+                } else { 
                    nextTurn();
                 }
                 return 0;
@@ -603,7 +626,6 @@ export default function GameClient() {
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
 
         if (gameMode !== 'classic' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-          // Blockade, can't move out
         } else {
           moves.push({ pawn, newPosition: startPos });
         }
@@ -615,7 +637,6 @@ export default function GameClient() {
   
       if (currentPathIndex !== -1) {
         let newPosition: number;
-        // Quick Mode: Handle glass wall restart
         const homeRunEntryIndex = 51;
         if (gameMode === 'quick' && glassWalls[player] && currentPathIndex < homeRunEntryIndex && (currentPathIndex + roll) >= homeRunEntryIndex) {
             newPosition = START_POSITIONS[player];
@@ -628,7 +649,6 @@ export default function GameClient() {
             const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
 
             if ((gameMode !== 'classic' && gameMode !== 'powerup') && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-              // Can't move to a space occupied by 2 of your own pawns unless it's a safe zone
             } else {
               moves.push({ pawn, newPosition });
             }
@@ -641,18 +661,21 @@ export default function GameClient() {
 
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
-    setDiceValue(value);
+    
+    if (gameMode === 'classic' && consecutiveSixes === 2 && value === 6) {
+        addMessage('System', `${players[currentTurn].name} rolled a third 6 and loses their turn.`);
+        setTimeout(() => nextTurn(), 1000);
+        setDiceValue(value);
+        return;
+    }
   
-    if (gameMode === 'classic' && value === 6) {
-      if (consecutiveSixes === 2) {
-          addMessage('System', `${players[currentTurn].name} rolled a third 6 and loses their turn.`);
-          setTimeout(() => nextTurn(), 1000);
-          return;
-      }
+    if (value === 6) {
       setConsecutiveSixes(prev => prev + 1);
     } else {
       setConsecutiveSixes(0);
     }
+    
+    setDiceValue(value);
   
     const possibleMoves = getPossibleMoves(currentTurn, value);
     const getsAnotherTurn = value === 6;
@@ -661,7 +684,7 @@ export default function GameClient() {
       addMessage('System', `${players[currentTurn].name} has no possible moves.`);
       setTimeout(() => {
         if (getsAnotherTurn && !winner) {
-          setPhase('ROLLING'); // Roll again
+          setPhase('ROLLING'); 
           setDiceValue(null);
           addMessage('System', `${players[currentTurn].name} gets to roll again.`);
         } else {
@@ -778,7 +801,7 @@ export default function GameClient() {
       }
   
       currentStep++;
-      animationTimeoutRef.current = setTimeout(step, 250);
+      animationTimeoutRef.current = setTimeout(step, 150);
     };
   
     step();
@@ -791,7 +814,7 @@ export default function GameClient() {
     const startIndex = pawnToMove.position === -1 ? -1 : path.indexOf(pawnToMove.position);
     let movePath: number[];
 
-    if (startIndex === -1) { // Coming out of yard
+    if (startIndex === -1) { 
       movePath = [newPosition];
        if (pawnLeaveYardAudioRef.current && !muteSound) {
         pawnLeaveYardAudioRef.current.currentTime = 0;
@@ -801,7 +824,7 @@ export default function GameClient() {
       const endIndex = path.indexOf(newPosition);
       if (endIndex > startIndex) {
         movePath = path.slice(startIndex + 1, endIndex + 1);
-      } else { // Handle wrap-around or invalid moves (e.g. quick mode wall)
+      } else { 
         movePath = [newPosition];
       }
     }
@@ -811,7 +834,6 @@ export default function GameClient() {
       let capturedPawn = false;
       let pawnReachedHome = false;
 
-      // Final state update and collision check after animation
       setPawns((prev) => {
         const newPawns = JSON.parse(JSON.stringify(prev));
         const pawnsOfPlayer = newPawns[currentTurn];
@@ -824,7 +846,7 @@ export default function GameClient() {
         const currentPath = PATHS[currentTurn];
         const newPathIndex = currentPath.indexOf(newPosition);
         
-        if(newPathIndex === currentPath.length - 1) { // Final home spot
+        if(newPathIndex === currentPath.length - 1) { 
             pawnsOfPlayer[pawnIndex].isHome = true;
             addMessage('System', `${players[currentTurn].name} moved a pawn home!`);
             pawnReachedHome = true;
@@ -879,7 +901,6 @@ export default function GameClient() {
         return newPawns;
       });
 
-      // Post-animation logic for turn change
       setTimeout(() => {
         const getsAnotherTurn = (rolledSix || capturedPawn || pawnReachedHome) && !(gameMode === 'classic' && consecutiveSixes >= 2);
         if (getsAnotherTurn && !winner) {
@@ -927,7 +948,6 @@ export default function GameClient() {
     const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
     const positions: { [key: number]: Pawn[] } = {};
   
-    // Group pawns by position
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
       if (pawns[color]) {
         pawns[color].forEach(pawn => {
@@ -941,7 +961,6 @@ export default function GameClient() {
       }
     });
   
-    // Create render list
     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
         if (pawns[color]) {
             pawns[color].forEach(pawn => {
@@ -973,18 +992,6 @@ export default function GameClient() {
     ));
   };
   
-  const handlePlayerNameChange = (color: PlayerColor, newName: string) => {
-    if (!gameSetup) return;
-
-    setGameSetup((prev) => {
-      if (!prev) return null;
-      const newPlayers = prev.players.map((p) =>
-        p.color === color ? { ...p, name: newName } : p
-      );
-      return { ...prev, players: newPlayers };
-    });
-  };
-
   const handleResetAndGoHome = () => {
     localStorage.removeItem(LUDO_GAME_STATE_KEY);
     window.location.href = '/'; 
@@ -1016,12 +1023,6 @@ export default function GameClient() {
       setGameSetup(mergedSetup);
   }
 
-  const applyGameSetupChanges = () => {
-      if (gameSetup) {
-          handleGameSetup(gameSetup);
-      }
-  };
-
   const handlePauseGame = () => {
     if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
         setPreviousPhase(phase);
@@ -1031,7 +1032,7 @@ export default function GameClient() {
     }
   };
 
-  if (!isMounted || !gameSetup) {
+  if (!isMounted || !gameSetup || phase === 'SETUP') {
      return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background text-foreground">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -1057,19 +1058,6 @@ export default function GameClient() {
             </DialogContent>
         </Dialog>
     );
-  }
-
-  if (phase === 'SETUP' && (gameMode === 'classic' || gameMode === 'powerup')) {
-      return (
-        <div className="relative min-h-screen bg-gray-100 flex flex-col">
-            <main className="flex-1 flex items-center justify-center p-4">
-                <Suspense fallback={<div />}>
-                    <GameSetupForm onSetupComplete={handleGameSetup} />
-                </Suspense>
-            </main>
-            <GameFooter />
-        </div>
-      );
   }
   
   const renderGameLayout = () => {
@@ -1109,7 +1097,9 @@ export default function GameClient() {
     const isBoardInteractive = phase !== 'PAUSED' && phase !== 'RESUMING' && phase !== 'SETUP' && countdown === null && phase !== 'GAME_OVER' && phase !== 'ANIMATING_MOVE';
     const isBoardBlurred = phase === 'PAUSED' || phase === 'RESUMING' || phase === 'SETUP' || countdown !== null || phase === 'GAME_OVER';
 
-    if (gameMode === 'classic' || gameMode === 'powerup') {
+    const useClassicLayout = gameMode === 'classic' || gameMode === 'powerup' || gameMode === 'quick';
+
+    if (useClassicLayout) {
       return (
         gameSetup && (
           <ClassicGameLayout
@@ -1141,7 +1131,6 @@ export default function GameClient() {
       );
     }
     
-    // Quick and 5-min mode use the same layout now
     return (
       gameSetup && (
         <FiveMinGameLayout
@@ -1193,7 +1182,6 @@ export default function GameClient() {
         onOpenChange={(open) => {
             if (!open) {
               setShowEndGameDialog(false);
-              // Allow viewing the board without restarting
             }
         }}
       >
@@ -1223,7 +1211,7 @@ export default function GameClient() {
           </div>
           <DialogFooter className="sm:justify-center">
             <Button variant="outline" onClick={() => setShowEndGameDialog(false)}>View Board</Button>
-            <Button onClick={() => handleGameSetup(gameSetup!)}>Play Again</Button>
+            <Button onClick={() => gameSetup && handleGameSetup(gameSetup)}>Play Again</Button>
             <Button variant="secondary" asChild>
               <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
             </Button>
@@ -1233,7 +1221,7 @@ export default function GameClient() {
       
       {phase === 'GAME_OVER' && !showEndGameDialog && (
           <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-4">
-              <Button onClick={() => handleGameSetup(gameSetup!)}>Play Again</Button>
+              <Button onClick={() => gameSetup && handleGameSetup(gameSetup)}>Play Again</Button>
               <Button variant="secondary" asChild>
                   <Link href="/" onClick={() => localStorage.removeItem(LUDO_GAME_STATE_KEY)}>Back to Lobby</Link>
               </Button>
@@ -1256,3 +1244,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    

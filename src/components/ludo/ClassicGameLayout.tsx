@@ -26,10 +26,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
-import { EndLogo } from "../icons/EndLogo";
-import Image from "next/image";
 import { useTheme } from "@/hooks/use-theme";
-import { Progress } from "../ui/progress";
 import { Dice } from "./Dice";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 
@@ -121,20 +118,19 @@ function Scoreboard({ pawns, players }: { pawns: Record<PlayerColor, Pawn[]>, pl
         if (!playerPawns || playerPawns.length === 0) return 0;
     
         const path = PATHS[color];
-        const totalPathLength = path.length - 1; // 57 steps
+        const totalPathLength = path.length - 1; 
         const maxProgress = 4 * totalPathLength;
     
         let currentProgress = 0;
         playerPawns.forEach(pawn => {
             if (pawn.isHome) {
                 currentProgress += totalPathLength;
-            } else if (pawn.position !== -1) { // Pawn is on the board
+            } else if (pawn.position !== -1) { 
                 const pathIndex = path.indexOf(pawn.position);
                 if (pathIndex !== -1) {
                     currentProgress += pathIndex;
                 }
             }
-            // Pawns in the yard (position: -1) contribute 0 progress
         });
         
         const percentage = (currentProgress / maxProgress) * 100;
@@ -227,54 +223,12 @@ export function ClassicGameLayout({
     
     const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [playerConfig, setPlayerConfig] = useState<PlayerSetup[]>(gameSetup.players);
-
-    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
-        setPlayerConfig(prev => {
-            const playerExists = prev.some(p => p.color === color);
-            const colorName = color.charAt(0).toUpperCase() + color.slice(1);
-
-            if (type === 'none') {
-                return prev.filter(p => p.color !== color);
-            }
-            if (playerExists) {
-                return prev.map(p => {
-                    if (p.color === color) {
-                        const newName = p.type !== type ? (type === 'human' ? `${colorName} Player` : `${colorName} AI`) : p.name;
-                        return {...p, type, name: newName };
-                    }
-                    return p;
-                });
-            }
-            
-            const newName = type === 'human' ? `${colorName} Player` : `${colorName} AI`;
-            return [...prev, { color, type, name: newName }];
-        });
-    };
-
-    const handlePlayerNameChange = (color: PlayerColor, name: string) => {
-        setPlayerConfig(prev => prev.map(p => p.color === color ? {...p, name} : p));
-    };
-
+    
     const handleApplyAllChanges = () => {
       onDiceRollDurationChange(newDiceRollDuration * 1000);
-      
-      const turnOrder = playerConfig.map(p => p.color);
-
-      onGameSetupChange({
-        ...gameSetup,
-        players: playerConfig,
-        turnOrder,
-      });
+      onGameSetupChange(gameSetup);
       setIsSettingsOpen(false);
     };
-    
-    const allPlayers: {color: PlayerColor, name: string}[] = [
-        { color: 'red', name: 'Red' },
-        { color: 'green', name: 'Green' },
-        { color: 'yellow', name: 'Yellow' },
-        { color: 'blue', name: 'Blue' },
-    ];
 
     const classicRules = (
       <div className="space-y-4 text-sm text-muted-foreground">
@@ -287,7 +241,7 @@ export function ClassicGameLayout({
           <ul className="list-disc pl-5 space-y-1">
             <li>To move a pawn out of your yard onto the starting square, you must roll a 6.</li>
             <li>If you roll a 6, you get an additional roll in that turn.</li>
-            <li>If you roll two 6s consecutively, your third roll will not be a 6. Your turn continues with the number rolled.</li>
+            <li>If you roll two 6s consecutively, your turn continues as normal. However, if you roll a third consecutive 6, your turn ends immediately and you do not move.</li>
           </ul>
         </div>
         <div>
@@ -302,7 +256,7 @@ export function ClassicGameLayout({
           <h4 className="font-bold mb-2">Special Squares</h4>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">Safe Zones:</strong> Squares marked with a star are safe zones. Pawns on these squares cannot be captured.</li>
-            <li><strong className="text-foreground">Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Other players' pawns cannot pass a blockade.</li>
+            <li><strong className="text-foreground">Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Opponent's pawns cannot pass a blockade. You cannot move a pawn to a square if you already have a blockade there.</li>
             <li><strong className="text-foreground">Home Column:</strong> After a pawn travels the entire board, it enters its colored home column. Opponents cannot enter your home column.</li>
           </ul>
         </div>
@@ -467,44 +421,6 @@ export function ClassicGameLayout({
                   <ScrollArea className="flex-1">
                     <TooltipProvider>
                       <div className="grid gap-4 p-4">
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
-                          <div className="space-y-2 rounded-lg border p-2">
-                            {allPlayers.map(p => {
-                              const currentPlayerConfig = playerConfig.find(pc => pc.color === p.color);
-                              const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
-                              return (
-                                <div key={p.color} className="flex items-center justify-between gap-2">
-                                  {type === 'human' ? (
-                                    <Input
-                                      value={currentPlayerConfig?.name || ''}
-                                      onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
-                                      className="h-8 flex-1"
-                                    />
-                                  ) : (
-                                    <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
-                                      <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
-                                      {p.color}
-                                    </Label>
-                                  )}
-                                  <Select
-                                    value={type}
-                                    onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
-                                  >
-                                    <SelectTrigger className="w-32 h-8">
-                                      <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="human">Human</SelectItem>
-                                      <SelectItem value="ai">AI</SelectItem>
-                                      <SelectItem value="none">No One</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
                         <div className="grid gap-2">
                           <div className="flex items-center justify-between">
                             <Label htmlFor="mute-sound" className="flex items-center gap-2">
@@ -587,7 +503,6 @@ export function ClassicGameLayout({
           </div>
         </header>
 
-        {/* Main Game Area */}
         <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
                  <PlayerPod
@@ -616,7 +531,6 @@ export function ClassicGameLayout({
                 />
             </div>
 
-            {/* Game Board and Scoreboard Container */}
             <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square">
                 {children}
                 <Scoreboard pawns={pawns} players={gameSetup.players} />
@@ -652,3 +566,5 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    
