@@ -194,9 +194,9 @@ export default function Home() {
                         A creative and passionate full-stack developer dedicated to building elegant, functional, and user-friendly web experiences. I thrive on turning complex problems into beautiful, intuitive designs.
                       </p>
                       <div className="flex space-x-4">
-                        <Link href="#" className="hover:text-white"><XIcon className="h-5 w-5" /></Link>
-                        <Link href="#" className="hover:text-white"><Dribbble className="h-5 w-5" /></Link>
-                        <Link href="#" className="hover:text-white"><Linkedin className="h-5 w-5" /></Link>
+                        <span className="hover:text-white"><XIcon className="h-5 w-5" /></span>
+                        <span className="hover:text-white"><Dribbble className="h-5 w-5" /></span>
+                        <span className="hover:text-white"><Linkedin className="h-5 w-5" /></span>
                       </div>
                     </div>
 
@@ -204,10 +204,10 @@ export default function Home() {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-white">Useful Links</h3>
                       <ul className="space-y-2 text-sm">
-                        <li><Link href="#" className="hover:text-white">About</Link></li>
-                        <li><Link href="https://mushangis-portfolio.onrender.com/portfolio" target="_blank" rel="noopener noreferrer" className="hover:text-white">Projects</Link></li>
-                        <li><Link href="#" className="hover:text-white">Portfolio</Link></li>
-                        <li><Link href="#" className="hover:text-white">Blog</Link></li>
+                        <li>About</li>
+                        <li>Projects</li>
+                        <li>Portfolio</li>
+                        <li>Blog</li>
                       </ul>
                     </div>
 
@@ -215,9 +215,9 @@ export default function Home() {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-white">Support & Legal</h3>
                       <ul className="space-y-2 text-sm">
-                        <li><Link href="#" className="hover:text-white">FAQs</Link></li>
-                        <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
-                        <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
+                        <li>FAQs</li>
+                        <li>Privacy Policy</li>
+                        <li>Terms of Service</li>
                       </ul>
                     </div>
                     
@@ -303,3 +303,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
