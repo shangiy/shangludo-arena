@@ -239,6 +239,7 @@ interface PawnProps extends PawnType {
   highlight: boolean;
   stackCount: number;
   stackIndex: number;
+  isSafeZone: boolean;
 }
 
 export function Pawn({
@@ -250,6 +251,7 @@ export function Pawn({
   highlight,
   stackCount,
   stackIndex,
+  isSafeZone,
 }: PawnProps) {
   const cellSize = 100 / 15;
   let top: number;
@@ -287,7 +289,7 @@ export function Pawn({
     left = x * cellSize;
   }
 
-  const stackOffsets = [
+  const multiPawnOffsets = [
     { x: -15, y: -15 },
     { x: 15, y: -15 },
     { x: -15, y: 15 },
@@ -297,14 +299,17 @@ export function Pawn({
   let translateX = '0%';
   let translateY = '0%';
   let scale = 1;
+  let zIndex = highlight ? 10 : isHome ? 0 : (stackIndex + 1);
 
   if (stackCount > 1) {
-    // Ensure index stays within bounds of stackOffsets
-    const offsetIndex = stackIndex % stackOffsets.length;
-    const offset = stackOffsets[offsetIndex];
-    translateX = `${offset.x}%`;
-    translateY = `${offset.y}%`;
-    scale = 0.7;
+    scale = 0.8;
+    // If it's a safe zone with multiple different colors, arrange them side-by-side
+    if (isSafeZone) {
+      const offset = multiPawnOffsets[stackIndex % multiPawnOffsets.length];
+      translateX = `${offset.x}%`;
+      translateY = `${offset.y}%`;
+      zIndex += 5; 
+    }
   }
   
   return (
@@ -316,12 +321,12 @@ export function Pawn({
       transition={{ type: "spring", stiffness: 800, damping: 40 }}
       style={{
         position: 'absolute',
-        top: `${top}%`,
-        left: `${left}%`,
+        top: `${top + cellSize / 2}%`,
+        left: `${left + cellSize / 2}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
-        zIndex: highlight ? 10 : isHome ? 0 : (stackIndex + 1),
-        transform: `translateX(${translateX}) translateY(${translateY}) scale(${scale})`,
+        zIndex: zIndex,
+        transform: `translate(-50%, -50%) translateX(${translateX}) translateY(${translateY}) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
@@ -334,8 +339,10 @@ export function Pawn({
         )}
       >
         <PawnIcon color={color} className="w-full h-full drop-shadow-md" />
-        {stackCount > 1 && (
-          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold z-10 text-black">{stackCount}</span>
+        {stackCount > 1 && !isSafeZone && (
+          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-white text-xs font-bold z-10">
+            {stackCount}
+          </span>
         )}
       </div>
     </motion.div>

@@ -620,7 +620,7 @@ export default function GameClient() {
       if (pawn.isHome) return;
 
       if (pawn.position === -1) {
-        if (roll !== 6) return;
+        if (roll !== 6 && gameMode === 'classic') return;
 
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
@@ -663,24 +663,22 @@ export default function GameClient() {
 
   const handleDiceRollEnd = (value: number) => {
     setIsRolling(false);
+    let finalValue = value;
     
     if (gameMode === 'classic' && consecutiveSixes === 2 && value === 6) {
-        addMessage('System', `${players[currentTurn].name} rolled a third 6 and loses their turn.`);
-        setTimeout(() => nextTurn(), 1000);
-        setDiceValue(value);
-        return;
-    }
-  
-    if (value === 6) {
+        addMessage('System', `${players[currentTurn].name} rolled a third 6, but it was changed!`);
+        finalValue = Math.floor(Math.random() * 5) + 1; // Reroll to a number 1-5
+        setConsecutiveSixes(0);
+    } else if (value === 6) {
       setConsecutiveSixes(prev => prev + 1);
     } else {
       setConsecutiveSixes(0);
     }
     
-    setDiceValue(value);
+    setDiceValue(finalValue);
   
-    const possibleMoves = getPossibleMoves(currentTurn, value);
-    const getsAnotherTurn = value === 6;
+    const possibleMoves = getPossibleMoves(currentTurn, finalValue);
+    const getsAnotherTurn = finalValue === 6;
 
     if (possibleMoves.length === 0) {
       addMessage('System', `${players[currentTurn].name} has no possible moves.`);
@@ -699,12 +697,12 @@ export default function GameClient() {
 
       if (isHumanTurn) {
         if (possibleMoves.length === 1 && !getsAnotherTurn) {
-          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, value), 500);
+          setTimeout(() => performMove(possibleMoves[0].pawn, possibleMoves[0].newPosition, finalValue), 500);
         }
       } else if (players[currentTurn].type === 'ai') {
         setPhase('AI_THINKING');
         setTimeout(() => {
-          handleAiMove(value);
+          handleAiMove(finalValue);
         }, 500);
       }
     }
@@ -856,33 +854,46 @@ export default function GameClient() {
                 setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 50 }));
             }
         } else if (!SAFE_ZONES.includes(newPosition)) {
-          (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
-            if (color !== currentTurn && newPawns[color]) {
-              let opponentPawnsAtPos = newPawns[color].filter(
-                (p: Pawn) => p.position === newPosition
-              );
-              // Only capture if there's a single opponent pawn
-              if (opponentPawnsAtPos.length === 1) {
-                  capturedPawn = true;
-                  addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
-                  newPawns[color] = newPawns[color].map((p: Pawn) => {
-                      if (p.position === newPosition) {
-                          if (gameMode === 'quick' && glassWalls[currentTurn]) {
-                              setGlassWalls(prev => ({...prev, [currentTurn]: false}));
-                              setShowGlassShatter(true);
-                              if (!muteSound && glassBreakAudioRef.current) glassBreakAudioRef.current.play();
-                              addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
-                          }
-                          if (gameMode === '5-min') {
-                             setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
-                          }
-                          return { ...p, position: (gameMode === 'classic' ? -1 : START_POSITIONS[p.color]) };
-                      }
-                      return p;
-                  });
-              }
-            }
+          let pawnsOnNewPos = 0;
+          (Object.keys(newPawns) as PlayerColor[]).forEach(c => {
+             if (newPawns[c]) pawnsOnNewPos += newPawns[c].filter((p: Pawn) => p.position === newPosition).length;
           });
+
+          // Blockade rule for Power-up mode
+          if (gameMode === 'powerup' && pawnsOnNewPos > 2) {
+             // no captures if moving to a space with more than 1 pawn already
+          } else {
+            (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
+              if (color !== currentTurn && newPawns[color]) {
+                let opponentPawnsAtPos = newPawns[color].filter(
+                  (p: Pawn) => p.position === newPosition
+                );
+                
+                // Classic mode only captures single pawns
+                const canCapture = gameMode === 'classic' ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
+
+                if (canCapture) {
+                    capturedPawn = true;
+                    addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
+                    newPawns[color] = newPawns[color].map((p: Pawn) => {
+                        if (p.position === newPosition) {
+                            if (gameMode === 'quick' && glassWalls[currentTurn]) {
+                                setGlassWalls(prev => ({...prev, [currentTurn]: false}));
+                                setShowGlassShatter(true);
+                                if (!muteSound && glassBreakAudioRef.current) glassBreakAudioRef.current.play();
+                                addMessage('System', `The glass wall for ${players[currentTurn].name} has shattered!`);
+                            }
+                            if (gameMode === '5-min') {
+                                setScores(prev => ({ ...prev, [currentTurn]: prev[currentTurn] + 20, [color]: Math.max(0, prev[color] - 20) }));
+                            }
+                            return { ...p, position: (gameMode === 'classic' ? -1 : START_POSITIONS[p.color]) };
+                        }
+                        return p;
+                    });
+                }
+              }
+            });
+          }
         }
 
         newPawns[currentTurn] = pawnsOfPlayer;
@@ -947,47 +958,50 @@ export default function GameClient() {
   }, [phase, diceValue, currentTurn, pawns, players, gameMode]);
 
   const renderPawns = () => {
-    if (!gameSetup || phase === 'RESUMING') return [];
-    const allPawns: { pawn: Pawn, highlight: boolean, stackCount: number, stackIndex: number }[] = [];
+    if (!gameSetup || phase === 'RESUMING' || !pawns) return [];
+  
+    const allPawnsWithInfo: {
+      pawn: Pawn;
+      highlight: boolean;
+      stackCount: number;
+      stackIndex: number;
+      isSafeZone: boolean;
+    }[] = [];
+  
     const positions: { [key: number]: Pawn[] } = {};
   
     // Group pawns by position
-    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-      if (pawns[color]) {
-        pawns[color].forEach(pawn => {
-            if (pawn.position !== -1 && !pawn.isHome) {
-              if (!positions[pawn.position]) {
-                  positions[pawn.position] = [];
-              }
-              positions[pawn.position].push(pawn);
-            }
-        });
+    Object.values(pawns).flat().forEach(pawn => {
+      if (!pawn || pawn.position === -1 || pawn.isHome) return;
+      if (!positions[pawn.position]) {
+        positions[pawn.position] = [];
       }
+      positions[pawn.position].push(pawn);
     });
   
-    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-        if (pawns[color]) {
-            pawns[color].forEach(pawn => {
-                const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
-                let highlight = false;
-        
-                if (isPlayerTurn) {
-                highlight = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
-                }
-        
-                const pawnsAtSamePos = positions[pawn.position] || [];
-                const stackCount = pawnsAtSamePos.length;
-                const stackIndex = pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color);
-                
-                // Blockades are only relevant for powerup mode visually
-                const showStackCount = gameMode === 'powerup' && stackCount > 1;
-
-                allPawns.push({ pawn, highlight, stackCount: showStackCount ? stackCount : 0, stackIndex });
-            });
-        }
+    Object.values(pawns).flat().forEach(pawn => {
+      if (!pawn) return;
+  
+      const isPlayerTurn = pawn.color === currentTurn && phase === 'MOVING' && players[currentTurn]?.type === 'human';
+      let highlight = false;
+  
+      if (isPlayerTurn) {
+        highlight = possibleMovesForHighlight.some(move => move.pawn.id === pawn.id && move.pawn.color === pawn.color);
+      }
+  
+      const pawnsAtSamePos = positions[pawn.position] || [];
+      const isSafeZone = SAFE_ZONES.includes(pawn.position);
+  
+      allPawnsWithInfo.push({
+        pawn,
+        highlight,
+        stackCount: pawnsAtSamePos.length,
+        stackIndex: pawnsAtSamePos.findIndex(p => p.id === pawn.id && p.color === pawn.color),
+        isSafeZone
+      });
     });
   
-    return allPawns.map(({ pawn, highlight, stackCount, stackIndex }) => (
+    return allPawnsWithInfo.map(({ pawn, highlight, stackCount, stackIndex, isSafeZone }) => (
       <PawnComponent
         key={`${pawn.color}-${pawn.id}`}
         {...pawn}
@@ -995,6 +1009,7 @@ export default function GameClient() {
         highlight={highlight}
         stackCount={stackCount}
         stackIndex={stackIndex}
+        isSafeZone={isSafeZone}
       />
     ));
   };
