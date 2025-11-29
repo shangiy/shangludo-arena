@@ -296,17 +296,17 @@ export function Pawn({
     { x: 15, y: 15 },
   ];
   
-  let translateX = '-50%';
-  let translateY = '-50%';
   let scale = 1;
+  let translateX = 0;
+  let translateY = 0;
   let zIndex = highlight ? 10 : isHome ? 0 : (stackIndex + 1);
 
   if (stackCount > 1) {
     scale = 0.8;
     if (isSafeZone) {
       const offset = multiPawnOffsets[stackIndex % multiPawnOffsets.length];
-      translateX = `calc(-50% + ${offset.x}%)`;
-      translateY = `calc(-50% + ${offset.y}%)`;
+      translateX = offset.x;
+      translateY = offset.y;
       zIndex += 5; 
     }
   }
@@ -325,7 +325,7 @@ export function Pawn({
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
-        transform: `translate(${translateX}, ${translateY}) scale(${scale})`,
+        transform: `translate(calc(-50% + ${translateX}%), calc(-50% + ${translateY}%)) scale(${scale})`,
       }}
       className="p-0.5 pointer-events-auto"
       onClick={() => onPawnClick({ id, color, position, isHome })}
