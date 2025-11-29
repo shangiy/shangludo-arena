@@ -105,12 +105,11 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
         )}
         {showRollResult && (
           <p className={cn("text-xs md:text-sm font-semibold capitalize", currentTurnColorClass)}>
-            {playerName} Rolled: {diceValue}
+            <span className="hidden md:inline">{playerName} </span>
+            Rolled: {diceValue}
           </p>
         )}
       </div>
     </div>
   );
 }
-
-    

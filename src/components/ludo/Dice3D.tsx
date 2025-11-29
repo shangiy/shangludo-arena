@@ -127,12 +127,11 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 )}
                 {showRollResult && (
                 <p className={cn("text-xs md:text-sm font-semibold capitalize", currentTurnColorClass)}>
-                    {playerName} Rolled: {diceValue}
+                    <span className="hidden md:inline">{playerName} </span>
+                    Rolled: {diceValue}
                 </p>
                 )}
             </div>
         </div>
     );
 }
-
-    
