@@ -103,11 +103,11 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         <div className="w-full text-center h-8 flex items-center justify-center">
-            <h3 className="text-base md:text-lg font-bold truncate capitalize">{player.name}</h3>
+            <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
         </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
@@ -115,8 +115,8 @@ function PlayerPod({
                 renderDice()
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
-                        <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                    <div className="w-12 h-12 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-12 h-12 md:w-24 md:h-24 text-muted-foreground/20" />
                     </div>
                 </div>
             )}
@@ -264,7 +264,7 @@ export function ClassicGameLayout({
           <ul className="list-disc pl-5 space-y-1">
             <li>To move a pawn out of your yard onto the starting square, you must roll a 6.</li>
             <li>If you roll a 6, you get an additional roll in that turn.</li>
-            <li>If you roll two 6s consecutively, your turn continues as normal. However, if you roll a third consecutive 6, your turn ends immediately and you do not move.</li>
+            <li>If you roll two 6s consecutively, your third roll will not be a 6. Your turn continues with the number rolled.</li>
           </ul>
         </div>
         <div>
@@ -526,7 +526,7 @@ export function ClassicGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12">
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
                  <PlayerPod
                   player={redPlayer}

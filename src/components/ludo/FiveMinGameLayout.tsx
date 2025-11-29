@@ -84,7 +84,7 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[12rem] h-48 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-full max-w-[8rem] md:max-w-[12rem] h-36 md:h-48 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         {showTimer && (
@@ -106,7 +106,7 @@ function PlayerPod({
            </div>
         )}
         <div className="w-full text-center h-8 flex items-center justify-center">
-            <h3 className="text-base md:text-lg font-bold truncate capitalize">{player.name}</h3>
+            <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
         </div>
         
         <div className="flex-1 flex flex-col justify-center items-center">
@@ -123,8 +123,8 @@ function PlayerPod({
             />
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
-                        <Dice5 className="w-16 h-16 md:w-24 md:h-24 text-muted-foreground/20" />
+                    <div className="w-12 h-12 md:w-24 md:h-24 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-12 h-12 md:w-24 md:h-24 text-muted-foreground/20" />
                     </div>
                 </div>
             )}
@@ -329,7 +329,6 @@ export function FiveMinGameLayout({
           <h4 className="font-bold mb-2">Special Squares</h4>
           <ul className="list-disc pl-5 space-y-1">
             <li><strong className="text-foreground">Safe Zones:</strong> Squares marked with a star are safe zones. Pawns on these squares cannot be captured.</li>
-            <li><strong className="text-foreground">Blockades:</strong> If two of your own pawns land on the same square, they form a blockade. Other players' pawns cannot pass a blockade.</li>
             <li><strong className="text-foreground">Home Column:</strong> After a pawn travels the entire board, it enters its colored home column. Opponents cannot enter your home column.</li>
           </ul>
         </div>
@@ -623,7 +622,7 @@ export function FiveMinGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-24 pb-12 md:pt-16">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-1 max-w-7xl mx-auto pt-20 md:pt-16 pb-4 md:pb-12">
             <div className="flex w-full justify-around md:flex-col md:justify-between md:items-end md:gap-4 transition-all duration-500">
                  <PlayerPod
                     player={redPlayer}
@@ -695,5 +694,3 @@ export function FiveMinGameLayout({
       </div>
   );
 }
-
-    

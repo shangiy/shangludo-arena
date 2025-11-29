@@ -74,14 +74,14 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
   const showRollResult = !rolling && diceValue !== null;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 h-full">
+    <div className="flex flex-col items-center justify-center gap-1 h-full">
       <AnimatePresence mode="popLayout">
         <motion.button
           key={rolling ? interimValue : diceValue}
           onClick={handleRoll}
           disabled={!isHumanTurn || rolling}
           className={cn(
-            'w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-md text-white transition-all duration-100',
+            'w-12 h-12 md:w-16 md:h-16 flex items-center justify-center rounded-md text-white transition-all duration-100',
             currentBgColorClass,
             isHumanTurn && !rolling && "cursor-pointer hover:scale-105 active:scale-95"
           )}
@@ -90,7 +90,7 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
           exit={{ opacity: 0, y: 20, scale: 0.8 }}
           transition={{ duration: 0.15 }}
         >
-          <Icon className="w-10 h-10 md:w-16 md:h-16" />
+          <Icon className="w-8 h-8 md:w-10 md:h-10" />
         </motion.button>
       </AnimatePresence>
 
@@ -98,13 +98,13 @@ export function Dice({ rolling, onRollStart, onRollEnd, color, duration, isHuman
         {isHumanTurn && !rolling && diceValue === null && (
           <button
             onClick={handleRoll}
-            className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
+            className={cn("font-bold text-xs md:text-sm animate-pulse", currentTurnColorClass)}
           >
             Click to Roll
           </button>
         )}
         {showRollResult && (
-          <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
+          <p className={cn("text-xs md:text-sm font-semibold capitalize", currentTurnColorClass)}>
             {playerName} Rolled: {diceValue}
           </p>
         )}

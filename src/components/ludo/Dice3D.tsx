@@ -120,13 +120,13 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 {isHumanTurn && !rolling && diceValue === null && (
                 <button
                     onClick={handleRoll}
-                    className={cn("font-bold text-sm animate-pulse", currentTurnColorClass)}
+                    className={cn("font-bold text-xs md:text-sm animate-pulse", currentTurnColorClass)}
                 >
                     Click to Roll
                 </button>
                 )}
                 {showRollResult && (
-                <p className={cn("text-sm font-semibold capitalize", currentTurnColorClass)}>
+                <p className={cn("text-xs md:text-sm font-semibold capitalize", currentTurnColorClass)}>
                     {playerName} Rolled: {diceValue}
                 </p>
                 )}
