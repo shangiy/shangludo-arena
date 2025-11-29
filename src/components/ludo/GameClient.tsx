@@ -125,16 +125,18 @@ function GameFooter() {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className="w-full bg-[#111827] text-gray-300 py-2">
-                        <div className="max-w-7xl mx-auto flex justify-center items-center relative">
-                            <div className="flex items-center space-x-2">
-                                <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
-                                    🎲
+                    <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
+                      <div className="w-full bg-[#111827] text-gray-300 py-2">
+                            <div className="max-w-7xl mx-auto flex justify-center items-center relative">
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
+                                        🎲
+                                    </div>
+                                    <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
                                 </div>
-                                <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </TooltipTrigger>
                 <TooltipContent>
                     <p>https://mushangis-portfolio.onrender.com/</p>
@@ -638,9 +640,9 @@ export default function GameClient() {
 
         const startPos = START_POSITIONS[player];
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
-        
+
         if (gameMode === 'powerup' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-            // Can't move out to create illegal blockade in powerup mode
+            // Blockade rule for powerup mode
         } else {
           moves.push({ pawn, newPosition: startPos });
         }
@@ -873,8 +875,11 @@ export default function GameClient() {
                 let opponentPawnsAtPos = newPawns[color].filter(
                   (p: Pawn) => p.position === newPosition
                 );
+                
+                // Classic mode only captures single pawns
+                const canCapture = gameMode === 'classic' ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
 
-                if (opponentPawnsAtPos.length > 0) {
+                if (canCapture) {
                     capturedPawn = true;
                     addMessage('System', `${players[currentTurn].name} captured a pawn from ${players[color].name}!`);
                     newPawns[color] = newPawns[color].map((p: Pawn) => {

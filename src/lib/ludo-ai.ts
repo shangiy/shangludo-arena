@@ -92,7 +92,7 @@ export function chooseMove(
         
         const ownAtStart = playerPawns.filter(p => p.position === startSquare).length;
         // Blockade check only for powerup
-        if ((gameState.gameMode === 'powerup' || gameState.gameMode === 'classic') && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
+        if (gameState.gameMode === 'powerup' && ownAtStart >= 2 && !safeSquares.has(startSquare)) {
           // Can't move out to create illegal blockade
         } else {
           moves.push({ pawn, newPosition: startSquare });
@@ -121,9 +121,9 @@ export function chooseMove(
         }
         
         const ownAtDest = playerPawns.filter(p => p.position === newPos).length;
-        // Blockade logic only for powerup/classic
-        if ((gameState.gameMode === 'powerup' || gameState.gameMode === 'classic') && !safeSquares.has(newPos) && ownAtDest >= 2) {
-          // moving into own blockade (powerup/classic) - skip
+        // Blockade logic only for powerup
+        if (gameState.gameMode === 'powerup' && !safeSquares.has(newPos) && ownAtDest >= 2) {
+          // moving into own blockade (powerup) - skip
         } else {
           moves.push({ pawn, newPosition: newPos });
         }
@@ -195,8 +195,8 @@ export function chooseMove(
     if (newIdx !== -1 && oldIdx !== -1) score += (newIdx - oldIdx) * 12;
     if (oldIdx === -1 && newIdx !== -1) score += newIdx * 6;
 
-    // discourage breaking an existing safe blockade (in powerup/classic mode)
-    if(gameState.gameMode === 'powerup' || gameState.gameMode === 'classic') {
+    // discourage breaking an existing safe blockade (in powerup mode)
+    if(gameState.gameMode === 'powerup') {
         const ownAtOld = playerPawns.filter(p => p.position === pawn.position).length;
         if (oldIdx !== -1 && safeSquares.has(pawn.position as number) && ownAtOld >= 2) {
           score -= 300;
