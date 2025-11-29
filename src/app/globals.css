@@ -146,6 +146,24 @@
     box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
 }
 
+.gradient-button-purple {
+    background: linear-gradient(45deg, #8A2BE2, #9370DB);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gradient-button-purple:hover {
+    background: linear-gradient(45deg, #9932CC, #8A2BE2);
+    transform: translateY(-2px);
+    box-shadow: 0px 0px 15px rgba(138, 43, 226, 0.7);
+}
+
+.gradient-button-purple:active {
+    transform: translateY(0) scale(1.05);
+    box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+}
+
 
 .turn-red {
     background: linear-gradient(45deg, #ef4444, #dc2626);

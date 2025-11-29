@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull } from 'lucide-react';
+import { Mail, Phone, Users, Crown, Zap, QrCode, Timer, Dice5, Dribbble, Linkedin, MapPin, Clock, ArrowUp, Skull, Bolt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Logo } from '@/components/icons/Logo';
@@ -136,6 +136,26 @@ export default function Home() {
                 </Button>
               </CardContent>
             </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="bg-purple-400/10 p-3 rounded-full">
+                    <Bolt className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <CardTitle className="font-headline">Power-Up</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  Collect special abilities on the board to gain an advantage. Unleash powers to shield, teleport, or strike!
+                </CardDescription>
+                <Button asChild className={cn("w-full gradient-button-purple")}>
+                  <Link href="/game?mode=powerup">Play Power-Up</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
           </div>
         </section>
 
