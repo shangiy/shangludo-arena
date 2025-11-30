@@ -40,7 +40,7 @@ import type { GameSetup, PlayerSetup } from './GameSetupForm';
 import { chooseMove, computeRanking } from '@/lib/ludo-ai';
 import { cn } from '@/lib/utils';
 import { GlassShatterOverlay } from './GlassShatterOverlay';
-import { Tooltip, TooltipContent, TooltipProvider } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { GlobeIcon } from '../icons/GlobeIcon';
 
 type GamePhase = 'SETUP' | 'ROLLING' | 'MOVING' | 'ANIMATING_MOVE' | 'AI_THINKING' | 'GAME_OVER' | 'PAUSED' | 'RESUMING';
@@ -640,10 +640,11 @@ export default function GameClient() {
         if ((gameMode === 'classic' || gameMode === '5-min' || gameMode === 'quick') && roll !== 6) return;
 
         const startPos = START_POSITIONS[player];
-        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos).length;
+        const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos && p.id !== pawn.id);
 
-        if (gameMode === 'powerup' && ownPawnsAtStart >= 2 && !SAFE_ZONES.includes(startPos)) {
-            // Blockade rule for powerup mode
+        if (gameMode === 'powerup' && ownPawnsAtStart.length >= 2 && !SAFE_ZONES.includes(startPos)) {
+            // Blockade rule for powerup mode - can't move out to form a blockade
+            return;
         } else {
           moves.push({ pawn, newPosition: startPos });
         }
@@ -664,10 +665,27 @@ export default function GameClient() {
 
         if(currentPathIndex + roll < currentPath.length) {
             newPosition = currentPath[currentPathIndex + roll];
-            const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition).length;
+            
+            if (gameMode === 'powerup') {
+                const opponentPawnsOnPath = [];
+                for(let i = 1; i <= roll; i++) {
+                    const stepPos = currentPath[currentPathIndex + i];
+                    (Object.keys(pawns) as PlayerColor[]).forEach(color => {
+                        if (color !== player) {
+                            const twoOpponentPawns = pawns[color].filter(p => p.position === stepPos).length >= 2;
+                            if(twoOpponentPawns && !SAFE_ZONES.includes(stepPos)) {
+                                opponentPawnsOnPath.push(stepPos);
+                            }
+                        }
+                    });
+                }
+                if (opponentPawnsOnPath.length > 0) return; // Blocked
+            }
 
-            if (gameMode === 'powerup' && !SAFE_ZONES.includes(newPosition) && ownPawnsAtDestination >= 2) {
-              // Blockade rule for powerup mode
+            const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition);
+            if (gameMode === 'powerup' && ownPawnsAtDestination.length >= 2 && !SAFE_ZONES.includes(newPosition)) {
+                // Blockade rule for powerup mode - cannot move to a square that would form a blockade
+                return;
             } else {
               moves.push({ pawn, newPosition });
             }
@@ -873,9 +891,12 @@ export default function GameClient() {
         } else if (!SAFE_ZONES.includes(newPosition)) {
             (Object.keys(newPawns) as PlayerColor[]).forEach((color) => {
               if (color !== currentTurn && newPawns[color]) {
-                let opponentPawnsAtPos = newPawns[color].filter(
+                const opponentPawnsAtPos = newPawns[color].filter(
                   (p: Pawn) => p.position === newPosition
                 );
+                
+                const isBlockade = gameMode === 'powerup' && opponentPawnsAtPos.length >= 2;
+                if (isBlockade) return;
                 
                 const canCapture = (gameMode === 'classic' || gameMode === 'powerup') ? opponentPawnsAtPos.length === 1 : opponentPawnsAtPos.length > 0;
 
@@ -1239,3 +1260,5 @@ export default function GameClient() {
     </div>
   );
 }
+
+    
