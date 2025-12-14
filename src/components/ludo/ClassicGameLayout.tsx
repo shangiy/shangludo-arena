@@ -440,7 +440,7 @@ export function ClassicGameLayout({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={onToggleMuteSound}>
+                  <Button variant="outline" size="icon" className="bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onToggleMuteSound}>
                     {muteSound ? <VolumeX /> : <Volume2 />}
                     <span className="sr-only">Toggle Sound</span>
                   </Button>
