@@ -29,7 +29,7 @@ export default function Home() {
             The Shangludo
           </h1>
           <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
-            Join the arena, challenge your friends, and become a Ludo champion. Multiple game modes, endless fun.
+            Join the arena, challenge your friends to a ludo game and experience Multiple game modes, Customisation Features, endless fun.
           </p>
         </section>
 
