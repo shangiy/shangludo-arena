@@ -29,6 +29,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { Dice } from "./Dice";
 import { Dice3D } from "./Dice3D";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type PlayerPodProps = {
   player: { name: string; type: "human" | "ai" | "none" };
@@ -245,19 +246,59 @@ export function ClassicGameLayout({
     const bluePlayer = players.find(p => p.color === 'blue') || { color: 'blue', name: 'Empty', type: 'none' };
     const yellowPlayer = players.find(p => p.color === 'yellow') || { color: 'yellow', name: 'Empty', type: 'none' };
     
-    const [newDiceRollDuration, setNewDiceRollDuration] = useState(diceRollDuration / 1000);
+    const [tempSetup, setTempSetup] = useState(gameSetup);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [newGameTimerDuration, setNewGameTimerDuration] = useState(gameTimerDuration ? gameTimerDuration / 60000 : 5);
-    const [newTurnTimerDuration, setNewTurnTimerDuration] = useState(turnTimerDuration ? turnTimerDuration / 1000 : 10);
-    
-    const handleApplyAllChanges = () => {
-      onDiceRollDurationChange(newDiceRollDuration * 1000);
-      if (onGameTimerDurationChange) onGameTimerDurationChange(newGameTimerDuration * 60000);
-      if (onTurnTimerDurationChange) onTurnTimerDurationChange(newTurnTimerDuration * 1000);
-      onGameSetupChange(gameSetup);
-      setIsSettingsOpen(false);
+
+    const handlePlayerConfigChange = (color: PlayerColor, type: 'human' | 'ai' | 'none') => {
+        setTempSetup(prevSetup => {
+            const currentPlayers = prevSetup.players;
+            let newPlayers: PlayerSetup[];
+            const playerExists = currentPlayers.some(p => p.color === color);
+
+            if (type === 'none') {
+                newPlayers = currentPlayers.filter(p => p.color !== color);
+            } else if (playerExists) {
+                newPlayers = currentPlayers.map(p => {
+                    if (p.color === color) {
+                        const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+                        let name = p.name;
+                        if (p.type !== type) { // Only change name if type changes
+                            name = type === 'human' ? `${colorName} Player` : `${colorName} AI`;
+                        }
+                        return { ...p, type, name };
+                    }
+                    return p;
+                });
+            } else { // Adding a new player
+                const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+                const name = type === 'human' ? `${colorName} Player` : `${colorName} AI`;
+                newPlayers = [...currentPlayers, { color, name, type }];
+            }
+            return { ...prevSetup, players: newPlayers };
+        });
     };
 
+    const handlePlayerNameChange = (color: PlayerColor, name: string) => {
+        setTempSetup(prevSetup => {
+            const newPlayers = prevSetup.players.map(p => 
+                p.color === color ? { ...p, name } : p
+            );
+            return { ...prevSetup, players: newPlayers };
+        });
+    };
+
+    const handleApplyAllChanges = () => {
+        onGameSetupChange(tempSetup);
+        setIsSettingsOpen(false);
+    };
+
+    const allPossiblePlayers: {color: PlayerColor, name: string}[] = [
+        { color: 'red', name: 'Red' },
+        { color: 'green', name: 'Green' },
+        { color: 'yellow', name: 'Yellow' },
+        { color: 'blue', name: 'Blue' },
+    ];
+    
     const turnTimerProgress = turnTimer && turnTimerDuration ? (turnTimer / turnTimerDuration) * 100 : 100;
 
     const classicRules = (
@@ -438,7 +479,7 @@ export function ClassicGameLayout({
               </Tooltip>
             </TooltipProvider>
 
-            <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+            <Popover open={isSettingsOpen} onOpenChange={(open) => { setIsSettingsOpen(open); if(open) setTempSetup(gameSetup); }}>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="icon">
                   <Settings />
@@ -453,6 +494,45 @@ export function ClassicGameLayout({
                   <ScrollArea className="flex-1">
                     <TooltipProvider>
                       <div className="grid gap-4 p-4">
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Users className="h-4 w-4" />Player Configuration</Label>
+                          <div className="space-y-2 rounded-lg border p-2">
+                            {allPossiblePlayers.map(p => {
+                                const currentPlayerConfig = tempSetup.players.find(pc => pc.color === p.color);
+                                const type = currentPlayerConfig ? currentPlayerConfig.type : 'none';
+                                
+                                return (
+                                <div key={p.color} className="flex items-center justify-between gap-2">
+                                    {type === 'human' && currentPlayerConfig ? (
+                                          <Input
+                                              value={currentPlayerConfig.name}
+                                              onChange={(e) => handlePlayerNameChange(p.color, e.target.value)}
+                                              className="h-8 flex-1"
+                                          />
+                                    ) : (
+                                      <Label htmlFor={`player-type-${p.color}`} className="capitalize flex items-center gap-2">
+                                          <div className={cn("w-3 h-3 rounded-full", `bg-${p.color}-500`)} />
+                                          {p.color}
+                                      </Label>
+                                    )}
+                                    <Select
+                                      value={type}
+                                      onValueChange={(value: 'human' | 'ai' | 'none') => handlePlayerConfigChange(p.color, value)}
+                                    >
+                                        <SelectTrigger className="w-32 h-8">
+                                            <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="human">Human</SelectItem>
+                                            <SelectItem value="ai">AI</SelectItem>
+                                            <SelectItem value="none">No One</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )})}
+                          </div>
+                        </div>
+
                         <div className="grid gap-2">
                           <div className="flex items-center justify-between">
                             <Label htmlFor="mute-sound" className="flex items-center gap-2">
@@ -488,62 +568,49 @@ export function ClassicGameLayout({
                                 </TooltipContent>
                               </Tooltip>
                             </Label>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    id="dice-timer"
-                                    type="number"
-                                    min="1"
-                                    max="9"
-                                    step="1"
-                                    className="w-20"
-                                    value={newDiceRollDuration}
-                                    onChange={(e) => setNewDiceRollDuration(Number(e.target.value))}
-                                  />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>admin only level</p>
-                              </TooltipContent>
-                            </Tooltip>
+                            <Input
+                                id="dice-timer"
+                                type="number"
+                                min="1"
+                                max="9"
+                                step="1"
+                                className="w-20"
+                                value={diceRollDuration / 1000}
+                                onChange={(e) => onDiceRollDurationChange(Number(e.target.value) * 1000)}
+                            />
                           </div>
-                          {gameMode === '5-min' && (
+                          {gameMode === '5-min' && onGameTimerDurationChange && onTurnTimerDurationChange && gameTimerDuration && turnTimerDuration && (
                             <>
                             <div className="flex items-center justify-between gap-2">
                                 <Label htmlFor="game-timer" className="flex items-center gap-2 flex-shrink-0">
                                     <Timer className="h-4 w-4" />
                                     Game Time (min)
                                 </Label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                    id="game-timer"
-                                    type="number"
-                                    min="1"
-                                    max="60"
-                                    className="w-20"
-                                    value={newGameTimerDuration}
-                                    onChange={(e) => setNewGameTimerDuration(Number(e.target.value))}
-                                    />
-                                </div>
+                                <Input
+                                id="game-timer"
+                                type="number"
+                                min="1"
+                                max="60"
+                                className="w-20"
+                                value={gameTimerDuration / 60000}
+                                onChange={(e) => onGameTimerDurationChange(Number(e.target.value) * 60000)}
+                                />
                             </div>
                             <div className="flex items-center justify-between gap-2">
                                 <Label htmlFor="turn-timer" className="flex items-center gap-2 flex-shrink-0">
                                     <Timer className="h-4 w-4" />
                                     Turn Time Limit (s)
                                 </Label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                    id="turn-timer"
-                                    type="number"
-                                    min="5"
-                                    max="60"
-                                    step="5"
-                                    className="w-20"
-                                    value={newTurnTimerDuration}
-                                    onChange={(e) => setNewTurnTimerDuration(Number(e.target.value))}
-                                    />
-                                </div>
+                                <Input
+                                id="turn-timer"
+                                type="number"
+                                min="5"
+                                max="60"
+                                step="5"
+                                className="w-20"
+                                value={turnTimerDuration / 1000}
+                                onChange={(e) => onTurnTimerDurationChange(Number(e.target.value) * 1000)}
+                                />
                             </div>
                             </>
                           )}

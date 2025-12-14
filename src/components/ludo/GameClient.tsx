@@ -131,7 +131,7 @@ function GameFooter() {
                             <div className="max-w-7xl mx-auto flex justify-center items-center relative">
                                 <div className="flex items-center space-x-2">
                                     <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
-                                        🎲
+                                        <GlobeIcon className="h-5 w-5" />
                                     </div>
                                     <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
                                 </div>
@@ -667,24 +667,24 @@ export default function GameClient() {
             newPosition = currentPath[currentPathIndex + roll];
             
             if (gameMode === 'powerup') {
-                const opponentPawnsOnPath = [];
+                let isBlocked = false;
                 for(let i = 1; i <= roll; i++) {
                     const stepPos = currentPath[currentPathIndex + i];
                     (Object.keys(pawns) as PlayerColor[]).forEach(color => {
-                        if (color !== player) {
-                            const twoOpponentPawns = pawns[color].filter(p => p.position === stepPos).length >= 2;
-                            if(twoOpponentPawns && !SAFE_ZONES.includes(stepPos)) {
-                                opponentPawnsOnPath.push(stepPos);
+                        if (color !== player && pawns[color]) {
+                            const opponentPawnsAtStep = pawns[color].filter(p => p.position === stepPos).length;
+                            if(opponentPawnsAtStep >= 2 && !SAFE_ZONES.includes(stepPos)) {
+                                isBlocked = true;
                             }
                         }
                     });
                 }
-                if (opponentPawnsOnPath.length > 0) return; // Blocked
+                if (isBlocked) return; // Blocked by opponent's blockade
             }
 
             const ownPawnsAtDestination = playerPawns.filter(p => p.position === newPosition);
             if (gameMode === 'powerup' && ownPawnsAtDestination.length >= 2 && !SAFE_ZONES.includes(newPosition)) {
-                // Blockade rule for powerup mode - cannot move to a square that would form a blockade
+                // Blockade rule for powerup mode - cannot move to a square that would form/join a blockade of 3+
                 return;
             } else {
               moves.push({ pawn, newPosition });
@@ -1065,12 +1065,6 @@ export default function GameClient() {
       setDiceRollDuration(newDuration);
     }
   };
-
-  const handleGameSetupChange = (newSetup: GameSetup) => {
-      if (!gameSetup) return;
-      const mergedSetup = { ...gameSetup, ...newSetup };
-      setGameSetup(mergedSetup);
-  }
 
   const handlePauseGame = () => {
     if (phase !== 'SETUP' && phase !== 'GAME_OVER') {
