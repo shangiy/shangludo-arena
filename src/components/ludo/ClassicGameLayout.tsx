@@ -396,34 +396,26 @@ export function ClassicGameLayout({
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
       <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-4 left-1/2 -translate-x-1/2">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Home />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Your current game progress will be lost. You will be returned to the main lobby.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          
-          <div className="flex-col items-center hidden md:flex">
-             <div className="text-center">
-                <p className="text-xs font-semibold text-muted-foreground leading-tight capitalize">{gameMode === '5-min' ? '5-Minutes' : gameMode} Play</p>
-                <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Home />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Your current game progress will be lost. You will be returned to the main lobby.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onResetAndGoHome}>Leave Game</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -436,7 +428,16 @@ export function ClassicGameLayout({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          </div>
+          
+          <div className="flex-col items-center hidden md:flex">
+             <div className="text-center">
+                <p className="text-xs font-semibold text-muted-foreground leading-tight capitalize">{gameMode === '5-min' ? '5-Minutes' : gameMode} Play</p>
+                <p className="text-xs text-muted-foreground leading-tight">Game Mode</p>
+            </div>
+          </div>
 
+          <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
