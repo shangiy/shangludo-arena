@@ -436,6 +436,20 @@ export function ClassicGameLayout({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="icon" onClick={onToggleMuteSound}>
+                    {muteSound ? <VolumeX /> : <Volume2 />}
+                    <span className="sr-only">Toggle Sound</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{muteSound ? 'Unmute' : 'Mute'} Sound</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             
             <Sheet>
               <TooltipProvider>
@@ -534,13 +548,6 @@ export function ClassicGameLayout({
                         </div>
 
                         <div className="grid gap-2">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="mute-sound" className="flex items-center gap-2">
-                              {muteSound ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                              Mute Sound
-                            </Label>
-                            <Switch id="mute-sound" checked={muteSound} onCheckedChange={onToggleMuteSound} />
-                          </div>
                           <div className="flex items-center justify-between">
                             <Label htmlFor="show-notifications" className="flex items-center gap-2">
                               {showNotifications ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
@@ -726,5 +733,7 @@ export function ClassicGameLayout({
       </div>
   );
 }
+
+    
 
     
