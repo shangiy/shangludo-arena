@@ -15,10 +15,10 @@ export default function Home() {
   return (
     <div id="top" className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
+        <div className="container flex h-14 items-center justify-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
             <Logo />
-            <span className="text-lg">ShangLudo Arena</span>
+            <span className="text-lg">🎲 Shangludo Arena 🎲</span>
           </Link>
         </div>
       </header>
@@ -231,6 +231,14 @@ export default function Home() {
                               <div>
                                   <p className="font-semibold">Location</p>
                                   <p className="text-sm">Nairobi, Kenya</p>
+                              </div>
+                          </div>
+                          <div className="flex items-start space-x-4">
+                              <Clock className="h-5 w-5 mt-1 text-gray-400" />
+                              <div>
+                                  <p className="font-semibold">Availability</p>
+                                  <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
+                                  <p className="text-sm">Available for freelance projects</p>
                               </div>
                           </div>
                           <div className="flex items-start space-x-4">
