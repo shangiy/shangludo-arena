@@ -17,7 +17,11 @@ export default function Home() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
-            <span className="text-lg">🎲 Shangludo Arena 🎲</span>
+            <span className="text-lg flex items-center gap-2">
+              <span className="text-[2.5em]">🎲</span>
+              Shangludo Arena
+              <span className="text-[2.5em]">🎲</span>
+            </span>
           </Link>
         </div>
       </header>
