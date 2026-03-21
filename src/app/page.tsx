@@ -61,7 +61,10 @@ export default function Home() {
                   </div>
                 </div>
                 <Button asChild className={cn("w-full text-white", "gradient-button-blue")}>
-                  <Link href="/game?mode=5-min">Play 5-Min</Link>
+                  <Link href="/game?mode=5-min" className="flex items-center justify-center gap-2">
+                    Play 5-Min
+                    <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -80,7 +83,10 @@ export default function Home() {
                   A faster-paced version for when you're short on time. Get straight into the action and race to the finish!
                 </CardDescription>
                 <Button asChild className={cn("w-full gradient-button-yellow")}>
-                  <Link href="/game?mode=quick">Play Quick</Link>
+                  <Link href="/game?mode=quick" className="flex items-center justify-center gap-2">
+                    Play Quick
+                    <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -99,7 +105,10 @@ export default function Home() {
                   Play with friends on the same network using different devices via Wi-Fi, hotspot, or Bluetooth.
                 </CardDescription>
                 <Button asChild className={cn("w-full gradient-button-green-inverse")}>
-                  <Link href="/game?mode=local-multiplayer">Connect & Play</Link>
+                  <Link href="/game?mode=local-multiplayer" className="flex items-center justify-center gap-2">
+                    Connect & Play
+                    <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -118,7 +127,10 @@ export default function Home() {
                   The traditional Ludo experience. Strategy is key. Perfect for purists and those who love a longer, more tactical game.
                 </CardDescription>
                 <Button asChild className="w-full bg-primary hover:bg-primary/90">
-                  <Link href="/game?mode=classic">Play Classic</Link>
+                  <Link href="/game?mode=classic" className="flex items-center justify-center gap-2">
+                    Play Classic
+                    <img src="/favicon.ico" alt="" className="w-4 h-4 brightness-0 grayscale" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -137,7 +149,10 @@ export default function Home() {
                   A high-stakes mode where captured pawns are eliminated permanently. Last player standing wins.
                 </CardDescription>
                 <Button asChild className="w-full bg-slate-800 hover:bg-slate-900 text-white">
-                  <Link href="/tombstone">Play Tombstone</Link>
+                  <Link href="/tombstone" className="flex items-center justify-center gap-2">
+                    Play Tombstone
+                    <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
@@ -156,7 +171,10 @@ export default function Home() {
                   Collect special abilities on the board to gain an advantage. Unleash powers to shield, teleport, or strike!
                 </CardDescription>
                 <Button asChild className={cn("w-full gradient-button-purple")}>
-                  <Link href="/game?mode=powerup">Play Power-Up</Link>
+                  <Link href="/game?mode=powerup" className="flex items-center justify-center gap-2">
+                    Play Power-Up
+                    <img src="/favicon.ico" alt="" className="w-4 h-4" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
