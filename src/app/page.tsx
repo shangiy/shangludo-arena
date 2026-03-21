@@ -26,7 +26,9 @@ export default function Home() {
       <main className="flex-1">
         <section id="play" className="container px-4 sm:px-6 lg:px-8 pb-16 md:pb-24 pt-16 md:pt-24 text-center">
           <h1 className="font-headline text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl flex items-center justify-center gap-4">
-            The Shangludo <Image src="/dice.jpg" alt="Dice" width={96} height={96} className="h-12 w-auto sm:h-16 md:h-20 lg:h-24" />
+            <Image src="/dice.jpg" alt="Dice" width={96} height={96} className="h-12 w-auto sm:h-16 md:h-20 lg:h-24" />
+            Shangludo Arena
+            <Image src="/dice.jpg" alt="Dice" width={96} height={96} className="h-12 w-auto sm:h-16 md:h-20 lg:h-24" />
           </h1>
           <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mt-4">
             Join the arena, challenge your friends to a ludo game and experience Multiple game modes, Customisation Features, endless fun.
