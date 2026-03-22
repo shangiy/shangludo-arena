@@ -648,7 +648,7 @@ export default function GameClient() {
         const ownPawnsAtStart = playerPawns.filter(p => p.position === startPos && p.id !== pawn.id);
 
         if (gameMode === 'powerup' && ownPawnsAtStart.length >= 2 && !SAFE_ZONES.includes(startPos)) {
-            // Blockade rule for powerup mode - can't move out to form a blockade
+            // Blockade check only for powerup
             return;
         } else {
           moves.push({ pawn, newPosition: startPos });
@@ -692,7 +692,7 @@ export default function GameClient() {
                 // Blockade rule for powerup mode - cannot move to a square that would form/join a blockade of 3+
                 return;
             } else {
-              moves.push({ pawn, newPosition });
+              moves.push({ pawn, newPosition: newPosition });
             }
         }
       }
@@ -818,7 +818,7 @@ export default function GameClient() {
     }
   
     let currentStep = 0;
-    const intervalTime = 70; // High frequency steps for smoother "60hz" feel
+    const intervalTime = 50; // Balanced high-frequency steps for smoother feel
   
     const step = () => {
       if (currentStep >= path.length) {
