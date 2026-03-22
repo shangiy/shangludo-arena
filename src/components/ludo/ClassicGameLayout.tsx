@@ -76,7 +76,7 @@ function PlayerPod({
 }: PlayerPodProps) {
 
   if (player.type === 'none') {
-    return <div className="relative flex h-full min-h-28 w-full max-w-48 flex-col items-center justify-center p-2 rounded-lg" />;
+    return <div className="hidden md:flex relative h-full min-h-28 w-full max-w-48 flex-col items-center justify-center p-2 rounded-lg" />;
   }
 
   const isHumanTurnAndRollingPhase = isCurrentTurn && player.type === 'human' && phase === 'ROLLING';
@@ -116,7 +116,7 @@ function PlayerPod({
 
   return (
     <div className={cn(
-        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-32 md:w-36 max-w-[8rem] md:max-w-none h-44 select-none overflow-hidden",
+        "relative flex flex-col items-center justify-start py-2 px-2 gap-2 rounded-lg border-2 bg-card transition-all duration-300 w-28 md:w-36 h-36 md:h-44 select-none overflow-hidden",
         isCurrentTurn ? turnIndicatorClasses[color] : 'border-transparent'
     )}>
         {showTimer && (
@@ -137,25 +137,25 @@ function PlayerPod({
                 {isUrgent && <div className="absolute inset-0 rounded-lg border-2 border-red-500/50 animate-pulse" />}
            </div>
         )}
-        <div className="w-full text-center h-12 flex flex-col items-center justify-center">
-            <h3 className="text-sm md:text-lg font-bold truncate capitalize">{player.name}</h3>
+        <div className="w-full text-center h-8 md:h-12 flex flex-col items-center justify-center">
+            <h3 className="text-xs md:text-lg font-bold truncate capitalize">{player.name}</h3>
         </div>
         
-        <div className="flex-1 flex flex-col justify-center items-center">
+        <div className="flex-1 flex flex-col justify-center items-center scale-75 md:scale-100">
             {isCurrentTurn ? (
                 renderDice()
             ) : (
                 <div className="flex flex-col items-center justify-center gap-2 h-full">
-                    <div className="w-12 h-12 flex items-center justify-center rounded-md text-xl font-bold">
-                        <Dice5 className="w-12 h-12 text-muted-foreground/20" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md text-xl font-bold">
+                        <Dice5 className="w-full h-full text-muted-foreground/20" />
                     </div>
                 </div>
             )}
         </div>
-        <div className="w-full space-y-1 z-10 h-6 flex flex-col items-center justify-center text-center">
+        <div className="w-full space-y-1 z-10 h-4 md:h-6 flex flex-col items-center justify-center text-center">
             {isCurrentTurn && phase === 'MOVING' && player.type === 'human' && showNotifications && (
-                <p className="text-xs font-semibold capitalize text-center">
-                    Select a pawn to move.
+                <p className="text-[10px] md:text-xs font-semibold capitalize text-center leading-none">
+                    Select pawn
                 </p>
             )}
         </div>
@@ -172,11 +172,11 @@ function GameTimer({ remaining }: { remaining: number }) {
 
   return (
     <div className={cn(
-      "flex items-center justify-center gap-2 font-bold text-lg text-foreground bg-background/80 px-3 py-1.5 rounded-lg border",
+      "flex items-center justify-center gap-2 font-bold text-base md:text-lg text-foreground bg-background/80 px-2 py-1 md:px-3 md:py-1.5 rounded-lg border",
       isLowTime && "text-red-500 border-red-500/50 bg-red-500/10",
       isUrgent && "animate-pulse"
     )}>
-        <Timer className="h-5 w-5" />
+        <Timer className="h-4 w-4 md:h-5 md:w-5" />
         <span>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
     </div>
   );
@@ -394,13 +394,13 @@ export function ClassicGameLayout({
 
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-background">
-      <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-4 left-1/2 -translate-x-1/2">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-2 md:p-4 bg-background overflow-x-hidden">
+      <header className="w-full max-w-7xl mx-auto flex justify-between items-center px-4 z-20 absolute top-2 md:top-4 left-0 right-0">
           <div className="flex items-center gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Home />
+                <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                  <Home className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -419,8 +419,8 @@ export function ClassicGameLayout({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" className="bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onPauseGame}>
-                    <Pause />
+                  <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10 bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onPauseGame}>
+                    <Pause className="h-4 w-4 md:h-5 md:w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -437,12 +437,12 @@ export function ClassicGameLayout({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" className="bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onToggleMuteSound}>
-                    {muteSound ? <VolumeX /> : <Volume2 />}
+                  <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10 bg-blue-500/10 border-blue-500/50 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600" onClick={onToggleMuteSound}>
+                    {muteSound ? <VolumeX className="h-4 w-4 md:h-5 md:w-5" /> : <Volume2 className="h-4 w-4 md:h-5 md:w-5" />}
                     <span className="sr-only">Toggle Sound</span>
                   </Button>
                 </TooltipTrigger>
@@ -457,8 +457,8 @@ export function ClassicGameLayout({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <SheetTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <HelpCircle />
+                      <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                        <HelpCircle className="h-4 w-4 md:h-5 md:w-5" />
                       </Button>
                     </SheetTrigger>
                   </TooltipTrigger>
@@ -483,8 +483,8 @@ export function ClassicGameLayout({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={toggleTheme}>
-                    {theme === 'dark' ? <Sun /> : <Moon />}
+                  <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10" onClick={toggleTheme}>
+                    {theme === 'dark' ? <Sun className="h-4 w-4 md:h-5 md:w-5" /> : <Moon className="h-4 w-4 md:h-5 md:w-5" />}
                     <span className="sr-only">Toggle theme</span>
                   </Button>
                 </TooltipTrigger>
@@ -496,8 +496,8 @@ export function ClassicGameLayout({
 
             <Popover open={isSettingsOpen} onOpenChange={(open) => { setIsSettingsOpen(open); if(open) setTempSetup(gameSetup); }}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Settings />
+                <Button variant="outline" size="icon" className="h-8 w-8 md:h-10 md:w-10">
+                  <Settings className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80 animated-border flex flex-col p-0">
@@ -567,14 +567,6 @@ export function ClassicGameLayout({
                             <Label htmlFor="dice-timer" className="flex items-center gap-2 flex-shrink-0">
                               <Dice5 className="h-4 w-4" />
                               Dice Rolling Time (s)
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Max time in seconds for the dice animation.</p>
-                                </TooltipContent>
-                              </Tooltip>
                             </Label>
                             <Input
                                 id="dice-timer"
@@ -622,20 +614,6 @@ export function ClassicGameLayout({
                             </div>
                             </>
                           )}
-                          <div className="space-y-2">
-                            <Label>Number of Dice</Label>
-                            <RadioGroup
-                              defaultValue="1"
-                              className="grid grid-cols-4 gap-2"
-                            >
-                              {[1, 2, 3, 4].map(num => (
-                                <div key={num} className="flex items-center space-x-2">
-                                  <RadioGroupItem value={String(num)} id={`dice-num-${num}`} />
-                                  <Label htmlFor={`dice-num-${num}`} className="font-normal">{num}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          </div>
                         </div>
                       </div>
                     </TooltipProvider>
@@ -649,9 +627,10 @@ export function ClassicGameLayout({
           </div>
         </header>
 
-        <main className="w-full flex-1 flex flex-col items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-16 md:pt-12 pb-4 h-screen">
+        <main className="w-full flex-1 flex flex-col items-center justify-center gap-2 md:gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:grid-rows-[1fr_auto_1fr] max-w-7xl mx-auto pt-12 md:pt-14 pb-2 h-[100dvh]">
+          {/* Top/Left Players */}
           <div className="flex justify-around items-center w-full md:contents">
-            <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end">
+            <div className="md:col-start-1 md:row-start-1 md:justify-self-end md:self-end pr-2">
               <PlayerPod
                   player={redPlayer}
                   color="red"
@@ -667,7 +646,7 @@ export function ClassicGameLayout({
                   turnTimerProgress={currentTurn === 'red' ? turnTimerProgress : 100}
               />
             </div>
-            <div className="md:col-start-3 md:row-start-1 md:justify-self-start md:self-end">
+            <div className="md:col-start-3 md:row-start-1 md:justify-self-start md:self-end pl-2">
               <PlayerPod
                   player={greenPlayer}
                   color="green"
@@ -685,9 +664,10 @@ export function ClassicGameLayout({
             </div>
           </div>
           
-          <div className="relative w-full max-w-[90vw] md:max-w-[70vh] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-2">
+          {/* Board Center */}
+          <div className="relative w-full max-w-[min(90vw,70dvh)] aspect-square md:col-start-2 md:row-span-3 md:row-start-1 flex flex-col items-center justify-center gap-1 md:gap-2">
               {gameMode === '5-min' && gameTimer !== undefined && (
-                <div className="w-full flex justify-center mb-1">
+                <div className="w-full flex justify-center mb-0.5">
                   <GameTimer remaining={gameTimer} />
                 </div>
               )}
@@ -696,8 +676,9 @@ export function ClassicGameLayout({
               </div>
           </div>
           
+          {/* Bottom/Right Players */}
           <div className="flex justify-around items-center w-full md:contents">
-             <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start">
+             <div className="md:col-start-1 md:row-start-3 md:justify-self-end md:self-start pr-2">
                 <PlayerPod
                     player={bluePlayer}
                     color="blue"
@@ -713,7 +694,7 @@ export function ClassicGameLayout({
                     turnTimerProgress={currentTurn === 'blue' ? turnTimerProgress : 100}
                 />
             </div>
-             <div className="md:col-start-3 md:row-start-3 md:justify-self-start md:self-start">
+             <div className="md:col-start-3 md:row-start-3 md:justify-self-start md:self-start pl-2">
               <PlayerPod
                 player={yellowPlayer}
                 color="yellow"
@@ -734,7 +715,3 @@ export function ClassicGameLayout({
       </div>
   );
 }
-
-    
-
-    
