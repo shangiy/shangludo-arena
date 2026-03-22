@@ -564,7 +564,7 @@ export default function GameClient() {
 
   useEffect(() => {
     const activePhases: GamePhase[] = ['ROLLING', 'MOVING'];
-    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING' || phase === 'ANIMATING_MOVE') {
+    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING' || phase === 'ANIMATING_MOVE' || countdown !== null) {
         if (turnTimerRef.current) clearInterval(turnTimerRef.current);
         return;
     }
@@ -605,7 +605,7 @@ export default function GameClient() {
     return () => {
         if (turnTimerRef.current) clearInterval(turnTimerRef.current);
     };
-  }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue]);
+  }, [currentTurn, phase, winner, gameMode, turnTimerDuration, diceValue, countdown]);
   
   useEffect(() => {
     const activePhases: GamePhase[] = ['ROLLING', 'MOVING', 'AI_THINKING', 'ANIMATING_MOVE'];
@@ -818,7 +818,7 @@ export default function GameClient() {
     }
   
     let currentStep = 0;
-    const intervalTime = 50; // Balanced high-frequency steps for smoother feel
+    const intervalTime = 30; // Reduced for smoother movement (higher frequency updates)
   
     const step = () => {
       if (currentStep >= path.length) {
@@ -976,12 +976,12 @@ export default function GameClient() {
   useEffect(() => {
     const isAiTurn =
       playerOrder.includes(currentTurn) && players[currentTurn]?.type === 'ai';
-    if (isAiTurn && phase === 'ROLLING' && !winner && isMounted && phase !== 'PAUSED' && phase !== 'RESUMING') {
+    if (isAiTurn && phase === 'ROLLING' && !winner && isMounted && phase !== 'PAUSED' && phase !== 'RESUMING' && countdown === null) {
       setTimeout(() => {
         startRoll();
       }, 100); 
     }
-  }, [currentTurn, phase, winner, isMounted, players, playerOrder]);
+  }, [currentTurn, phase, winner, isMounted, players, playerOrder, countdown]);
 
   const possibleMovesForHighlight = useMemo(() => {
     if (phase === 'MOVING' && diceValue && players[currentTurn]?.type === 'human') {

@@ -261,14 +261,6 @@ export default function Home() {
                               </div>
                           </div>
                           <div className="flex items-start space-x-4">
-                              <Clock className="h-5 w-5 mt-1 text-gray-400" />
-                              <div>
-                                  <p className="font-semibold">Availability</p>
-                                  <p className="text-sm">Mon - Fri: 9.00am - 6.00pm</p>
-                                  <p className="text-sm">Available for freelance projects</p>
-                              </div>
-                          </div>
-                          <div className="flex items-start space-x-4">
                               <Phone className="h-5 w-5 mt-1 text-gray-400" />
                               <div>
                                   <p className="font-semibold">Quick Contact</p>
@@ -320,7 +312,7 @@ export default function Home() {
                 </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>https://mushangis-portfolio.onrender.com/</p>
+              <p>https://mushangi-s-vision.vercel.app/</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
