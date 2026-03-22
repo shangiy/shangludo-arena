@@ -313,7 +313,7 @@ export default function Home() {
                               <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-700 text-white text-lg">
                                   🎲
                               </div>
-                              <p className="text-sm">&copy; 2025 Shangludo . Developed by <span className="font-bold hover:underline">Coder+</span>. All rights reserved.</p>
+                              <p className="text-sm">&copy; 2025 Shangludo . Developed by <a href="https://mushangi-s-vision.vercel.app/" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline">Coder+</a>. All rights reserved.</p>
                           </div>
                       </div>
                   </div>

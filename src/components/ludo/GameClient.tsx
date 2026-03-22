@@ -126,7 +126,7 @@ function GameFooter() {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <a href="https://mushangis-portfolio.onrender.com/" target="_blank" rel="noopener noreferrer" className="block">
+                    <a href="https://mushangi-s-vision.vercel.app/" target="_blank" rel="noopener noreferrer" className="block">
                         <div className="w-full bg-[#111827] text-gray-300 py-2">
                             <div className="max-w-7xl mx-auto flex justify-center items-center relative">
                                 <div className="flex items-center space-x-2">
@@ -140,7 +140,7 @@ function GameFooter() {
                     </a>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>https://mushangis-portfolio.onrender.com/</p>
+                    <p>https://mushangi-s-vision.vercel.app/</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
@@ -460,6 +460,7 @@ export default function GameClient() {
                 setCountdown(null);
                 return null;
             }
+            return prev - 1 - 1;
             return prev - 1;
         });
     }, 1000);
@@ -1254,5 +1255,3 @@ export default function GameClient() {
     </div>
   );
 }
-
-    
