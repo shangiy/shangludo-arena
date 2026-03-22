@@ -70,7 +70,7 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
                 rotateY: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].y],
                 transition: { 
                   duration: duration / 1000, 
-                  ease: [0.45, 0.05, 0.55, 0.95] // Smoother custom cubic-bezier
+                  ease: [0.16, 1, 0.3, 1] // Ultra smooth high-refresh-rate feel
                 },
             }).then(() => {
                 isAnimatingRef.current = false;

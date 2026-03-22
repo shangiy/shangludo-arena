@@ -354,8 +354,11 @@ export default function GameClient() {
             }
             if (prev <= 1) {
                 clearInterval(interval);
-                setPhase(savedState.previousPhase || 'ROLLING');
                 setCountdown(null);
+                // Delay phase switch to allow countdown "1" to exit visually
+                setTimeout(() => {
+                    setPhase(savedState.previousPhase || 'ROLLING');
+                }, 600);
                 return null;
             }
             return prev - 1;
@@ -455,8 +458,11 @@ export default function GameClient() {
             }
             if (prev <= 1) {
                 clearInterval(interval);
-                setPhase('ROLLING');
                 setCountdown(null);
+                // Delay phase start to allow "1" to exit
+                setTimeout(() => {
+                    setPhase('ROLLING');
+                }, 600);
                 return null;
             }
             return prev - 1;
@@ -603,7 +609,7 @@ export default function GameClient() {
   
   useEffect(() => {
     const activePhases: GamePhase[] = ['ROLLING', 'MOVING', 'AI_THINKING', 'ANIMATING_MOVE'];
-    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING') {
+    if (gameMode !== '5-min' || !activePhases.includes(phase) || winner || phase === 'PAUSED' || phase === 'RESUMING' || countdown !== null) {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
         return;
     }
@@ -624,7 +630,7 @@ export default function GameClient() {
     return () => {
         if (gameTimerRef.current) clearInterval(gameTimerRef.current);
     };
-  }, [phase, gameMode, winner, gameTimerDuration]);
+  }, [phase, gameMode, winner, gameTimerDuration, countdown]);
 
   const getPossibleMoves = (player: PlayerColor, roll: number) => {
     const playerPawns = pawns[player];
@@ -812,7 +818,7 @@ export default function GameClient() {
     }
   
     let currentStep = 0;
-    const intervalTime = 100; // Faster steps for smoother feel
+    const intervalTime = 70; // High frequency steps for smoother "60hz" feel
   
     const step = () => {
       if (currentStep >= path.length) {
