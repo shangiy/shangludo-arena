@@ -234,14 +234,14 @@
 }
 
 .globe-spin {
-  animation: spin 8s linear infinite;
+  animation: globe-rotate-smooth 10s linear infinite;
 }
 
-@keyframes spin {
+@keyframes globe-rotate-smooth {
   from {
-    transform: rotateY(0deg);
+    transform: rotate(0deg);
   }
   to {
-    transform: rotateY(360deg);
+    transform: rotate(360deg);
   }
 }
