@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -69,7 +68,10 @@ export function Dice3D({ rolling, onRollStart, onRollEnd, color, duration, isHum
             controls.start({
                 rotateX: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].x],
                 rotateY: [null, Math.random() * 1440 - 720, Math.random() * 1440 - 720, rotations[newFinalValue].y],
-                transition: { duration: duration / 1000, ease: "circOut" },
+                transition: { 
+                  duration: duration / 1000, 
+                  ease: [0.45, 0.05, 0.55, 0.95] // Smoother custom cubic-bezier
+                },
             }).then(() => {
                 isAnimatingRef.current = false;
                 onRollEnd(newFinalValue);

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -460,7 +459,6 @@ export default function GameClient() {
                 setCountdown(null);
                 return null;
             }
-            return prev - 1 - 1;
             return prev - 1;
         });
     }, 1000);
@@ -814,6 +812,7 @@ export default function GameClient() {
     }
   
     let currentStep = 0;
+    const intervalTime = 100; // Faster steps for smoother feel
   
     const step = () => {
       if (currentStep >= path.length) {
@@ -837,7 +836,7 @@ export default function GameClient() {
       }
   
       currentStep++;
-      animationTimeoutRef.current = setTimeout(step, 150);
+      animationTimeoutRef.current = setTimeout(step, intervalTime);
     };
   
     step();

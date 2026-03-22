@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -163,9 +162,9 @@ export function GameBoard({
       
       const currentPos = p(x,y);
       if (x === 7 && y === 6) bgColor = HOME_RUN_BGS.green;
-      if (x === 8 && y === 6) bgColor = HOME_RUN_BGS.green; // Make cell at (8,6) green
+      if (x === 8 && y === 6) bgColor = HOME_RUN_BGS.green; 
       if (x === 6 && y === 7) bgColor = HOME_RUN_BGS.red;
-      if (x === 6 && y === 8) bgColor = HOME_RUN_BGS.red; // Make cell at (6,8) red
+      if (x === 6 && y === 8) bgColor = HOME_RUN_BGS.red; 
       if (x === 7 && y === 8) bgColor = HOME_RUN_BGS.blue;
       if (x === 8 && y === 7) bgColor = HOME_RUN_BGS.yellow;
 
@@ -406,7 +405,13 @@ export function Pawn({
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5 }}
-      transition={{ type: "spring", stiffness: 800, damping: 40 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 30,
+        mass: 0.8,
+        restDelta: 0.001
+      }}
       style={{
         position: 'absolute',
         top: `${top}%`,
