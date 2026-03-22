@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -818,7 +819,7 @@ export default function GameClient() {
     }
   
     let currentStep = 0;
-    const intervalTime = 30; // Reduced for smoother movement (higher frequency updates)
+    const intervalTime = 250; // Slower interval for aesthetic hop-by-hop movement
   
     const step = () => {
       if (currentStep >= path.length) {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -123,8 +124,8 @@ export function GameBoard({
         // Row 9, Col 9 (x=8, y=8)
         } else if (x === 8 && y === 8) {
              polygons = [
-                { points: '0,0 100,0 0,100', className: 'fill-yellow-400' },
-                { points: '0,100 100,0 100,100', className: 'fill-blue-500' },
+                { points: '0,0 100,0 100,100', className: 'fill-yellow-400' },
+                { points: '0,0 0,100 100,100', className: 'fill-blue-500' },
             ];
         }
 
@@ -377,13 +378,13 @@ export function Pawn({
     { x: 15, y: 15 },
   ];
   
-  let scale = 1;
+  let scaleBase = 1;
   let translateX = 0;
   let translateY = 0;
   let zIndex = highlight ? 10 : isHome ? 0 : (stackIndex + 1);
 
   if (stackCount > 1) {
-    scale = 0.8;
+    scaleBase = 0.8;
     if (isSafeZone) {
       const offset = multiPawnOffsets[stackIndex % multiPawnOffsets.length];
       translateX = offset.x;
@@ -403,19 +404,20 @@ export function Pawn({
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.5 }}
+      animate={{ 
+        opacity: 1, 
+        top: `${top}%`,
+        left: `${left}%`,
+        scale: highlight ? scaleBase * 1.15 : scaleBase,
+      }}
       transition={{ 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 30,
-        mass: 0.8,
-        restDelta: 0.001
+        top: { type: "spring", stiffness: 300, damping: 25, mass: 0.8 },
+        left: { type: "spring", stiffness: 300, damping: 25, mass: 0.8 },
+        scale: { duration: 0.2 },
+        opacity: { duration: 0.3 }
       }}
       style={{
         position: 'absolute',
-        top: `${top}%`,
-        left: `${left}%`,
         width: `${cellSize}%`,
         height: `${cellSize}%`,
         zIndex: zIndex,
@@ -428,7 +430,7 @@ export function Pawn({
         className={cn(
           'w-full h-full rounded-full flex items-center justify-center text-white font-bold text-xs border-2 shadow-lg cursor-pointer transition-all',
           'relative',
-          highlight && !isHome && position !== -1 && 'ring-4 ring-offset-0 ring-white scale-110',
+          highlight && !isHome && position !== -1 && 'ring-4 ring-offset-0 ring-white',
           highlight && position === -1 && glowClasses[color]
         )}
       >
